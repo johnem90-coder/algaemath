@@ -155,11 +155,11 @@ const chartTop = 60;
 const chartH = 110;
 const chartBot = chartTop + chartH;
 
-// Cell (70% smaller, moved up)
-const cellCX = 370;
-const cellCY = 42;
-const cellR = 27;
-const cellScale = 0.3; // scale factor for pigment positions inside cell
+// Cell (above bar chart)
+const cellCX = 385;
+const cellCY = 62;
+const cellR = 50;
+const cellScale = 0.56; // scale factor for pigment positions inside cell
 
 // Bar chart (relative pigment contributions)
 const barX = 290;
@@ -169,7 +169,7 @@ const barH = chartH;
 const barBot = barTop + barH;
 
 // Absorption chart
-const absX = 490;
+const absX = 510;
 const absW = 240;
 const absChartH = 150;
 const absChartBot = chartTop + absChartH;
@@ -180,6 +180,7 @@ const eqX = absX + absW + 40;
 const LightAbsorptionVisualizer = () => {
   const [hoveredPigment, setHoveredPigment] = useState<string | null>(null);
   const [pinnedPigments, setPinnedPigments] = useState<Set<string>>(new Set());
+  const [hoveredSlider, setHoveredSlider] = useState<string | null>(null);
   const cellShape = useMemo<ShapeVar>(
     () => [0.94, 1.06, 0.98, 1.03, 0.95, 1.07, 0.99, 1.02, 0.93, 1.05, 0.97, 1.06, 0.96, 1.04, 0.98, 1.03],
     []
@@ -193,31 +194,31 @@ const LightAbsorptionVisualizer = () => {
   const pigmentBasePositions = useMemo(() => {
     const maxR = cellR * 0.7;
     const items = [
-      { x: -30 * cellScale, y: -25 * cellScale, rx: 9 * cellScale, ry: 4.5 * cellScale, fill: 'url(#pig-chla)', rot: 30 },
-      { x: 40 * cellScale, y: -10 * cellScale, rx: 8 * cellScale, ry: 4 * cellScale, fill: 'url(#pig-chla)', rot: -15 },
-      { x: -15 * cellScale, y: 35 * cellScale, rx: 9 * cellScale, ry: 4.5 * cellScale, fill: 'url(#pig-chla)', rot: 60 },
-      { x: 15 * cellScale, y: -45 * cellScale, rx: 8 * cellScale, ry: 4 * cellScale, fill: 'url(#pig-chla)', rot: 10 },
-      { x: -50 * cellScale, y: 10 * cellScale, rx: 8.5 * cellScale, ry: 4 * cellScale, fill: 'url(#pig-chla)', rot: -40 },
-      { x: 45 * cellScale, y: 25 * cellScale, rx: 9 * cellScale, ry: 4 * cellScale, fill: 'url(#pig-chla)', rot: 45 },
-      { x: -25 * cellScale, y: -50 * cellScale, rx: 8 * cellScale, ry: 4 * cellScale, fill: 'url(#pig-chla)', rot: -25 },
-      { x: 10 * cellScale, y: 50 * cellScale, rx: 8.5 * cellScale, ry: 4 * cellScale, fill: 'url(#pig-chla)', rot: 70 },
-      { x: -55 * cellScale, y: -15 * cellScale, rx: 7.5 * cellScale, ry: 4 * cellScale, fill: 'url(#pig-chla)', rot: 15 },
-      { x: 50 * cellScale, y: -30 * cellScale, rx: 8 * cellScale, ry: 4 * cellScale, fill: 'url(#pig-chla)', rot: -55 },
-      { x: -10 * cellScale, y: 5 * cellScale, rx: 7.5 * cellScale, ry: 3.5 * cellScale, fill: 'url(#pig-chla)', rot: 35 },
-      { x: 20 * cellScale, y: 15 * cellScale, rx: 8 * cellScale, ry: 4 * cellScale, fill: 'url(#pig-chla)', rot: -70 },
-      { x: -40 * cellScale, y: 30 * cellScale, rx: 7 * cellScale, ry: 3.5 * cellScale, fill: 'url(#pig-chlb)', rot: 20 },
-      { x: 30 * cellScale, y: -35 * cellScale, rx: 6.5 * cellScale, ry: 3 * cellScale, fill: 'url(#pig-chlb)', rot: -30 },
-      { x: -20 * cellScale, y: -40 * cellScale, rx: 7 * cellScale, ry: 3.5 * cellScale, fill: 'url(#pig-chlb)', rot: 50 },
-      { x: 45 * cellScale, y: 40 * cellScale, rx: 6.5 * cellScale, ry: 3 * cellScale, fill: 'url(#pig-chlb)', rot: -10 },
-      { x: -45 * cellScale, y: -30 * cellScale, rx: 6 * cellScale, ry: 3 * cellScale, fill: 'url(#pig-chlb)', rot: 65 },
-      { x: 15 * cellScale, y: 40 * cellScale, rx: 6.5 * cellScale, ry: 3 * cellScale, fill: 'url(#pig-chlb)', rot: -45 },
-      { x: -30 * cellScale, y: 20 * cellScale, rx: 3.5 * cellScale, ry: 3.5 * cellScale, fill: 'url(#pig-carot)', rot: 0 },
-      { x: 35 * cellScale, y: -20 * cellScale, rx: 3 * cellScale, ry: 3 * cellScale, fill: 'url(#pig-carot)', rot: 0 },
-      { x: -10 * cellScale, y: -30 * cellScale, rx: 3 * cellScale, ry: 3 * cellScale, fill: 'url(#pig-carot)', rot: 0 },
-      { x: 20 * cellScale, y: 30 * cellScale, rx: 3 * cellScale, ry: 3 * cellScale, fill: 'url(#pig-pc)', rot: 0 },
-      { x: -35 * cellScale, y: -10 * cellScale, rx: 2.5 * cellScale, ry: 2.5 * cellScale, fill: 'url(#pig-pc)', rot: 0 },
-      { x: 25 * cellScale, y: -45 * cellScale, rx: 2.5 * cellScale, ry: 2.5 * cellScale, fill: 'url(#pig-pe)', rot: 0 },
-      { x: -20 * cellScale, y: 45 * cellScale, rx: 3 * cellScale, ry: 3 * cellScale, fill: 'url(#pig-pe)', rot: 0 },
+      { x: -30 * cellScale, y: -25 * cellScale, rx: 9 * cellScale, ry: 4.5 * cellScale, fill: 'rgb(0, 128, 0)', rot: 30 },
+      { x: 40 * cellScale, y: -10 * cellScale, rx: 8 * cellScale, ry: 4 * cellScale, fill: 'rgb(0, 128, 0)', rot: -15 },
+      { x: -15 * cellScale, y: 35 * cellScale, rx: 9 * cellScale, ry: 4.5 * cellScale, fill: 'rgb(0, 128, 0)', rot: 60 },
+      { x: 15 * cellScale, y: -45 * cellScale, rx: 8 * cellScale, ry: 4 * cellScale, fill: 'rgb(0, 128, 0)', rot: 10 },
+      { x: -50 * cellScale, y: 10 * cellScale, rx: 8.5 * cellScale, ry: 4 * cellScale, fill: 'rgb(0, 128, 0)', rot: -40 },
+      { x: 45 * cellScale, y: 25 * cellScale, rx: 9 * cellScale, ry: 4 * cellScale, fill: 'rgb(0, 128, 0)', rot: 45 },
+      { x: -25 * cellScale, y: -50 * cellScale, rx: 8 * cellScale, ry: 4 * cellScale, fill: 'rgb(0, 128, 0)', rot: -25 },
+      { x: 10 * cellScale, y: 50 * cellScale, rx: 8.5 * cellScale, ry: 4 * cellScale, fill: 'rgb(0, 128, 0)', rot: 70 },
+      { x: -55 * cellScale, y: -15 * cellScale, rx: 7.5 * cellScale, ry: 4 * cellScale, fill: 'rgb(0, 128, 0)', rot: 15 },
+      { x: 50 * cellScale, y: -30 * cellScale, rx: 8 * cellScale, ry: 4 * cellScale, fill: 'rgb(0, 128, 0)', rot: -55 },
+      { x: -10 * cellScale, y: 5 * cellScale, rx: 7.5 * cellScale, ry: 3.5 * cellScale, fill: 'rgb(0, 128, 0)', rot: 35 },
+      { x: 20 * cellScale, y: 15 * cellScale, rx: 8 * cellScale, ry: 4 * cellScale, fill: 'rgb(0, 128, 0)', rot: -70 },
+      { x: -40 * cellScale, y: 30 * cellScale, rx: 7 * cellScale, ry: 3.5 * cellScale, fill: 'rgb(100, 180, 50)', rot: 20 },
+      { x: 30 * cellScale, y: -35 * cellScale, rx: 6.5 * cellScale, ry: 3 * cellScale, fill: 'rgb(100, 180, 50)', rot: -30 },
+      { x: -20 * cellScale, y: -40 * cellScale, rx: 7 * cellScale, ry: 3.5 * cellScale, fill: 'rgb(100, 180, 50)', rot: 50 },
+      { x: 45 * cellScale, y: 40 * cellScale, rx: 6.5 * cellScale, ry: 3 * cellScale, fill: 'rgb(100, 180, 50)', rot: -10 },
+      { x: -45 * cellScale, y: -30 * cellScale, rx: 6 * cellScale, ry: 3 * cellScale, fill: 'rgb(100, 180, 50)', rot: 65 },
+      { x: 15 * cellScale, y: 40 * cellScale, rx: 6.5 * cellScale, ry: 3 * cellScale, fill: 'rgb(100, 180, 50)', rot: -45 },
+      { x: -30 * cellScale, y: 20 * cellScale, rx: 3.5 * cellScale, ry: 3.5 * cellScale, fill: 'rgb(220, 160, 0)', rot: 0 },
+      { x: 35 * cellScale, y: -20 * cellScale, rx: 3 * cellScale, ry: 3 * cellScale, fill: 'rgb(220, 160, 0)', rot: 0 },
+      { x: -10 * cellScale, y: -30 * cellScale, rx: 3 * cellScale, ry: 3 * cellScale, fill: 'rgb(220, 160, 0)', rot: 0 },
+      { x: 20 * cellScale, y: 30 * cellScale, rx: 3 * cellScale, ry: 3 * cellScale, fill: 'rgb(0, 120, 200)', rot: 0 },
+      { x: -35 * cellScale, y: -10 * cellScale, rx: 2.5 * cellScale, ry: 2.5 * cellScale, fill: 'rgb(0, 120, 200)', rot: 0 },
+      { x: 25 * cellScale, y: -45 * cellScale, rx: 2.5 * cellScale, ry: 2.5 * cellScale, fill: 'rgb(200, 60, 100)', rot: 0 },
+      { x: -20 * cellScale, y: 45 * cellScale, rx: 3 * cellScale, ry: 3 * cellScale, fill: 'rgb(200, 60, 100)', rot: 0 },
     ];
     return items.map(item => {
       const dist = Math.sqrt(item.x * item.x + item.y * item.y);
@@ -449,7 +450,7 @@ const LightAbsorptionVisualizer = () => {
           </linearGradient>
           {/* Arrows */}
           <marker id="arrow-abs" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
-            <path d="M0,0 L6,2 L0,4" fill="hsl(var(--muted-foreground))" />
+            <path d="M0,0 L6,2 L0,4" fill="var(--muted-foreground)" />
           </marker>
           {/* Sun beam gradient */}
           <linearGradient id="sun-beam-grad" x1="0" y1="0" x2="0" y2="1">
@@ -506,12 +507,12 @@ const LightAbsorptionVisualizer = () => {
         <g>
 
           {/* Y-axis */}
-          <line x1={sunX} y1={chartTop} x2={sunX} y2={chartBot} stroke="hsl(var(--border))" strokeWidth="1" />
+          <line x1={sunX} y1={chartTop} x2={sunX} y2={chartBot} stroke="var(--border)" strokeWidth="1" />
           {/* X-axis */}
-          <line x1={sunX} y1={chartBot} x2={sunX + sunW} y2={chartBot} stroke="hsl(var(--border))" strokeWidth="1" />
+          <line x1={sunX} y1={chartBot} x2={sunX + sunW} y2={chartBot} stroke="var(--border)" strokeWidth="1" />
 
           {/* Y-axis label */}
-          <text x={sunX - 14} y={chartTop + chartH / 2} textAnchor="middle" className="text-[10px] font-mono" fill="hsl(var(--muted-foreground))" transform={`rotate(-90, ${sunX - 14}, ${chartTop + chartH / 2})`}>
+          <text x={sunX - 14} y={chartTop + chartH / 2} textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${sunX - 14}, ${chartTop + chartH / 2})`}>
             Relative Intensity
           </text>
 
@@ -520,12 +521,12 @@ const LightAbsorptionVisualizer = () => {
             const px = sunX + ((nm - NM_MIN) / (NM_MAX - NM_MIN)) * sunW;
             return (
               <g key={nm}>
-                <line x1={px} y1={chartBot} x2={px} y2={chartBot + 3} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                <text x={px} y={chartBot + 14} textAnchor="middle" className="text-[9px] font-mono" fill="hsl(var(--muted-foreground))">{nm}</text>
+                <line x1={px} y1={chartBot} x2={px} y2={chartBot + 3} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                <text x={px} y={chartBot + 14} textAnchor="middle" className="text-[9px] font-mono" fill="var(--muted-foreground)">{nm}</text>
               </g>
             );
           })}
-          <text x={sunX + sunW / 2} y={chartBot + 26} textAnchor="middle" className="text-[10px] font-mono" fill="hsl(var(--muted-foreground))">
+          <text x={sunX + sunW / 2} y={chartBot + 26} textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)">
             Wavelength (nm)
           </text>
 
@@ -634,17 +635,7 @@ const LightAbsorptionVisualizer = () => {
                   }
                 })}
 
-                {/* Dashed box around all pigments */}
-                {(() => {
-                  const boxPad = 8;
-                  const boxX = sunX + iconSpacing / 2 - r * 1.4 - boxPad;
-                  const boxY = iconY - r - boxPad;
-                  const boxW = iconSpacing * 4 + r * 1.4 * 2 + boxPad * 2;
-                  const boxH = r + r + 11 + 4 + boxPad * 2;
-                  return (
-                    <rect x={boxX} y={boxY} width={boxW} height={boxH} rx={6} fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" strokeDasharray="4 3" opacity="0.4" />
-                  );
-                })()}
+
 
                 {pigments.map((p, i) => {
                   const px = sunX + iconSpacing * i + iconSpacing / 2;
@@ -669,11 +660,11 @@ const LightAbsorptionVisualizer = () => {
                         );
                       })()}
                       {/* Label — name only, no nm */}
-                      <text x={px} y={iconY + r + 11} textAnchor="middle" className="text-[8px] font-mono" fill="hsl(var(--foreground))" fontWeight="500">{p.label}</text>
+                      <text x={px} y={iconY + r + 11} textAnchor="middle" className="text-[8px] font-mono" fill="var(--foreground)" fontWeight="500">{p.label}</text>
                     </g>
                   );
                 })}
-                <text x={sunX + sunW / 2} y={iconY + r + 35} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">
+                <text x={sunX + sunW / 2} y={iconY + r + 35} textAnchor="middle" className="text-xs font-mono" fill="var(--foreground)" fontWeight="500">
                   Light Absorbing Pigments
                 </text>
               </>
@@ -742,7 +733,7 @@ const LightAbsorptionVisualizer = () => {
           {/* Nucleus */}
           <circle cx={cellCX} cy={cellCY} r={cellR * 0.12} fill="rgba(30, 100, 45, 0.6)" />
 
-          <text x={cellCX} y={cellCY + cellR * 1.5 * 0.45 + 16} textAnchor="middle" className="text-[9px] font-mono" fill="hsl(var(--muted-foreground))" fontWeight="500">
+          <text x={cellCX} y={cellCY - cellR * 1.5 * 0.45 - 8} textAnchor="middle" className="text-[9px] font-mono" fill="var(--muted-foreground)" fontWeight="500">
             Algae Cell
           </text>
         </g>
@@ -766,7 +757,7 @@ const LightAbsorptionVisualizer = () => {
             return (
               <>
                 {/* X-axis */}
-                <line x1={barX} y1={barBot} x2={barX + barW} y2={barBot} stroke="hsl(var(--border))" strokeWidth="1" />
+                <line x1={barX} y1={barBot} x2={barX + barW} y2={barBot} stroke="var(--border)" strokeWidth="1" />
 
                 {/* Bars */}
                 {pigments.map((p, i) => {
@@ -806,11 +797,11 @@ const LightAbsorptionVisualizer = () => {
                         {p.scale.toFixed(2)}
                       </text>
                       {/* Pigment name label below x-axis */}
-                      <text x={x + barWidth / 2} y={barBot + 12} textAnchor="middle" className="text-[8px] font-mono" fill="hsl(var(--foreground))" fontWeight="500">{p.label}</text>
+                      <text x={x + barWidth / 2} y={barBot + 12} textAnchor="middle" className="text-[8px] font-mono" fill="var(--foreground)" fontWeight="500">{p.label}</text>
                     </g>
                   );
                 })}
-                <text x={barX + barW / 2} y={266} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">
+                <text x={barX + barW / 2} y={266} textAnchor="middle" className="text-xs font-mono" fill="var(--foreground)" fontWeight="500">
                   Relative Contribution
                 </text>
 
@@ -821,32 +812,40 @@ const LightAbsorptionVisualizer = () => {
                   const sliderH = 46;
                   const range = absScaleRanges[p.id];
                   const sliderCx = x + barWidth / 2;
+                  const fraction = (p.scale - range[0]) / (range[1] - range[0]);
+                  const thumbY = sliderTop + sliderH - fraction * sliderH;
                   return (
-                    <foreignObject key={`slider-${p.id}`} x={sliderCx - 8} y={sliderTop} width={16} height={sliderH}>
-                      <input
-                        type="range"
-                        className="thin-slider"
-                        min={range[0]}
-                        max={range[1]}
-                        step={0.01}
-                        value={absScales[p.id]}
-                        onChange={(e) => {
-                          const val = parseFloat(e.target.value);
-                          setAbsScales(prev => ({ ...prev, [p.id]: val }));
-                        }}
-                        style={{
-                          writingMode: 'vertical-lr' as any,
-                          direction: 'rtl',
-                          width: '14px',
-                          height: `${sliderH}px`,
-                          color: p.color,
-                          cursor: 'pointer',
-                          margin: '0 auto',
-                          padding: 0,
-                          display: 'block',
-                        }}
-                      />
-                    </foreignObject>
+                    <g key={`slider-${p.id}`} style={{ cursor: 'pointer' }}
+                      onMouseEnter={() => setHoveredSlider(p.id)}
+                      onMouseLeave={() => setHoveredSlider(null)}
+                      onPointerDown={(e) => {
+                        e.preventDefault();
+                        const svg = (e.currentTarget as SVGGElement).ownerSVGElement!;
+                        const onMove = (ev: PointerEvent) => {
+                          const pt = svg.createSVGPoint();
+                          pt.x = ev.clientX; pt.y = ev.clientY;
+                          const svgPt = pt.matrixTransform(svg.getScreenCTM()!.inverse());
+                          const frac = 1 - Math.max(0, Math.min(1, (svgPt.y - sliderTop) / sliderH));
+                          const val = range[0] + frac * (range[1] - range[0]);
+                          setAbsScales(prev => ({ ...prev, [p.id]: parseFloat(val.toFixed(3)) }));
+                        };
+                        const onUp = () => {
+                          window.removeEventListener('pointermove', onMove);
+                          window.removeEventListener('pointerup', onUp);
+                        };
+                        window.addEventListener('pointermove', onMove);
+                        window.addEventListener('pointerup', onUp);
+                        onMove(e.nativeEvent);
+                      }}
+                    >
+                      {/* Track */}
+                      <rect x={sliderCx - 1.5} y={sliderTop} width={3} height={sliderH} rx={1.5} fill="var(--border)" />
+                      {/* Thumb */}
+                      {hoveredSlider === p.id && (
+                        <circle cx={sliderCx} cy={thumbY} r={6} fill="none" stroke="var(--muted-foreground)" strokeWidth={1.5} opacity={0.5} />
+                      )}
+                      <circle cx={sliderCx} cy={thumbY} r={4} fill={p.color} />
+                    </g>
                   );
                 })}
               </>
@@ -859,12 +858,12 @@ const LightAbsorptionVisualizer = () => {
         <g>
 
           {/* Y-axis */}
-          <line x1={absX} y1={chartTop} x2={absX} y2={absChartBot} stroke="hsl(var(--border))" strokeWidth="1" />
+          <line x1={absX} y1={chartTop} x2={absX} y2={absChartBot} stroke="var(--border)" strokeWidth="1" />
           {/* X-axis */}
-          <line x1={absX} y1={absChartBot} x2={absX + absW} y2={absChartBot} stroke="hsl(var(--border))" strokeWidth="1" />
+          <line x1={absX} y1={absChartBot} x2={absX + absW} y2={absChartBot} stroke="var(--border)" strokeWidth="1" />
 
           {/* Y-axis label */}
-          <text x={absX - 14} y={chartTop + absChartH / 2} textAnchor="middle" className="text-[10px] font-mono" fill="hsl(var(--muted-foreground))" transform={`rotate(-90, ${absX - 14}, ${chartTop + absChartH / 2})`}>
+          <text x={absX - 4} y={chartTop + absChartH / 2} textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${absX - 4}, ${chartTop + absChartH / 2})`}>
             Absorbance
           </text>
 
@@ -873,12 +872,12 @@ const LightAbsorptionVisualizer = () => {
             const px = absX + ((nm - NM_MIN) / (NM_MAX - NM_MIN)) * absW;
             return (
               <g key={nm}>
-                <line x1={px} y1={absChartBot} x2={px} y2={absChartBot + 3} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                <text x={px} y={absChartBot + 14} textAnchor="middle" className="text-[9px] font-mono" fill="hsl(var(--muted-foreground))">{nm}</text>
+                <line x1={px} y1={absChartBot} x2={px} y2={absChartBot + 3} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                <text x={px} y={absChartBot + 14} textAnchor="middle" className="text-[9px] font-mono" fill="var(--muted-foreground)">{nm}</text>
               </g>
             );
           })}
-          <text x={absX + absW / 2} y={absChartBot + 26} textAnchor="middle" className="text-[10px] font-mono" fill="hsl(var(--muted-foreground))">
+          <text x={absX + absW / 2} y={absChartBot + 26} textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)">
             Wavelength (nm)
           </text>
 
@@ -922,7 +921,7 @@ const LightAbsorptionVisualizer = () => {
           <path d={absCombinedCurve.curvePath} fill="none" stroke="rgb(30, 120, 50)" strokeWidth="2" strokeLinejoin="round" />
           <path d={absSunCurve} fill="none" stroke="rgb(180, 130, 10)" strokeWidth="2" strokeLinejoin="round" />
 
-          <text x={absX + absW / 2} y={266} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">
+          <text x={absX + absW / 2} y={266} textAnchor="middle" className="text-xs font-mono" fill="var(--foreground)" fontWeight="500">
             Absorption Spectrum
           </text>
         </g>
@@ -931,30 +930,30 @@ const LightAbsorptionVisualizer = () => {
         <g>
 
           {/* Variable definitions */}
-          <text x={eqX} y={chartTop + 18} className="text-[11px] font-mono" fill="hsl(var(--foreground))">
+          <text x={eqX} y={chartTop + 18} className="text-[11px] font-mono" fill="var(--foreground)">
             <tspan fill="rgb(180, 130, 10)" fontWeight="600">S</tspan>
             <tspan fill="rgb(180, 130, 10)">(λ)</tspan>
             <tspan> = solar emission spectrum</tspan>
           </text>
-          <text x={eqX} y={chartTop + 34} className="text-[11px] font-mono" fill="hsl(var(--foreground))">
+          <text x={eqX} y={chartTop + 34} className="text-[11px] font-mono" fill="var(--foreground)">
             <tspan fill="rgb(30, 120, 50)" fontWeight="600">A</tspan>
             <tspan fill="rgb(30, 120, 50)">(λ)</tspan>
             <tspan> = pigment absorption spectrum</tspan>
           </text>
 
           {/* Divider */}
-          <line x1={eqX} y1={chartTop + 42} x2={eqX + 230} y2={chartTop + 42} stroke="hsl(var(--border))" strokeWidth="0.5" />
+          <line x1={eqX} y1={chartTop + 42} x2={eqX + 230} y2={chartTop + 42} stroke="var(--border)" strokeWidth="0.5" />
 
           {/* Spectral Mismatch */}
-          <text x={eqX} y={chartTop + 58} className="text-[11px] font-mono" fill="hsl(var(--foreground))">
+          <text x={eqX} y={chartTop + 58} className="text-[11px] font-mono" fill="var(--foreground)">
             <tspan fontWeight="600">Spectral mismatch:</tspan>
           </text>
-          <text x={eqX} y={chartTop + 80} className="text-sm font-mono" fill="hsl(var(--foreground))">
+          <text x={eqX} y={chartTop + 80} className="text-sm font-mono" fill="var(--foreground)">
             <tspan fill="rgb(200, 60, 40)">η</tspan>
             <tspan fill="rgb(200, 60, 40)" baselineShift="sub" className="text-[9px]">mis</tspan>
             <tspan> = </tspan>
             <tspan>Σ</tspan>
-            <tspan baselineShift="sub" className="text-[9px]">λ</tspan>
+            <tspan baselineShift="-3" className="text-[7px]">λ</tspan>
             <tspan> max(0, </tspan>
             <tspan fill="rgb(180, 130, 10)">S</tspan>
             <tspan fill="rgb(180, 130, 10)">(λ)</tspan>
@@ -964,17 +963,17 @@ const LightAbsorptionVisualizer = () => {
             <tspan>)</tspan>
           </text>
           {/* Divider bar for fraction */}
-          <line x1={eqX + 30} y1={chartTop + 85} x2={eqX + 210} y2={chartTop + 85} stroke="hsl(var(--foreground))" strokeWidth="1" />
-          <text x={eqX + 120} y={chartTop + 100} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))">
+          <line x1={eqX + 30} y1={chartTop + 85} x2={eqX + 210} y2={chartTop + 85} stroke="var(--foreground)" strokeWidth="1" />
+          <text x={eqX + 120} y={chartTop + 100} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)">
             <tspan>Σ</tspan>
-            <tspan baselineShift="sub" className="text-[9px]">λ</tspan>
+            <tspan baselineShift="-3" className="text-[7px]">λ</tspan>
             <tspan> </tspan>
             <tspan fill="rgb(180, 130, 10)">S</tspan>
             <tspan fill="rgb(180, 130, 10)">(λ)</tspan>
           </text>
 
           {/* Divider */}
-          <line x1={eqX} y1={chartTop + 112} x2={eqX + 230} y2={chartTop + 112} stroke="hsl(var(--border))" strokeWidth="0.5" />
+          <line x1={eqX} y1={chartTop + 112} x2={eqX + 230} y2={chartTop + 112} stroke="var(--border)" strokeWidth="0.5" />
 
           {/* Live computed value */}
           <text x={eqX} y={chartTop + 130} className="text-sm font-mono" fontWeight="500" opacity="0.5">
@@ -982,7 +981,7 @@ const LightAbsorptionVisualizer = () => {
             <tspan fill="rgb(200, 60, 40)" baselineShift="sub" className="text-[9px]">mis</tspan>
             <tspan fill="rgb(200, 60, 40)"> = {mismatchPct.toFixed(1)}%</tspan>
           </text>
-          <text x={eqX} y={chartTop + 146} className="text-[10px] font-mono" fill="hsl(var(--muted-foreground))" opacity="0.5">
+          <text x={eqX} y={chartTop + 151} className="text-[10px] font-mono" fill="var(--muted-foreground)" opacity="0.5">
             {mismatchPct.toFixed(1)}% of solar energy is not absorbed
           </text>
         </g>

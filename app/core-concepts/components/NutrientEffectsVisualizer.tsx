@@ -269,7 +269,7 @@ const NutrientEffectsVisualizer = () => {
                             {/* S symbol on left of thumb */}
                             <span
                                 className="absolute text-sm font-mono font-bold pointer-events-none whitespace-nowrap"
-                                style={{ left: 'calc(50% - 20px)', top: thumbTop, transform: 'translate(-100%, -50%)', color: themeColor }}
+                                style={{ left: 'calc(50% - 30px)', top: thumbTop, transform: 'translate(-100%, -50%)', color: themeColor }}
                             >
                                 S
                             </span>
@@ -288,7 +288,7 @@ const NutrientEffectsVisualizer = () => {
                                 style={{ left: 'calc(50% + 16px)', top: thumbTop - 1, transform: 'translateY(-20%)', color: themeColor }}
                             >
                                 {S.toFixed(1)}<br />
-                                <span className="text-[10px] font-normal text-muted-foreground">mM</span>
+                                <span className="text-[10px] font-normal text-muted-foreground" style={{ marginTop: '-3px', display: 'block' }}>mM</span>
                             </span>
                         </div>
                     );
@@ -339,13 +339,13 @@ const NutrientEffectsVisualizer = () => {
                     </g>
 
                     {/* Beaker outline */}
-                    <path d="M60 40 L50 200 Q50 215 65 215 L135 215 Q150 215 150 200 L140 40" fill="none" stroke="hsl(var(--border))" strokeWidth="2.5" strokeLinejoin="round" />
-                    <path d="M55 40 L60 40 M140 40 L145 40" fill="none" stroke="hsl(var(--border))" strokeWidth="2.5" strokeLinecap="round" />
-                    <path d="M55 40 Q55 36 58 36" fill="none" stroke="hsl(var(--border))" strokeWidth="2" />
-                    <path d="M145 40 Q145 36 142 36" fill="none" stroke="hsl(var(--border))" strokeWidth="2" />
-                    <line x1="52" y1="100" x2="58" y2="100" stroke="hsl(var(--border))" strokeWidth="1" />
-                    <line x1="51" y1="140" x2="57" y2="140" stroke="hsl(var(--border))" strokeWidth="1" />
-                    <line x1="51" y1="180" x2="56" y2="180" stroke="hsl(var(--border))" strokeWidth="1" />
+                    <path d="M60 40 L50 200 Q50 215 65 215 L135 215 Q150 215 150 200 L140 40" fill="none" stroke="var(--border)" strokeWidth="2.5" strokeLinejoin="round" />
+                    <path d="M55 40 L60 40 M140 40 L145 40" fill="none" stroke="var(--border)" strokeWidth="2.5" strokeLinecap="round" />
+                    <path d="M55 40 Q55 36 58 36" fill="none" stroke="var(--border)" strokeWidth="2" />
+                    <path d="M145 40 Q145 36 142 36" fill="none" stroke="var(--border)" strokeWidth="2" />
+                    <line x1="52" y1="100" x2="58" y2="100" stroke="var(--border)" strokeWidth="1" />
+                    <line x1="51" y1="140" x2="57" y2="140" stroke="var(--border)" strokeWidth="1" />
+                    <line x1="51" y1="180" x2="56" y2="180" stroke="var(--border)" strokeWidth="1" />
 
                     {/* Nutrient label with particle icon */}
                     <g>
@@ -354,19 +354,19 @@ const NutrientEffectsVisualizer = () => {
                         <path d={`M30 140 L33 137 L36 140 L33 143 Z`} fill={themeColor} opacity={0.75} />
                         <path d={`M30 160 L33 157 L36 160 L33 163 Z`} fill={themeColor} opacity={0.7} />
                         <path d={`M30 180 L33 177 L36 180 L33 183 Z`} fill={themeColor} opacity={0.65} />
-                        <text x="22" y="145" textAnchor="middle" className="text-[10px] font-mono" fill="hsl(var(--muted-foreground))" transform="rotate(-90, 22, 145)">Nutrients</text>
+                        <text x="22" y="145" textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)" transform="rotate(-90, 22, 145)">Nutrients</text>
                     </g>
 
-                    <text x="100" y="255" textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">Culture</text>
+                    <text x="100" y="255" textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">Culture</text>
                 </g>
 
                 {/* Connector */}
-                <line x1="137" y1="175" x2={MX - MR} y2={MY} stroke="hsl(var(--border))" strokeWidth="1.5" strokeDasharray="4 4" />
-                <circle cx="125" cy="175" r="12" fill="none" stroke="hsl(var(--border))" strokeWidth="1.5" strokeDasharray="3 3" />
+                <line x1="137" y1="175" x2={MX - MR} y2={MY} stroke="var(--border)" strokeWidth="1.5" strokeDasharray="4 4" />
+                <circle cx="125" cy="175" r="12" fill="none" stroke="var(--border)" strokeWidth="1.5" strokeDasharray="3 3" />
 
                 {/* Magnified view */}
                 <g>
-                    <circle cx={MX} cy={MY} r={MR} fill={`rgba(60, ${waterGreen}, 80, 0.12)`} stroke="hsl(var(--border))" strokeWidth="2" />
+                    <circle cx={MX} cy={MY} r={MR} fill={`rgba(60, ${waterGreen}, 80, 0.12)`} stroke="var(--border)" strokeWidth="2" />
                     <clipPath id="magnifier-clip-nutrient">
                         <circle cx={MX} cy={MY} r={MR - 2} />
                     </clipPath>
@@ -405,7 +405,7 @@ const NutrientEffectsVisualizer = () => {
                             );
                         })}
                     </g>
-                    <text x={MX} y={305} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">Magnified cells</text>
+                    <text x={MX} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">Magnified cells</text>
                 </g>
 
                 {/* Time indicator */}
@@ -416,24 +416,24 @@ const NutrientEffectsVisualizer = () => {
                     const handAngle = dayProgress * Math.PI * 2 - Math.PI / 2;
                     return (
                         <g>
-                            <circle cx={clockX} cy={clockY} r={clockR} fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.2" />
-                            <circle cx={clockX} cy={clockY} r={0.8} fill="hsl(var(--muted-foreground))" />
+                            <circle cx={clockX} cy={clockY} r={clockR} fill="none" stroke="var(--muted-foreground)" strokeWidth="1.2" />
+                            <circle cx={clockX} cy={clockY} r={0.8} fill="var(--muted-foreground)" />
                             <line
                                 x1={clockX} y1={clockY}
                                 x2={clockX + Math.cos(handAngle) * (clockR * 0.6)}
                                 y2={clockY + Math.sin(handAngle) * (clockR * 0.6)}
-                                stroke="hsl(var(--muted-foreground))" strokeWidth="1.2" strokeLinecap="round"
+                                stroke="var(--muted-foreground)" strokeWidth="1.2" strokeLinecap="round"
                             />
                             <line
                                 x1={clockX} y1={clockY}
                                 x2={clockX + Math.cos(handAngle * 12) * (clockR * 0.8)}
                                 y2={clockY + Math.sin(handAngle * 12) * (clockR * 0.8)}
-                                stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" strokeLinecap="round"
+                                stroke="var(--muted-foreground)" strokeWidth="0.8" strokeLinecap="round"
                             />
-                            <text x={MX} y={clockY + 4} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))">
+                            <text x={MX} y={clockY + 4} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)">
                                 t = {timeLabel} h
                             </text>
-                            <rect x={MX - 50} y={clockY + 10} width={100} height={3} rx={1.5} fill="hsl(var(--border))" />
+                            <rect x={MX - 50} y={clockY + 10} width={100} height={3} rx={1.5} fill="var(--border)" />
                             <rect
                                 x={MX - 50} y={clockY + 10}
                                 width={animPhase === 'pause-start' ? 0 : animPhase === 'pause-end' ? 100 : 100 * ((timeLabel === '0:00' ? 0 : parseInt(timeLabel)) / 24)}
@@ -530,44 +530,44 @@ const NutrientEffectsVisualizer = () => {
                                 {/* Symbolic form */}
                                 <text x={chartX + chartW / 2} y={55} textAnchor="middle" className="text-base font-mono" fontWeight="600" letterSpacing="-1">
                                     <tspan fill="hsl(var(--accent-science))">μ</tspan>
-                                    <tspan fill="hsl(var(--foreground))"> = μ₀ × (K</tspan>
-                                    <tspan fill="hsl(var(--foreground))" fontSize="0.7em" dy="3">s</tspan>
-                                    <tspan dy="-3" fill="hsl(var(--foreground))">+S</tspan>
-                                    <tspan fill="hsl(var(--foreground))" fontSize="0.7em" dy="3">opt</tspan>
-                                    <tspan dy="-3" fill="hsl(var(--foreground))">) / S</tspan>
-                                    <tspan fill="hsl(var(--foreground))" fontSize="0.7em" dy="3">opt</tspan>
-                                    <tspan dy="-3" fill="hsl(var(--foreground))"> × </tspan>
+                                    <tspan fill="var(--foreground)"> = μ₀ × (K</tspan>
+                                    <tspan fill="var(--foreground)" fontSize="0.7em" dy="3">s</tspan>
+                                    <tspan dy="-3" fill="var(--foreground)">+S</tspan>
+                                    <tspan fill="var(--foreground)" fontSize="0.7em" dy="3">opt</tspan>
+                                    <tspan dy="-3" fill="var(--foreground)">) / S</tspan>
+                                    <tspan fill="var(--foreground)" fontSize="0.7em" dy="3">opt</tspan>
+                                    <tspan dy="-3" fill="var(--foreground)"> × </tspan>
                                     <tspan fill="rgb(140, 80, 200)">S</tspan>
-                                    <tspan fill="hsl(var(--foreground))"> / (K</tspan>
-                                    <tspan fill="hsl(var(--foreground))" fontSize="0.7em" dy="3">s</tspan>
-                                    <tspan dy="-3" fill="hsl(var(--foreground))"> + </tspan>
+                                    <tspan fill="var(--foreground)"> / (K</tspan>
+                                    <tspan fill="var(--foreground)" fontSize="0.7em" dy="3">s</tspan>
+                                    <tspan dy="-3" fill="var(--foreground)"> + </tspan>
                                     <tspan fill="rgb(140, 80, 200)">S</tspan>
-                                    <tspan fill="hsl(var(--foreground))">)</tspan>
+                                    <tspan fill="var(--foreground)">)</tspan>
                                 </text>
 
                                 {/* Numeric values */}
                                 <text x={chartX + chartW / 2} y={83} textAnchor="middle" className="text-sm font-mono" fontWeight="500" letterSpacing="-1" opacity="0.5">
                                     <tspan fill="hsl(var(--accent-science))">{mu.toFixed(1)} /day</tspan>
-                                    <tspan fill="hsl(var(--foreground))"> = {muMax.toFixed(0)} × ({Ks}+{Sopt})/{Sopt} × </tspan>
+                                    <tspan fill="var(--foreground)"> = {muMax.toFixed(0)} × ({Ks}+{Sopt})/{Sopt} × </tspan>
                                     <tspan fill="rgb(140, 80, 200)">{S.toFixed(1)}</tspan>
-                                    <tspan fill="hsl(var(--foreground))"> / ({Ks} + </tspan>
+                                    <tspan fill="var(--foreground)"> / ({Ks} + </tspan>
                                     <tspan fill="rgb(140, 80, 200)">{S.toFixed(1)}</tspan>
-                                    <tspan fill="hsl(var(--foreground))">)</tspan>
+                                    <tspan fill="var(--foreground)">)</tspan>
                                 </text>
                             </g>
 
                             {/* ── Nutrient Response Curve (Monod) ── */}
                             <g>
-                                <line x1={chartX} y1={chartY} x2={chartX} y2={chartBottom} stroke="hsl(var(--border))" strokeWidth="1" />
-                                <line x1={chartX} y1={chartBottom} x2={chartRight} y2={chartBottom} stroke="hsl(var(--border))" strokeWidth="1" />
+                                <line x1={chartX} y1={chartY} x2={chartX} y2={chartBottom} stroke="var(--border)" strokeWidth="1" />
+                                <line x1={chartX} y1={chartBottom} x2={chartRight} y2={chartBottom} stroke="var(--border)" strokeWidth="1" />
 
                                 {yTicks.map((val) => {
                                     const py = chartBottom - (val / muMaxChart) * chartH;
                                     return (
                                         <g key={val}>
-                                            <line x1={chartX - 3} y1={py} x2={chartX} y2={py} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                                            <line x1={chartX} y1={py} x2={chartRight} y2={py} stroke="hsl(var(--border))" strokeWidth="0.5" strokeOpacity="0.3" />
-                                            <text x={chartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+                                            <line x1={chartX - 3} y1={py} x2={chartX} y2={py} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                                            <line x1={chartX} y1={py} x2={chartRight} y2={py} stroke="var(--border)" strokeWidth="0.5" strokeOpacity="0.3" />
+                                            <text x={chartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="var(--muted-foreground)">
                                                 {val}
                                             </text>
                                         </g>
@@ -578,24 +578,24 @@ const NutrientEffectsVisualizer = () => {
                                     const px = chartX + (val / maxS) * chartW;
                                     return (
                                         <g key={val}>
-                                            <line x1={px} y1={chartBottom} x2={px} y2={chartBottom + 3} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                                            <text x={px} y={chartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+                                            <line x1={px} y1={chartBottom} x2={px} y2={chartBottom + 3} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                                            <text x={px} y={chartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">
                                                 {val}
                                             </text>
                                         </g>
                                     );
                                 })}
 
-                                <text x={chartX - 20} y={chartY + chartH / 2} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))" transform={`rotate(-90, ${chartX - 20}, ${chartY + chartH / 2})`}>
+                                <text x={chartX - 20} y={chartY + chartH / 2} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${chartX - 20}, ${chartY + chartH / 2})`}>
                                     μ (/day)
                                 </text>
-                                <text x={chartX + chartW / 2} y={chartBottom + 28} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+                                <text x={chartX + chartW / 2} y={chartBottom + 28} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">
                                     Nutrient Conc. (mM)
                                 </text>
 
                                 {/* Ks marker line */}
-                                <line x1={ksPx} y1={chartY} x2={ksPx} y2={chartBottom} stroke="hsl(var(--muted-foreground))" strokeWidth="1" strokeDasharray="4 3" strokeOpacity="0.5" />
-                                <text x={ksPx - 5} y={chartY + chartH * 0.12} textAnchor="middle" className="text-[10px] font-mono" fill="hsl(var(--muted-foreground))" transform={`rotate(-90, ${ksPx - 5}, ${chartY + chartH * 0.12})`}>
+                                <line x1={ksPx} y1={chartY} x2={ksPx} y2={chartBottom} stroke="var(--muted-foreground)" strokeWidth="1" strokeDasharray="4 3" strokeOpacity="0.5" />
+                                <text x={ksPx - 5} y={chartY + chartH * 0.12} textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${ksPx - 5}, ${chartY + chartH * 0.12})`}>
                                     Kₛ
                                 </text>
 
@@ -604,8 +604,8 @@ const NutrientEffectsVisualizer = () => {
                                     const soptPx = chartX + (Sopt / maxS) * chartW;
                                     return (
                                         <>
-                                            <line x1={soptPx} y1={chartY} x2={soptPx} y2={chartBottom} stroke="hsl(var(--muted-foreground))" strokeWidth="1" strokeDasharray="4 3" strokeOpacity="0.5" />
-                                            <text x={soptPx - 5} y={chartY + chartH / 2} textAnchor="middle" className="text-[10px] font-mono" fill="hsl(var(--muted-foreground))" transform={`rotate(-90, ${soptPx - 5}, ${chartY + chartH / 2})`}>
+                                            <line x1={soptPx} y1={chartY} x2={soptPx} y2={chartBottom} stroke="var(--muted-foreground)" strokeWidth="1" strokeDasharray="4 3" strokeOpacity="0.5" />
+                                            <text x={soptPx - 5} y={chartY + chartH / 2} textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${soptPx - 5}, ${chartY + chartH / 2})`}>
                                                 optimal
                                             </text>
                                         </>
@@ -613,28 +613,28 @@ const NutrientEffectsVisualizer = () => {
                                 })()}
 
                                 <path d={curvePath} fill="none" stroke={themeColor} strokeWidth="2.5" strokeLinejoin="round" />
-                                <circle cx={thumbPx} cy={thumbPy} r={6} fill={themeColor} stroke="hsl(var(--background))" strokeWidth="2" />
-                                <text x={thumbPx + 10} y={thumbPy - 8} textAnchor="start" className="text-xs font-mono" fill="hsl(var(--foreground))" fontWeight="600">
+                                <circle cx={thumbPx} cy={thumbPy} r={6} fill={themeColor} stroke="var(--background)" strokeWidth="2" />
+                                <text x={thumbPx + 10} y={thumbPy - 8} textAnchor="start" className="text-xs font-mono" fill="var(--foreground)" fontWeight="600">
                                     μ = {currentMu.toFixed(2)}
                                 </text>
 
-                                <text x={chartX + chartW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">
+                                <text x={chartX + chartW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">
                                     Nutrient Response Curve
                                 </text>
                             </g>
 
                             {/* ── Biomass Growth Chart ── */}
                             <g>
-                                <line x1={bChartX} y1={bChartY} x2={bChartX} y2={bChartBottom} stroke="hsl(var(--border))" strokeWidth="1" />
-                                <line x1={bChartX} y1={bChartBottom} x2={bChartRight} y2={bChartBottom} stroke="hsl(var(--border))" strokeWidth="1" />
+                                <line x1={bChartX} y1={bChartY} x2={bChartX} y2={bChartBottom} stroke="var(--border)" strokeWidth="1" />
+                                <line x1={bChartX} y1={bChartBottom} x2={bChartRight} y2={bChartBottom} stroke="var(--border)" strokeWidth="1" />
 
                                 {bYTicks.map((val) => {
                                     const py = bChartBottom - ((val - startMass) / (maxMass - startMass)) * bChartH;
                                     return (
                                         <g key={val}>
-                                            <line x1={bChartX - 3} y1={py} x2={bChartX} y2={py} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                                            <line x1={bChartX} y1={py} x2={bChartRight} y2={py} stroke="hsl(var(--border))" strokeWidth="0.5" strokeOpacity="0.3" />
-                                            <text x={bChartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+                                            <line x1={bChartX - 3} y1={py} x2={bChartX} y2={py} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                                            <line x1={bChartX} y1={py} x2={bChartRight} y2={py} stroke="var(--border)" strokeWidth="0.5" strokeOpacity="0.3" />
+                                            <text x={bChartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="var(--muted-foreground)">
                                                 {val}
                                             </text>
                                         </g>
@@ -645,15 +645,15 @@ const NutrientEffectsVisualizer = () => {
                                     const px = bChartX + (hr / 24) * bChartW;
                                     return (
                                         <g key={hr}>
-                                            <line x1={px} y1={bChartBottom} x2={px} y2={bChartBottom + 3} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                                            <text x={px} y={bChartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+                                            <line x1={px} y1={bChartBottom} x2={px} y2={bChartBottom + 3} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                                            <text x={px} y={bChartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">
                                                 {hr}h
                                             </text>
                                         </g>
                                     );
                                 })}
 
-                                <text x={bChartX - 24} y={bChartY + bChartH / 2} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))" transform={`rotate(-90, ${bChartX - 24}, ${bChartY + bChartH / 2})`}>
+                                <text x={bChartX - 24} y={bChartY + bChartH / 2} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${bChartX - 24}, ${bChartY + bChartH / 2})`}>
                                     Biomass (kg)
                                 </text>
 
@@ -669,7 +669,7 @@ const NutrientEffectsVisualizer = () => {
                                 <path d={bOptimalPath} fill="none" stroke={themeColor} strokeWidth="1.5" strokeDasharray="4 3" strokeOpacity="0.35" />
 
                                 <path d={bCurvePath} fill="none" stroke="hsl(var(--accent-science))" strokeWidth="2" strokeLinejoin="round" />
-                                <circle cx={bCurrentPx} cy={bCurrentPy} r={4} fill="hsl(var(--accent-science))" stroke="hsl(var(--background))" strokeWidth="1.5" />
+                                <circle cx={bCurrentPx} cy={bCurrentPy} r={4} fill="hsl(var(--accent-science))" stroke="var(--background)" strokeWidth="1.5" />
 
                                 {(() => {
                                     const heightRatio = Math.min(1, Math.max(0, (currentMass - 1) / (maxMass - 1)));
@@ -684,13 +684,13 @@ const NutrientEffectsVisualizer = () => {
                                     const labelY = Math.max(bCurrentPy + yOffset, bChartY + 12);
 
                                     return (
-                                        <text x={clampedX} y={labelY} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--foreground))" fontWeight="600">
+                                        <text x={clampedX} y={labelY} textAnchor="middle" className="text-xs font-mono" fill="var(--foreground)" fontWeight="600">
                                             {currentMass.toFixed(1)} kg
                                         </text>
                                     );
                                 })()}
 
-                                <text x={bChartX + bChartW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">
+                                <text x={bChartX + bChartW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">
                                     Biomass Growth
                                 </text>
                             </g>

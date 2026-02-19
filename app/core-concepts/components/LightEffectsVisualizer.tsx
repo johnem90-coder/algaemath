@@ -176,7 +176,7 @@ const LightEffectsVisualizer = () => {
         <div className="flex items-end gap-12 py-4 select-none">
             {/* Vertical Slider */}
             <div className="flex flex-col items-center shrink-0 w-44 border-2 border-dashed border-muted-foreground/30 rounded-lg px-4 py-4 relative mt-6">
-                <span className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-medium text-foreground whitespace-nowrap">Intensity I (μE/m²/s)</span>
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-medium text-foreground whitespace-nowrap">Intensity I (<span className="text-[0.7em]">µ</span>E/m²/s)</span>
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-background px-2 text-[11px] font-mono text-muted-foreground whitespace-nowrap">
                     ↕ drag to adjust
                 </span>
@@ -198,7 +198,7 @@ const LightEffectsVisualizer = () => {
                             {/* I symbol on left of thumb */}
                             <span
                                 className="absolute text-sm font-mono font-bold pointer-events-none whitespace-nowrap"
-                                style={{ left: 'calc(50% - 20px)', top: thumbTop, transform: 'translate(-100%, -50%)', color: 'rgb(210, 150, 20)' }}
+                                style={{ left: 'calc(50% - 30px)', top: thumbTop, transform: 'translate(-100%, -50%)', color: 'rgb(210, 150, 20)' }}
                             >
                                 I
                             </span>
@@ -217,7 +217,7 @@ const LightEffectsVisualizer = () => {
                                 style={{ left: 'calc(50% + 16px)', top: thumbTop - 1, transform: 'translateY(-20%)', color: 'rgb(210, 150, 20)' }}
                             >
                                 {intensity}<br />
-                                <span className="text-[10px] font-normal text-muted-foreground">μE/m²/s</span>
+                                <span className="text-[10px] font-normal text-muted-foreground" style={{ marginTop: '-3px', display: 'block' }}>μE/m²/s</span>
                             </span>
                         </div>
                     );
@@ -258,8 +258,8 @@ const LightEffectsVisualizer = () => {
                     {/* Light source strip */}
                     {/* Light panel: fill + dark border on top/left/bottom, open on right */}
                     <rect x="30" y="44" width="18" height="171" fill="url(#light-strip-grad)" />
-                    <path d="M48,43 L33,43 Q30,43 30,46 L30,212 Q30,215 33,215 L48,215" fill="none" stroke="hsl(var(--foreground))" strokeWidth="2" strokeLinejoin="round" />
-                    <text x="22" y="130" textAnchor="middle" className="text-[10px] font-mono" fill="hsl(var(--muted-foreground))" transform="rotate(-90, 22, 130)">Light</text>
+                    <path d="M48,43 L33,43 Q30,43 30,46 L30,212 Q30,215 33,215 L48,215" fill="none" stroke="var(--foreground)" strokeWidth="2" strokeLinejoin="round" />
+                    <text x="22" y="130" textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)" transform="rotate(-90, 22, 130)">Light</text>
 
                     {/* Light rays emanating rightward into culture */}
                     {[55, 75, 95, 115, 135, 155, 175, 195].map((ry) => {
@@ -284,23 +284,23 @@ const LightEffectsVisualizer = () => {
                         <rect x="40" y="40" width="120" height="180" fill="url(#light-culture-grad)" />
                     </g>
 
-                    <path d="M60 40 L50 200 Q50 215 65 215 L135 215 Q150 215 150 200 L140 40" fill="none" stroke="hsl(var(--border))" strokeWidth="2.5" strokeLinejoin="round" />
-                    <path d="M55 40 L60 40 M140 40 L145 40" fill="none" stroke="hsl(var(--border))" strokeWidth="2.5" strokeLinecap="round" />
-                    <path d="M55 40 Q55 36 58 36" fill="none" stroke="hsl(var(--border))" strokeWidth="2" />
-                    <path d="M145 40 Q145 36 142 36" fill="none" stroke="hsl(var(--border))" strokeWidth="2" />
-                    <line x1="52" y1="100" x2="58" y2="100" stroke="hsl(var(--border))" strokeWidth="1" />
-                    <line x1="51" y1="140" x2="57" y2="140" stroke="hsl(var(--border))" strokeWidth="1" />
-                    <line x1="51" y1="180" x2="56" y2="180" stroke="hsl(var(--border))" strokeWidth="1" />
-                    <text x="100" y="255" textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">Culture</text>
+                    <path d="M60 40 L50 200 Q50 215 65 215 L135 215 Q150 215 150 200 L140 40" fill="none" stroke="var(--border)" strokeWidth="2.5" strokeLinejoin="round" />
+                    <path d="M55 40 L60 40 M140 40 L145 40" fill="none" stroke="var(--border)" strokeWidth="2.5" strokeLinecap="round" />
+                    <path d="M55 40 Q55 36 58 36" fill="none" stroke="var(--border)" strokeWidth="2" />
+                    <path d="M145 40 Q145 36 142 36" fill="none" stroke="var(--border)" strokeWidth="2" />
+                    <line x1="52" y1="100" x2="58" y2="100" stroke="var(--border)" strokeWidth="1" />
+                    <line x1="51" y1="140" x2="57" y2="140" stroke="var(--border)" strokeWidth="1" />
+                    <line x1="51" y1="180" x2="56" y2="180" stroke="var(--border)" strokeWidth="1" />
+                    <text x="100" y="255" textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">Culture</text>
                 </g>
 
                 {/* Connector */}
-                <line x1="137" y1="175" x2={MX - MR} y2={MY} stroke="hsl(var(--border))" strokeWidth="1.5" strokeDasharray="4 4" />
-                <circle cx="125" cy="175" r="12" fill="none" stroke="hsl(var(--border))" strokeWidth="1.5" strokeDasharray="3 3" />
+                <line x1="137" y1="175" x2={MX - MR} y2={MY} stroke="var(--border)" strokeWidth="1.5" strokeDasharray="4 4" />
+                <circle cx="125" cy="175" r="12" fill="none" stroke="var(--border)" strokeWidth="1.5" strokeDasharray="3 3" />
 
                 {/* Magnified view */}
                 <g>
-                    <circle cx={MX} cy={MY} r={MR} fill={`rgba(60, ${waterGreen}, 80, 0.12)`} stroke="hsl(var(--border))" strokeWidth="2" />
+                    <circle cx={MX} cy={MY} r={MR} fill={`rgba(60, ${waterGreen}, 80, 0.12)`} stroke="var(--border)" strokeWidth="2" />
                     <clipPath id="magnifier-clip-light">
                         <circle cx={MX} cy={MY} r={MR - 2} />
                     </clipPath>
@@ -347,7 +347,7 @@ const LightEffectsVisualizer = () => {
                             );
                         })}
                     </g>
-                    <text x={MX} y={305} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">Magnified cells</text>
+                    <text x={MX} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">Magnified cells</text>
                 </g>
 
                 {/* Time indicator */}
@@ -359,15 +359,15 @@ const LightEffectsVisualizer = () => {
                     return (
                         <g>
                             {/* Mini clock */}
-                            <circle cx={clockX} cy={clockY} r={clockR} fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.2" />
-                            <circle cx={clockX} cy={clockY} r={0.8} fill="hsl(var(--muted-foreground))" />
+                            <circle cx={clockX} cy={clockY} r={clockR} fill="none" stroke="var(--muted-foreground)" strokeWidth="1.2" />
+                            <circle cx={clockX} cy={clockY} r={0.8} fill="var(--muted-foreground)" />
                             {/* Hour hand */}
                             <line
                                 x1={clockX}
                                 y1={clockY}
                                 x2={clockX + Math.cos(handAngle) * (clockR * 0.6)}
                                 y2={clockY + Math.sin(handAngle) * (clockR * 0.6)}
-                                stroke="hsl(var(--muted-foreground))"
+                                stroke="var(--muted-foreground)"
                                 strokeWidth="1.2"
                                 strokeLinecap="round"
                             />
@@ -377,14 +377,14 @@ const LightEffectsVisualizer = () => {
                                 y1={clockY}
                                 x2={clockX + Math.cos(handAngle * 12) * (clockR * 0.8)}
                                 y2={clockY + Math.sin(handAngle * 12) * (clockR * 0.8)}
-                                stroke="hsl(var(--muted-foreground))"
+                                stroke="var(--muted-foreground)"
                                 strokeWidth="0.8"
                                 strokeLinecap="round"
                             />
-                            <text x={MX} y={clockY + 4} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))">
+                            <text x={MX} y={clockY + 4} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)">
                                 t = {timeLabel} h
                             </text>
-                            <rect x={MX - 50} y={clockY + 10} width={100} height={3} rx={1.5} fill="hsl(var(--border))" />
+                            <rect x={MX - 50} y={clockY + 10} width={100} height={3} rx={1.5} fill="var(--border)" />
                             <rect
                                 x={MX - 50} y={clockY + 10}
                                 width={animPhase === 'pause-start' ? 0 : animPhase === 'pause-end' ? 100 : 100 * ((timeLabel === '0:00' ? 0 : parseInt(timeLabel)) / 24)}
@@ -478,39 +478,39 @@ const LightEffectsVisualizer = () => {
                                 {/* Symbolic form */}
                                 <text x={chartX + chartW / 2} y={55} textAnchor="middle" className="text-base font-mono" fontWeight="600" letterSpacing="-1">
                                     <tspan fill="hsl(var(--accent-science))">μ</tspan>
-                                    <tspan fill="hsl(var(--foreground))"> = μ₀ × (</tspan>
+                                    <tspan fill="var(--foreground)"> = μ₀ × (</tspan>
                                     <tspan fill="rgb(210, 150, 20)">I</tspan>
-                                    <tspan fill="hsl(var(--foreground))">/I</tspan>
-                                    <tspan fill="hsl(var(--foreground))" fontSize="0.7em" dy="3">opt</tspan>
-                                    <tspan dy="-3" fill="hsl(var(--foreground))">)</tspan>
-                                    <tspan fill="hsl(var(--foreground))"> · e</tspan>
-                                    <tspan fontSize="0.7em" dy="-5"><tspan fill="hsl(var(--foreground))">1-(</tspan><tspan fill="rgb(210, 150, 20)">I</tspan><tspan fill="hsl(var(--foreground))">/Iopt)</tspan></tspan>
+                                    <tspan fill="var(--foreground)">/I</tspan>
+                                    <tspan fill="var(--foreground)" fontSize="0.7em" dy="3">opt</tspan>
+                                    <tspan dy="-3" fill="var(--foreground)">)</tspan>
+                                    <tspan fill="var(--foreground)"> · e</tspan>
+                                    <tspan fontSize="0.7em" dy="-5"><tspan fill="var(--foreground)">1-(</tspan><tspan fill="rgb(210, 150, 20)">I</tspan><tspan fill="var(--foreground)">/Iopt)</tspan></tspan>
                                     <tspan dy="5"></tspan>
                                 </text>
 
                                 {/* Numeric values */}
                                 <text x={chartX + chartW / 2} y={83} textAnchor="middle" className="text-sm font-mono" fontWeight="500" letterSpacing="-1" opacity="0.5">
                                     <tspan fill="hsl(var(--accent-science))">{mu.toFixed(1)} /day</tspan>
-                                    <tspan fill="hsl(var(--foreground))"> = {muMax.toFixed(0)} × (</tspan>
+                                    <tspan fill="var(--foreground)"> = {muMax.toFixed(0)} × (</tspan>
                                     <tspan fill="rgb(210, 150, 20)">{intensity}</tspan>
-                                    <tspan fill="hsl(var(--foreground))">/{Iopt}) · e</tspan>
-                                    <tspan fontSize="0.7em" dy="-4"><tspan fill="hsl(var(--foreground))">1-(</tspan><tspan fill="rgb(210, 150, 20)">{intensity}</tspan><tspan fill="hsl(var(--foreground))">/{Iopt})</tspan></tspan>
+                                    <tspan fill="var(--foreground)">/{Iopt}) · e</tspan>
+                                    <tspan fontSize="0.7em" dy="-4"><tspan fill="var(--foreground)">1-(</tspan><tspan fill="rgb(210, 150, 20)">{intensity}</tspan><tspan fill="var(--foreground)">/{Iopt})</tspan></tspan>
                                     <tspan dy="4"></tspan>
                                 </text>
                             </g>
 
                             {/* ── Growth Rate vs Intensity Chart ── */}
                             <g>
-                                <line x1={chartX} y1={chartY} x2={chartX} y2={chartBottom} stroke="hsl(var(--border))" strokeWidth="1" />
-                                <line x1={chartX} y1={chartBottom} x2={chartRight} y2={chartBottom} stroke="hsl(var(--border))" strokeWidth="1" />
+                                <line x1={chartX} y1={chartY} x2={chartX} y2={chartBottom} stroke="var(--border)" strokeWidth="1" />
+                                <line x1={chartX} y1={chartBottom} x2={chartRight} y2={chartBottom} stroke="var(--border)" strokeWidth="1" />
 
                                 {yTicks.map((val) => {
                                     const py = chartBottom - (val / muMaxChart) * chartH;
                                     return (
                                         <g key={val}>
-                                            <line x1={chartX - 3} y1={py} x2={chartX} y2={py} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                                            <line x1={chartX} y1={py} x2={chartRight} y2={py} stroke="hsl(var(--border))" strokeWidth="0.5" strokeOpacity="0.3" />
-                                            <text x={chartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+                                            <line x1={chartX - 3} y1={py} x2={chartX} y2={py} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                                            <line x1={chartX} y1={py} x2={chartRight} y2={py} stroke="var(--border)" strokeWidth="0.5" strokeOpacity="0.3" />
+                                            <text x={chartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="var(--muted-foreground)">
                                                 {val}
                                             </text>
                                         </g>
@@ -521,49 +521,49 @@ const LightEffectsVisualizer = () => {
                                     const px = chartX + (val / maxI) * chartW;
                                     return (
                                         <g key={val}>
-                                            <line x1={px} y1={chartBottom} x2={px} y2={chartBottom + 3} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                                            <text x={px} y={chartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+                                            <line x1={px} y1={chartBottom} x2={px} y2={chartBottom + 3} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                                            <text x={px} y={chartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">
                                                 {val}
                                             </text>
                                         </g>
                                     );
                                 })}
 
-                                <text x={chartX - 20} y={chartY + chartH / 2} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))" transform={`rotate(-90, ${chartX - 20}, ${chartY + chartH / 2})`}>
+                                <text x={chartX - 20} y={chartY + chartH / 2} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${chartX - 20}, ${chartY + chartH / 2})`}>
                                     μ (/day)
                                 </text>
-                                <text x={chartX + chartW / 2} y={chartBottom + 28} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+                                <text x={chartX + chartW / 2} y={chartBottom + 28} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">
                                     Intensity (μE/m²/s)
                                 </text>
 
-                                <line x1={chartX + (Iopt / maxI) * chartW} y1={chartY} x2={chartX + (Iopt / maxI) * chartW} y2={chartBottom} stroke="hsl(var(--muted-foreground))" strokeWidth="1" strokeDasharray="4 3" strokeOpacity="0.5" />
-                                <text x={chartX + (Iopt / maxI) * chartW - 5} y={chartY + chartH / 2} textAnchor="middle" className="text-[10px] font-mono" fill="hsl(var(--muted-foreground))" transform={`rotate(-90, ${chartX + (Iopt / maxI) * chartW - 5}, ${chartY + chartH / 2})`}>
+                                <line x1={chartX + (Iopt / maxI) * chartW} y1={chartY} x2={chartX + (Iopt / maxI) * chartW} y2={chartBottom} stroke="var(--muted-foreground)" strokeWidth="1" strokeDasharray="4 3" strokeOpacity="0.5" />
+                                <text x={chartX + (Iopt / maxI) * chartW - 5} y={chartY + chartH / 2} textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${chartX + (Iopt / maxI) * chartW - 5}, ${chartY + chartH / 2})`}>
                                     optimal
                                 </text>
 
                                 <path d={curvePath} fill="none" stroke="rgb(210, 150, 20)" strokeWidth="2.5" strokeLinejoin="round" />
-                                <circle cx={thumbPx} cy={thumbPy} r={6} fill="rgb(210, 150, 20)" stroke="hsl(var(--background))" strokeWidth="2" />
-                                <text x={thumbPx + 10} y={thumbPy - 8} textAnchor="start" className="text-xs font-mono" fill="hsl(var(--foreground))" fontWeight="600">
+                                <circle cx={thumbPx} cy={thumbPy} r={6} fill="rgb(210, 150, 20)" stroke="var(--background)" strokeWidth="2" />
+                                <text x={thumbPx + 10} y={thumbPy - 8} textAnchor="start" className="text-xs font-mono" fill="var(--foreground)" fontWeight="600">
                                     μ = {currentMu.toFixed(2)}
                                 </text>
 
-                                <text x={chartX + chartW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">
+                                <text x={chartX + chartW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">
                                     Light Response Curve
                                 </text>
                             </g>
 
                             {/* ── Biomass Growth Chart ── */}
                             <g>
-                                <line x1={bChartX} y1={bChartY} x2={bChartX} y2={bChartBottom} stroke="hsl(var(--border))" strokeWidth="1" />
-                                <line x1={bChartX} y1={bChartBottom} x2={bChartRight} y2={bChartBottom} stroke="hsl(var(--border))" strokeWidth="1" />
+                                <line x1={bChartX} y1={bChartY} x2={bChartX} y2={bChartBottom} stroke="var(--border)" strokeWidth="1" />
+                                <line x1={bChartX} y1={bChartBottom} x2={bChartRight} y2={bChartBottom} stroke="var(--border)" strokeWidth="1" />
 
                                 {bYTicks.map((val) => {
                                     const py = bChartBottom - ((val - startMass) / (maxMass - startMass)) * bChartH;
                                     return (
                                         <g key={val}>
-                                            <line x1={bChartX - 3} y1={py} x2={bChartX} y2={py} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                                            <line x1={bChartX} y1={py} x2={bChartRight} y2={py} stroke="hsl(var(--border))" strokeWidth="0.5" strokeOpacity="0.3" />
-                                            <text x={bChartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+                                            <line x1={bChartX - 3} y1={py} x2={bChartX} y2={py} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                                            <line x1={bChartX} y1={py} x2={bChartRight} y2={py} stroke="var(--border)" strokeWidth="0.5" strokeOpacity="0.3" />
+                                            <text x={bChartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="var(--muted-foreground)">
                                                 {val}
                                             </text>
                                         </g>
@@ -574,15 +574,15 @@ const LightEffectsVisualizer = () => {
                                     const px = bChartX + (hr / 24) * bChartW;
                                     return (
                                         <g key={hr}>
-                                            <line x1={px} y1={bChartBottom} x2={px} y2={bChartBottom + 3} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                                            <text x={px} y={bChartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+                                            <line x1={px} y1={bChartBottom} x2={px} y2={bChartBottom + 3} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                                            <text x={px} y={bChartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">
                                                 {hr}h
                                             </text>
                                         </g>
                                     );
                                 })}
 
-                                <text x={bChartX - 24} y={bChartY + bChartH / 2} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))" transform={`rotate(-90, ${bChartX - 24}, ${bChartY + bChartH / 2})`}>
+                                <text x={bChartX - 24} y={bChartY + bChartH / 2} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${bChartX - 24}, ${bChartY + bChartH / 2})`}>
                                     Biomass (kg)
                                 </text>
 
@@ -598,7 +598,7 @@ const LightEffectsVisualizer = () => {
                                 <path d={bOptimalPath} fill="none" stroke="rgb(210, 150, 20)" strokeWidth="1.5" strokeDasharray="4 3" strokeOpacity="0.35" />
 
                                 <path d={bCurvePath} fill="none" stroke="hsl(var(--accent-science))" strokeWidth="2" strokeLinejoin="round" />
-                                <circle cx={bCurrentPx} cy={bCurrentPy} r={4} fill="hsl(var(--accent-science))" stroke="hsl(var(--background))" strokeWidth="1.5" />
+                                <circle cx={bCurrentPx} cy={bCurrentPy} r={4} fill="hsl(var(--accent-science))" stroke="var(--background)" strokeWidth="1.5" />
 
                                 {(() => {
                                     const heightRatio = Math.min(1, Math.max(0, (currentMass - 1) / (maxMass - 1)));
@@ -616,13 +616,13 @@ const LightEffectsVisualizer = () => {
                                     const labelY = Math.max(bCurrentPy + yOffset, bChartY + 12);
 
                                     return (
-                                        <text x={clampedX} y={labelY} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--foreground))" fontWeight="600">
+                                        <text x={clampedX} y={labelY} textAnchor="middle" className="text-xs font-mono" fill="var(--foreground)" fontWeight="600">
                                             {currentMass.toFixed(1)} kg
                                         </text>
                                     );
                                 })()}
 
-                                <text x={bChartX + bChartW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">
+                                <text x={bChartX + bChartW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">
                                     Biomass Growth
                                 </text>
                             </g>

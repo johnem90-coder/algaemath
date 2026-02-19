@@ -204,25 +204,25 @@ const CombinedEffectsVisualizer = () => {
         return (
             <g>
                 {/* Axes */}
-                <line x1={cx} y1={cy} x2={cx} y2={bottom} stroke="hsl(var(--border))" strokeWidth="1" />
-                <line x1={cx} y1={bottom} x2={right} y2={bottom} stroke="hsl(var(--border))" strokeWidth="1" />
+                <line x1={cx} y1={cy} x2={cx} y2={bottom} stroke="var(--border)" strokeWidth="1" />
+                <line x1={cx} y1={bottom} x2={right} y2={bottom} stroke="var(--border)" strokeWidth="1" />
                 {/* Grid */}
                 {[0.2, 0.4, 0.6, 0.8, 1.0].map((f) => (
                     <g key={f}>
-                        <line x1={cx} y1={bottom - f * h} x2={right} y2={bottom - f * h} stroke="hsl(var(--border))" strokeWidth="0.5" strokeOpacity="0.3" />
-                        <text x={cx - 4} y={bottom - f * h + 3} textAnchor="end" className="text-[7px] font-mono" fill="hsl(var(--muted-foreground))">{f}</text>
+                        <line x1={cx} y1={bottom - f * h} x2={right} y2={bottom - f * h} stroke="var(--border)" strokeWidth="0.5" strokeOpacity="0.3" />
+                        <text x={cx - 4} y={bottom - f * h + 3} textAnchor="end" className="text-[7px] font-mono" fill="var(--muted-foreground)">{f}</text>
                     </g>
                 ))}
                 {/* Curve */}
                 <path d={curvePath} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" />
                 {/* Dot */}
-                <circle cx={dotX} cy={dotY} r={4} fill={color} stroke="hsl(var(--background))" strokeWidth="1.5" />
+                <circle cx={dotX} cy={dotY} r={4} fill={color} stroke="var(--background)" strokeWidth="1.5" />
                 {/* Labels */}
-                <text x={cx + w / 2} y={bottom + 14} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">{xLabel}</text>
+                <text x={cx + w / 2} y={bottom + 14} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">{xLabel}</text>
                 <text x={cx + w / 2} y={cy - 8} textAnchor="middle" className="text-[11px] font-mono" fill={color} fontWeight="600">
                     {factorName} = {factorVal.toFixed(3)}
                 </text>
-                <text x={cx + w / 2} y={cy - 21} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--foreground))" fontWeight="500">{title}</text>
+                <text x={cx + w / 2} y={cy - 21} textAnchor="middle" className="text-xs font-mono" fill="var(--foreground)" fontWeight="500">{title}</text>
             </g>
         );
     };
@@ -244,7 +244,7 @@ const CombinedEffectsVisualizer = () => {
                             <span className="text-[10px] font-mono text-muted-foreground mb-1">μE/m²/s</span>
                             <div className="h-52 relative w-full flex justify-center">
                                 {/* Optimal arrow on left */}
-                                <span className="absolute text-[11px] pointer-events-none text-muted-foreground" style={{ right: 'calc(50% + 12px)', top: optTop, transform: 'translateY(-50%)' }}>→</span>
+                                <span className="absolute text-[18px] pointer-events-none text-muted-foreground" style={{ right: 'calc(50% + 10px)', top: optTop, transform: 'translateY(-50%)' }}>→</span>
                                 <Slider orientation="vertical" min={0} max={1000} step={20} value={intensity} onValueChange={setIntensity}
                                     className="h-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[rgb(210,150,20)] [&_span[role=slider]]:!border-[rgb(210,150,20)] [&_span[role=slider]]:!bg-background" />
                                 {/* Value on right */}
@@ -264,7 +264,7 @@ const CombinedEffectsVisualizer = () => {
                             <span className="text-sm font-mono font-bold mb-1" style={{ color: tempColor }}>T</span>
                             <span className="text-[10px] font-mono text-muted-foreground mb-1">°C</span>
                             <div className="h-52 relative w-full flex justify-center">
-                                <span className="absolute text-[11px] pointer-events-none text-muted-foreground" style={{ right: 'calc(50% + 12px)', top: optTop, transform: 'translateY(-50%)' }}>→</span>
+                                <span className="absolute text-[18px] pointer-events-none text-muted-foreground" style={{ right: 'calc(50% + 10px)', top: optTop, transform: 'translateY(-50%)' }}>→</span>
                                 <Slider orientation="vertical" min={10} max={50} step={1} value={temperature} onValueChange={setTemperature}
                                     className="h-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[rgb(200,80,60)] [&_span[role=slider]]:!border-[rgb(200,80,60)] [&_span[role=slider]]:!bg-background" />
                                 <span className="absolute text-[10px] font-mono font-bold pointer-events-none leading-tight" style={{ left: 'calc(50% + 14px)', top: tempThumbTop - 1, transform: 'translateY(-30%)', color: tempColor }}>
@@ -283,7 +283,7 @@ const CombinedEffectsVisualizer = () => {
                             <span className="text-sm font-mono font-bold mb-1" style={{ color: nutrientColor }}>S</span>
                             <span className="text-[10px] font-mono text-muted-foreground mb-1">mM</span>
                             <div className="h-52 relative w-full flex justify-center">
-                                <span className="absolute text-[11px] pointer-events-none text-muted-foreground" style={{ right: 'calc(50% + 12px)', top: optTop, transform: 'translateY(-50%)' }}>→</span>
+                                <span className="absolute text-[18px] pointer-events-none text-muted-foreground" style={{ right: 'calc(50% + 10px)', top: optTop, transform: 'translateY(-50%)' }}>→</span>
                                 <Slider orientation="vertical" min={0} max={20} step={0.5} value={nutrient} onValueChange={setNutrient}
                                     className="h-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[rgb(140,80,200)] [&_span[role=slider]]:!border-[rgb(140,80,200)] [&_span[role=slider]]:!bg-background" />
                                 <span className="absolute text-[10px] font-mono font-bold pointer-events-none leading-tight" style={{ left: 'calc(50% + 14px)', top: nutThumbTop - 1, transform: 'translateY(-30%)', color: nutrientColor }}>
@@ -300,48 +300,48 @@ const CombinedEffectsVisualizer = () => {
                 {/* Equation — left-justified with light response chart */}
                 <text x={rc1X} y={20} textAnchor="start" className="text-base font-mono" fontWeight="600" letterSpacing="-1">
                     <tspan fill="hsl(var(--accent-science))">μ</tspan>
-                    <tspan fill="hsl(var(--foreground))"> = μ₀ × </tspan>
+                    <tspan fill="var(--foreground)"> = μ₀ × </tspan>
                     <tspan fill={lightColor}>f(I)</tspan>
-                    <tspan fill="hsl(var(--foreground))"> × </tspan>
+                    <tspan fill="var(--foreground)"> × </tspan>
                     <tspan fill={tempColor}>f(T)</tspan>
-                    <tspan fill="hsl(var(--foreground))"> × </tspan>
+                    <tspan fill="var(--foreground)"> × </tspan>
                     <tspan fill={nutrientColor}>f(S)</tspan>
                 </text>
                 <text x={rc1X} y={40} textAnchor="start" className="text-sm font-mono" fontWeight="500" letterSpacing="-1" opacity="0.5">
                     <tspan fill="hsl(var(--accent-science))">{muEff.toFixed(2)} /day</tspan>
-                    <tspan fill="hsl(var(--foreground))"> = {muMax} × </tspan>
+                    <tspan fill="var(--foreground)"> = {muMax} × </tspan>
                     <tspan fill={lightColor}>{fI.toFixed(3)}</tspan>
-                    <tspan fill="hsl(var(--foreground))"> × </tspan>
+                    <tspan fill="var(--foreground)"> × </tspan>
                     <tspan fill={tempColor}>{fT.toFixed(3)}</tspan>
-                    <tspan fill="hsl(var(--foreground))"> × </tspan>
+                    <tspan fill="var(--foreground)"> × </tspan>
                     <tspan fill={nutrientColor}>{fS.toFixed(3)}</tspan>
                 </text>
 
                 {/* Expanded single-line equation */}
                 <text x={rc1X} y={58} textAnchor="start" className="text-sm font-mono" fontWeight="500" letterSpacing="-1" opacity="0.5">
                     <tspan fill="hsl(var(--accent-science))">{muEff.toFixed(2)}</tspan>
-                    <tspan fill="hsl(var(--foreground))"> = {muMax} × (</tspan>
+                    <tspan fill="var(--foreground)"> = {muMax} × (</tspan>
                     <tspan fill={lightColor}>{I}</tspan>
-                    <tspan fill="hsl(var(--foreground))">/{Iopt})·e</tspan>
-                    <tspan fontSize="0.8em" dy="-3"><tspan fill="hsl(var(--foreground))">1-(</tspan><tspan fill={lightColor}>{I}</tspan><tspan fill="hsl(var(--foreground))">/{Iopt})</tspan></tspan>
-                    <tspan dy="3" fill="hsl(var(--foreground))"> × e</tspan>
-                    <tspan fontSize="0.8em" dy="-3"><tspan fill="hsl(var(--foreground))">-0.01(</tspan><tspan fill={tempColor}>{T}</tspan><tspan fill="hsl(var(--foreground))">-{Topt})²</tspan></tspan>
-                    <tspan dy="3" fill="hsl(var(--foreground))"> × ({Ks}+{Sopt})/{Sopt}·</tspan>
+                    <tspan fill="var(--foreground)">/{Iopt})·e</tspan>
+                    <tspan fontSize="0.8em" dy="-3"><tspan fill="var(--foreground)">1-(</tspan><tspan fill={lightColor}>{I}</tspan><tspan fill="var(--foreground)">/{Iopt})</tspan></tspan>
+                    <tspan dy="3" fill="var(--foreground)"> × e</tspan>
+                    <tspan fontSize="0.8em" dy="-3"><tspan fill="var(--foreground)">-0.01(</tspan><tspan fill={tempColor}>{T}</tspan><tspan fill="var(--foreground)">-{Topt})²</tspan></tspan>
+                    <tspan dy="3" fill="var(--foreground)"> × ({Ks}+{Sopt})/{Sopt}·</tspan>
                     <tspan fill={nutrientColor}>{S.toFixed(1)}</tspan>
-                    <tspan fill="hsl(var(--foreground))">/({Ks}+</tspan>
+                    <tspan fill="var(--foreground)">/({Ks}+</tspan>
                     <tspan fill={nutrientColor}>{S.toFixed(1)}</tspan>
-                    <tspan fill="hsl(var(--foreground))">)</tspan>
+                    <tspan fill="var(--foreground)">)</tspan>
                 </text>
 
                 <g>
-                    <circle cx={clockRightEdge - 118} cy={clockY} r={clockR} fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.2" />
-                    <circle cx={clockRightEdge - 118} cy={clockY} r={0.8} fill="hsl(var(--muted-foreground))" />
-                    <line x1={clockRightEdge - 118} y1={clockY} x2={clockRightEdge - 118 + Math.cos(handAngle) * (clockR * 0.6)} y2={clockY + Math.sin(handAngle) * (clockR * 0.6)} stroke="hsl(var(--muted-foreground))" strokeWidth="1.2" strokeLinecap="round" />
-                    <line x1={clockRightEdge - 118} y1={clockY} x2={clockRightEdge - 118 + Math.cos(handAngle * 12) * (clockR * 0.8)} y2={clockY + Math.sin(handAngle * 12) * (clockR * 0.8)} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" strokeLinecap="round" />
-                    <text x={clockRightEdge - 104} y={clockY + 4} textAnchor="start" className="text-sm font-mono" fill="hsl(var(--foreground))">
+                    <circle cx={clockRightEdge - 118} cy={clockY} r={clockR} fill="none" stroke="var(--muted-foreground)" strokeWidth="1.2" />
+                    <circle cx={clockRightEdge - 118} cy={clockY} r={0.8} fill="var(--muted-foreground)" />
+                    <line x1={clockRightEdge - 118} y1={clockY} x2={clockRightEdge - 118 + Math.cos(handAngle) * (clockR * 0.6)} y2={clockY + Math.sin(handAngle) * (clockR * 0.6)} stroke="var(--muted-foreground)" strokeWidth="1.2" strokeLinecap="round" />
+                    <line x1={clockRightEdge - 118} y1={clockY} x2={clockRightEdge - 118 + Math.cos(handAngle * 12) * (clockR * 0.8)} y2={clockY + Math.sin(handAngle * 12) * (clockR * 0.8)} stroke="var(--muted-foreground)" strokeWidth="0.8" strokeLinecap="round" />
+                    <text x={clockRightEdge - 104} y={clockY + 4} textAnchor="start" className="text-sm font-mono" fill="var(--foreground)">
                         t = {timeLabel} h
                     </text>
-                    <rect x={clockRightEdge - 100} y={clockY + 12} width={100} height={3} rx={1.5} fill="hsl(var(--border))" />
+                    <rect x={clockRightEdge - 100} y={clockY + 12} width={100} height={3} rx={1.5} fill="var(--border)" />
                     <rect x={clockRightEdge - 100} y={clockY + 12} width={animPhase === 'pause-start' ? 0 : animPhase === 'pause-end' ? 100 : 100 * dayProgress} height={3} rx={1.5} fill="hsl(var(--accent-science))" />
                 </g>
 
@@ -353,22 +353,22 @@ const CombinedEffectsVisualizer = () => {
                 {renderMiniChart(rc3X, rcY, rcW, rcH, genNutrientCurve(), nutCurX, nutCurY, nutrientColor, 'Nutrient Response', 'S (mM)', fS, 'f(S)')}
 
                 {/* Labels under response curves */}
-                <text x={(rc3X + rcW + rc1X) / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">
+                <text x={(rc3X + rcW + rc1X) / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">
                     Response Curves (factor 0–1)
                 </text>
 
                 {/* ── Biomass Growth Chart (same size as other visualizers) ── */}
                 <g>
-                    <line x1={bChartX} y1={bChartY} x2={bChartX} y2={bChartBottom} stroke="hsl(var(--border))" strokeWidth="1" />
-                    <line x1={bChartX} y1={bChartBottom} x2={bChartRight} y2={bChartBottom} stroke="hsl(var(--border))" strokeWidth="1" />
+                    <line x1={bChartX} y1={bChartY} x2={bChartX} y2={bChartBottom} stroke="var(--border)" strokeWidth="1" />
+                    <line x1={bChartX} y1={bChartBottom} x2={bChartRight} y2={bChartBottom} stroke="var(--border)" strokeWidth="1" />
 
                     {[1, 4, 8, 12, 16].map((val) => {
                         const py = bChartBottom - ((val - startMass) / (maxMass - startMass)) * bChartH;
                         return (
                             <g key={val}>
-                                <line x1={bChartX - 3} y1={py} x2={bChartX} y2={py} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                                <line x1={bChartX} y1={py} x2={bChartRight} y2={py} stroke="hsl(var(--border))" strokeWidth="0.5" strokeOpacity="0.3" />
-                                <text x={bChartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">{val}</text>
+                                <line x1={bChartX - 3} y1={py} x2={bChartX} y2={py} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                                <line x1={bChartX} y1={py} x2={bChartRight} y2={py} stroke="var(--border)" strokeWidth="0.5" strokeOpacity="0.3" />
+                                <text x={bChartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="var(--muted-foreground)">{val}</text>
                             </g>
                         );
                     })}
@@ -377,13 +377,13 @@ const CombinedEffectsVisualizer = () => {
                         const px = bChartX + (hr / 24) * bChartW;
                         return (
                             <g key={hr}>
-                                <line x1={px} y1={bChartBottom} x2={px} y2={bChartBottom + 3} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                                <text x={px} y={bChartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">{hr}h</text>
+                                <line x1={px} y1={bChartBottom} x2={px} y2={bChartBottom + 3} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                                <text x={px} y={bChartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">{hr}h</text>
                             </g>
                         );
                     })}
 
-                    <text x={bChartX - 24} y={bChartY + bChartH / 2} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))" transform={`rotate(-90, ${bChartX - 24}, ${bChartY + bChartH / 2})`}>
+                    <text x={bChartX - 24} y={bChartY + bChartH / 2} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${bChartX - 24}, ${bChartY + bChartH / 2})`}>
                         Biomass (kg)
                     </text>
 
@@ -393,7 +393,7 @@ const CombinedEffectsVisualizer = () => {
                     {fS < 1 && <path d={nutrientFillPath} fill="rgba(140, 80, 200, 0.25)" stroke="none" />}
 
                     {/* Optimal dashed line */}
-                    <path d={bOptimalPath} fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1" strokeDasharray="4 3" strokeOpacity="0.3" />
+                    <path d={bOptimalPath} fill="none" stroke="var(--muted-foreground)" strokeWidth="1" strokeDasharray="4 3" strokeOpacity="0.3" />
 
                     {/* Border dashed lines between bands */}
                     {fI < 0.98 && (fT < 0.98 || fS < 0.98) && (
@@ -421,7 +421,7 @@ const CombinedEffectsVisualizer = () => {
                     )}
 
                     <path d={bCurvePath} fill="none" stroke="hsl(var(--accent-science))" strokeWidth="2" strokeLinejoin="round" />
-                    <circle cx={bCurrentPx} cy={bCurrentPy} r={4} fill="hsl(var(--accent-science))" stroke="hsl(var(--background))" strokeWidth="1.5" />
+                    <circle cx={bCurrentPx} cy={bCurrentPy} r={4} fill="hsl(var(--accent-science))" stroke="var(--background)" strokeWidth="1.5" />
 
                     {/* Adaptive mass label */}
                     {(() => {
@@ -436,13 +436,13 @@ const CombinedEffectsVisualizer = () => {
                         const yOffset = -8 + smooth * heightRatio * steepness * 12;
                         const labelY = Math.max(bCurrentPy + yOffset, bChartY + 12);
                         return (
-                            <text x={clampedX} y={labelY} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--foreground))" fontWeight="600">
+                            <text x={clampedX} y={labelY} textAnchor="middle" className="text-xs font-mono" fill="var(--foreground)" fontWeight="600">
                                 {currentMass.toFixed(1)} kg
                             </text>
                         );
                     })()}
 
-                    <text x={bChartX + bChartW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">
+                    <text x={bChartX + bChartW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">
                         Biomass Growth
                     </text>
                 </g>

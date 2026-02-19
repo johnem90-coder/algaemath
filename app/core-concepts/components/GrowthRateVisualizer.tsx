@@ -68,7 +68,7 @@ const GrowthRateVisualizer = () => {
           if (age < 0) continue;
           // Time to complete one division cycle
           const divisionTime = doublingsPerDay > 0 ? 1 / doublingsPerDay : 999;
-          
+
           cell.growthPhase = Math.min((age % divisionTime) / divisionTime, 1);
           cell.size = BASE_SIZE + (SPLIT_SIZE - BASE_SIZE) * cell.growthPhase;
 
@@ -197,8 +197,8 @@ const GrowthRateVisualizer = () => {
                 className="absolute text-sm font-mono font-bold pointer-events-none leading-tight"
                 style={{ left: 'calc(50% + 16px)', top: thumbTop - 1, transform: 'translateY(-20%)', color: 'hsl(var(--accent-science))' }}
               >
-                {mu.toFixed(2)}<br/>
-                <span className="text-[10px] font-normal text-muted-foreground">per day</span>
+                {mu.toFixed(2)}<br />
+                <span className="text-[10px] font-normal text-muted-foreground" style={{ marginTop: '-3px', display: 'block', lineHeight: '1.1' }}>doublings<br />per day</span>
               </span>
             </div>
           );
@@ -226,23 +226,23 @@ const GrowthRateVisualizer = () => {
             </path>
           </g>
 
-          <path d="M60 40 L50 200 Q50 215 65 215 L135 215 Q150 215 150 200 L140 40" fill="none" stroke="hsl(var(--border))" strokeWidth="2.5" strokeLinejoin="round" />
-          <path d="M55 40 L60 40 M140 40 L145 40" fill="none" stroke="hsl(var(--border))" strokeWidth="2.5" strokeLinecap="round" />
-          <path d="M55 40 Q55 36 58 36" fill="none" stroke="hsl(var(--border))" strokeWidth="2" />
-          <path d="M145 40 Q145 36 142 36" fill="none" stroke="hsl(var(--border))" strokeWidth="2" />
-          <line x1="52" y1="100" x2="58" y2="100" stroke="hsl(var(--border))" strokeWidth="1" />
-          <line x1="51" y1="140" x2="57" y2="140" stroke="hsl(var(--border))" strokeWidth="1" />
-          <line x1="51" y1="180" x2="56" y2="180" stroke="hsl(var(--border))" strokeWidth="1" />
-          <text x="100" y="255" textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">Culture</text>
+          <path d="M60 40 L50 200 Q50 215 65 215 L135 215 Q150 215 150 200 L140 40" fill="none" stroke="var(--border)" strokeWidth="2.5" strokeLinejoin="round" />
+          <path d="M55 40 L60 40 M140 40 L145 40" fill="none" stroke="var(--border)" strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M55 40 Q55 36 58 36" fill="none" stroke="var(--border)" strokeWidth="2" />
+          <path d="M145 40 Q145 36 142 36" fill="none" stroke="var(--border)" strokeWidth="2" />
+          <line x1="52" y1="100" x2="58" y2="100" stroke="var(--border)" strokeWidth="1" />
+          <line x1="51" y1="140" x2="57" y2="140" stroke="var(--border)" strokeWidth="1" />
+          <line x1="51" y1="180" x2="56" y2="180" stroke="var(--border)" strokeWidth="1" />
+          <text x="100" y="255" textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">Culture</text>
         </g>
 
         {/* Connector */}
-        <line x1="137" y1="175" x2={MX - MR} y2={MY} stroke="hsl(var(--border))" strokeWidth="1.5" strokeDasharray="4 4" />
-        <circle cx="125" cy="175" r="12" fill="none" stroke="hsl(var(--border))" strokeWidth="1.5" strokeDasharray="3 3" />
+        <line x1="137" y1="175" x2={MX - MR} y2={MY} stroke="var(--border)" strokeWidth="1.5" strokeDasharray="4 4" />
+        <circle cx="125" cy="175" r="12" fill="none" stroke="var(--border)" strokeWidth="1.5" strokeDasharray="3 3" />
 
         {/* Magnified view */}
         <g>
-          <circle cx={MX} cy={MY} r={MR} fill={`rgba(60, ${waterGreen}, 80, 0.12)`} stroke="hsl(var(--border))" strokeWidth="2" />
+          <circle cx={MX} cy={MY} r={MR} fill={`rgba(60, ${waterGreen}, 80, 0.12)`} stroke="var(--border)" strokeWidth="2" />
           <clipPath id="magnifier-clip">
             <circle cx={MX} cy={MY} r={MR - 2} />
           </clipPath>
@@ -289,7 +289,7 @@ const GrowthRateVisualizer = () => {
               );
             })}
           </g>
-          <text x={MX} y={305} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">Magnified cells</text>
+          <text x={MX} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">Magnified cells</text>
         </g>
 
         {/* Time indicator */}
@@ -301,15 +301,15 @@ const GrowthRateVisualizer = () => {
           return (
             <g>
               {/* Mini clock */}
-              <circle cx={clockX} cy={clockY} r={clockR} fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="1.2" />
-              <circle cx={clockX} cy={clockY} r={0.8} fill="hsl(var(--muted-foreground))" />
+              <circle cx={clockX} cy={clockY} r={clockR} fill="none" stroke="var(--muted-foreground)" strokeWidth="1.2" />
+              <circle cx={clockX} cy={clockY} r={0.8} fill="var(--muted-foreground)" />
               {/* Hour hand */}
               <line
                 x1={clockX}
                 y1={clockY}
                 x2={clockX + Math.cos(handAngle) * (clockR * 0.6)}
                 y2={clockY + Math.sin(handAngle) * (clockR * 0.6)}
-                stroke="hsl(var(--muted-foreground))"
+                stroke="var(--muted-foreground)"
                 strokeWidth="1.2"
                 strokeLinecap="round"
               />
@@ -319,14 +319,14 @@ const GrowthRateVisualizer = () => {
                 y1={clockY}
                 x2={clockX + Math.cos(handAngle * 12) * (clockR * 0.8)}
                 y2={clockY + Math.sin(handAngle * 12) * (clockR * 0.8)}
-                stroke="hsl(var(--muted-foreground))"
+                stroke="var(--muted-foreground)"
                 strokeWidth="0.8"
                 strokeLinecap="round"
               />
-              <text x={MX} y={clockY + 4} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))">
+              <text x={MX} y={clockY + 4} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)">
                 t = {timeLabel} h
               </text>
-              <rect x={MX - 50} y={clockY + 10} width={100} height={3} rx={1.5} fill="hsl(var(--border))" />
+              <rect x={MX - 50} y={clockY + 10} width={100} height={3} rx={1.5} fill="var(--border)" />
               <rect
                 x={MX - 50} y={clockY + 10}
                 width={animPhase === 'pause-start' ? 0 : animPhase === 'pause-end' ? 100 : 100 * ((timeLabel === '0:00' ? 0 : parseInt(timeLabel)) / 24)}
@@ -383,47 +383,47 @@ const GrowthRateVisualizer = () => {
 
                 {/* Symbolic form */}
                 <text x={trackX + trackW / 2} y={90} textAnchor="middle" className="text-base font-mono" fontWeight="600" letterSpacing="-1">
-                  <tspan fill="hsl(var(--foreground))">X₀ × 2</tspan>
+                  <tspan fill="var(--foreground)">X₀ × 2</tspan>
                   <tspan fill="hsl(var(--accent-science))" fontSize="0.7em" dy="-5">μ</tspan>
-                  <tspan dy="5" fill="hsl(var(--foreground))"> = </tspan>
+                  <tspan dy="5" fill="var(--foreground)"> = </tspan>
                   <tspan fill="hsl(var(--accent-science))">X₁</tspan>
                 </text>
 
                 {/* Numeric values */}
                 <text x={trackX + trackW / 2} y={117} textAnchor="middle" className="text-sm font-mono" fontWeight="500" letterSpacing="-1" opacity="0.5">
-                  <tspan fill="hsl(var(--foreground))">{startMass.toFixed(0)} kg × 2</tspan>
+                  <tspan fill="var(--foreground)">{startMass.toFixed(0)} kg × 2</tspan>
                   <tspan fill="hsl(var(--accent-science))" fontSize="0.7em" dy="-4">{mu.toFixed(1)}</tspan>
-                  <tspan dy="4" fill="hsl(var(--foreground))"> = </tspan>
+                  <tspan dy="4" fill="var(--foreground)"> = </tspan>
                   <tspan fill="hsl(var(--accent-science))">{endMass.toFixed(1)} kg</tspan>
                 </text>
               </g>
 
               {/* ── Horizontal slider track ── */}
-              <text x={trackX + trackW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">
+              <text x={trackX + trackW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">
                 Biomass Calculations
               </text>
 
               {/* Track background */}
-              <rect x={trackX} y={trackY} width={trackW} height={6} rx={3} fill="hsl(var(--border))" />
+              <rect x={trackX} y={trackY} width={trackW} height={6} rx={3} fill="var(--border)" />
 
               {/* Filled portion */}
               <rect x={trackX} y={trackY} width={Math.max(0, thumbX - trackX)} height={6} rx={3} fill="hsl(var(--accent-science))" />
 
               {/* Start marker */}
-              <line x1={trackX} y1={trackY - 4} x2={trackX} y2={trackY + 12} stroke="hsl(var(--foreground))" strokeWidth="1.5" />
-              <text x={trackX} y={trackY + 24} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+              <line x1={trackX} y1={trackY - 4} x2={trackX} y2={trackY + 12} stroke="var(--foreground)" strokeWidth="1.5" />
+              <text x={trackX} y={trackY + 24} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">
                 {startMass.toFixed(1)} kg
               </text>
 
               {/* Right limit marker */}
-              <line x1={trackX + trackW} y1={trackY - 4} x2={trackX + trackW} y2={trackY + 12} stroke="hsl(var(--foreground))" strokeWidth="1.5" strokeOpacity="0.25" />
-              <text x={trackX + trackW} y={trackY + 24} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))" opacity="0.5">
+              <line x1={trackX + trackW} y1={trackY - 4} x2={trackX + trackW} y2={trackY + 12} stroke="var(--foreground)" strokeWidth="1.5" strokeOpacity="0.25" />
+              <text x={trackX + trackW} y={trackY + 24} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)" opacity="0.5">
                 {maxMass.toFixed(0)} kg
               </text>
 
               {/* Final mass marker */}
-              <line x1={finalMarkerX} y1={trackY - 8} x2={finalMarkerX} y2={trackY + 14} stroke="hsl(var(--foreground))" strokeWidth="1.5" strokeDasharray="3 2" />
-              <text x={finalMarkerX} y={trackY - 12} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+              <line x1={finalMarkerX} y1={trackY - 8} x2={finalMarkerX} y2={trackY + 14} stroke="var(--foreground)" strokeWidth="1.5" strokeDasharray="3 2" />
+              <text x={finalMarkerX} y={trackY - 12} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">
                 {endMass.toFixed(2)} kg
               </text>
 
@@ -440,7 +440,7 @@ const GrowthRateVisualizer = () => {
                 return (
                   <g>
                     <g transform={`translate(${finalMarkerX}, ${pileBaseY}) scale(${endScale})`} opacity="0.12">
-                      <path d={pilePath} fill="hsl(var(--muted-foreground))" />
+                      <path d={pilePath} fill="var(--muted-foreground)" />
                     </g>
                     <g transform={`translate(${thumbX}, ${pileBaseY}) scale(${currentScale})`}>
                       <path d={pilePath} fill="hsl(140, 35%, 28%)" />
@@ -456,27 +456,27 @@ const GrowthRateVisualizer = () => {
               })()}
 
               {/* Animated thumb */}
-              <circle cx={thumbX} cy={trackY + 3} r={7} fill="hsl(var(--accent-science))" stroke="hsl(var(--background))" strokeWidth="2" />
+              <circle cx={thumbX} cy={trackY + 3} r={7} fill="hsl(var(--accent-science))" stroke="var(--background)" strokeWidth="2" />
 
               {/* Current mass label */}
-              <text x={thumbX} y={trackY - 12} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--foreground))" fontWeight="600">
+              <text x={thumbX} y={trackY - 12} textAnchor="middle" className="text-xs font-mono" fill="var(--foreground)" fontWeight="600">
                 {currentMass.toFixed(2)} kg
               </text>
 
               {/* ── Line Chart (right column) ── */}
               <g>
                 {/* Axes */}
-                <line x1={chartX} y1={chartY} x2={chartX} y2={chartBottom} stroke="hsl(var(--border))" strokeWidth="1" />
-                <line x1={chartX} y1={chartBottom} x2={chartRight} y2={chartBottom} stroke="hsl(var(--border))" strokeWidth="1" />
+                <line x1={chartX} y1={chartY} x2={chartX} y2={chartBottom} stroke="var(--border)" strokeWidth="1" />
+                <line x1={chartX} y1={chartBottom} x2={chartRight} y2={chartBottom} stroke="var(--border)" strokeWidth="1" />
 
                 {/* Y-axis ticks & labels */}
                 {yTicks.map((val) => {
                   const py = chartBottom - ((val - startMass) / (maxMass - startMass)) * chartH;
                   return (
                     <g key={val}>
-                      <line x1={chartX - 3} y1={py} x2={chartX} y2={py} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                      <line x1={chartX} y1={py} x2={chartRight} y2={py} stroke="hsl(var(--border))" strokeWidth="0.5" strokeOpacity="0.4" />
-                      <text x={chartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+                      <line x1={chartX - 3} y1={py} x2={chartX} y2={py} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                      <line x1={chartX} y1={py} x2={chartRight} y2={py} stroke="var(--border)" strokeWidth="0.5" strokeOpacity="0.4" />
+                      <text x={chartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="var(--muted-foreground)">
                         {val}
                       </text>
                     </g>
@@ -488,8 +488,8 @@ const GrowthRateVisualizer = () => {
                   const px = chartX + (hr / 24) * chartW;
                   return (
                     <g key={hr}>
-                      <line x1={px} y1={chartBottom} x2={px} y2={chartBottom + 3} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                      <text x={px} y={chartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+                      <line x1={px} y1={chartBottom} x2={px} y2={chartBottom + 3} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                      <text x={px} y={chartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">
                         {hr}h
                       </text>
                     </g>
@@ -497,7 +497,7 @@ const GrowthRateVisualizer = () => {
                 })}
 
                 {/* Axis labels */}
-                <text x={chartX - 24} y={chartY + chartH / 2} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))" transform={`rotate(-90, ${chartX - 24}, ${chartY + chartH / 2})`}>
+                <text x={chartX - 24} y={chartY + chartH / 2} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${chartX - 24}, ${chartY + chartH / 2})`}>
                   Biomass (kg)
                 </text>
 
@@ -505,7 +505,7 @@ const GrowthRateVisualizer = () => {
                 <path d={curvePath} fill="none" stroke="hsl(var(--accent-science))" strokeWidth="2" strokeLinejoin="round" />
 
                 {/* Animated dot on curve */}
-                <circle cx={currentPx} cy={currentPy} r={4} fill="hsl(var(--accent-science))" stroke="hsl(var(--background))" strokeWidth="1.5" />
+                <circle cx={currentPx} cy={currentPy} r={4} fill="hsl(var(--accent-science))" stroke="var(--background)" strokeWidth="1.5" />
 
                 {/* Current mass label near dot - stays inside chart */}
                 {(() => {
@@ -528,14 +528,14 @@ const GrowthRateVisualizer = () => {
                   const labelY = Math.max(currentPy + yOffset, chartY + 12);
 
                   return (
-                    <text x={clampedX} y={labelY} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--foreground))" fontWeight="600">
+                    <text x={clampedX} y={labelY} textAnchor="middle" className="text-xs font-mono" fill="var(--foreground)" fontWeight="600">
                       {currentMass.toFixed(1)} kg
                     </text>
                   );
                 })()}
 
                 {/* Bottom label */}
-                <text x={chartX + chartW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">
+                <text x={chartX + chartW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">
                   Biomass Growth
                 </text>
               </g>

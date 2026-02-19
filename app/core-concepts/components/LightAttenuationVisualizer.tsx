@@ -148,7 +148,7 @@ const LightAttenuationVisualizer = () => {
                         <stop offset="100%" stopColor={lightColor} stopOpacity="0.05" />
                     </linearGradient>
                     <marker id="arrowhead-atten" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
-                        <path d="M0,0 L6,2 L0,4" fill="hsl(var(--muted-foreground))" />
+                        <path d="M0,0 L6,2 L0,4" fill="var(--muted-foreground)" />
                     </marker>
                 </defs>
 
@@ -156,8 +156,8 @@ const LightAttenuationVisualizer = () => {
                 <g transform="translate(0, 50)">
                     {/* Light panel on left */}
                     <rect x="30" y="44" width="18" height="171" fill={`rgba(230, 170, 40, ${0.15 + (I0 / 1000) * 0.85})`} />
-                    <path d="M48,43 L33,43 Q30,43 30,46 L30,212 Q30,215 33,215 L48,215" fill="none" stroke="hsl(var(--foreground))" strokeWidth="2" strokeLinejoin="round" />
-                    <text x="22" y="130" textAnchor="middle" className="text-[10px] font-mono" fill="hsl(var(--muted-foreground))" transform="rotate(-90, 22, 130)">Light</text>
+                    <path d="M48,43 L33,43 Q30,43 30,46 L30,212 Q30,215 33,215 L48,215" fill="none" stroke="var(--foreground)" strokeWidth="2" strokeLinejoin="round" />
+                    <text x="22" y="130" textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)" transform="rotate(-90, 22, 130)">Light</text>
 
                     {/* Light rays emanating rightward into culture */}
                     {[55, 75, 95, 115, 135, 155, 175, 195].map((ry) => {
@@ -183,39 +183,39 @@ const LightAttenuationVisualizer = () => {
                     </g>
 
                     {/* Beaker outline */}
-                    <path d="M60 40 L50 200 Q50 215 65 215 L135 215 Q150 215 150 200 L140 40" fill="none" stroke="hsl(var(--border))" strokeWidth="2.5" strokeLinejoin="round" />
-                    <path d="M55 40 L60 40 M140 40 L145 40" fill="none" stroke="hsl(var(--border))" strokeWidth="2.5" strokeLinecap="round" />
-                    <path d="M55 40 Q55 36 58 36" fill="none" stroke="hsl(var(--border))" strokeWidth="2" />
-                    <path d="M145 40 Q145 36 142 36" fill="none" stroke="hsl(var(--border))" strokeWidth="2" />
+                    <path d="M60 40 L50 200 Q50 215 65 215 L135 215 Q150 215 150 200 L140 40" fill="none" stroke="var(--border)" strokeWidth="2.5" strokeLinejoin="round" />
+                    <path d="M55 40 L60 40 M140 40 L145 40" fill="none" stroke="var(--border)" strokeWidth="2.5" strokeLinecap="round" />
+                    <path d="M55 40 Q55 36 58 36" fill="none" stroke="var(--border)" strokeWidth="2" />
+                    <path d="M145 40 Q145 36 142 36" fill="none" stroke="var(--border)" strokeWidth="2" />
                     {/* Graduation marks */}
-                    <line x1="52" y1="100" x2="58" y2="100" stroke="hsl(var(--border))" strokeWidth="1" />
-                    <line x1="51" y1="140" x2="57" y2="140" stroke="hsl(var(--border))" strokeWidth="1" />
-                    <line x1="51" y1="180" x2="56" y2="180" stroke="hsl(var(--border))" strokeWidth="1" />
+                    <line x1="52" y1="100" x2="58" y2="100" stroke="var(--border)" strokeWidth="1" />
+                    <line x1="51" y1="140" x2="57" y2="140" stroke="var(--border)" strokeWidth="1" />
+                    <line x1="51" y1="180" x2="56" y2="180" stroke="var(--border)" strokeWidth="1" />
 
                     {/* Depth arrow */}
-                    <line x1="55" y1="228" x2="145" y2="228" stroke="hsl(var(--muted-foreground))" strokeWidth="1" markerEnd="url(#arrowhead-atten)" />
-                    <text x="100" y="242" textAnchor="middle" className="text-[10px] font-mono" fill="hsl(var(--muted-foreground))">depth z</text>
-                    <text x="100" y="258" textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">Culture</text>
+                    <line x1="55" y1="228" x2="145" y2="228" stroke="var(--muted-foreground)" strokeWidth="1" markerEnd="url(#arrowhead-atten)" />
+                    <text x="100" y="242" textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)">depth z</text>
+                    <text x="100" y="258" textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">Culture</text>
                 </g>
 
                 {/* ── Attenuation Chart ── */}
                 <g>
                     {/* Title — bottom-aligned with "Culture" */}
-                    <text x={chartX + chartW / 2} y={308} textAnchor="middle" className="text-sm font-mono" fill="hsl(var(--foreground))" fontWeight="500">
+                    <text x={chartX + chartW / 2} y={308} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">
                         Light vs Depth
                     </text>
 
                     {/* Axes */}
-                    <line x1={chartX} y1={chartY} x2={chartX} y2={chartBottom} stroke="hsl(var(--border))" strokeWidth="1" />
-                    <line x1={chartX} y1={chartBottom} x2={chartRight} y2={chartBottom} stroke="hsl(var(--border))" strokeWidth="1" />
+                    <line x1={chartX} y1={chartY} x2={chartX} y2={chartBottom} stroke="var(--border)" strokeWidth="1" />
+                    <line x1={chartX} y1={chartBottom} x2={chartRight} y2={chartBottom} stroke="var(--border)" strokeWidth="1" />
 
                     {/* Y-axis ticks */}
                     {[0, 200, 400, 600, 800, 1000].map((val) => {
                         const py = chartBottom - (val / 1000) * chartH;
                         return (
                             <g key={val}>
-                                <line x1={chartX - 3} y1={py} x2={chartRight} y2={py} stroke="hsl(var(--border))" strokeWidth="0.5" strokeOpacity="0.3" />
-                                <text x={chartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">{val}</text>
+                                <line x1={chartX - 3} y1={py} x2={chartRight} y2={py} stroke="var(--border)" strokeWidth="0.5" strokeOpacity="0.3" />
+                                <text x={chartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="var(--muted-foreground)">{val}</text>
                             </g>
                         );
                     })}
@@ -225,17 +225,17 @@ const LightAttenuationVisualizer = () => {
                         const px = chartX + (zmm / 100) * chartW;
                         return (
                             <g key={zmm}>
-                                <line x1={px} y1={chartBottom} x2={px} y2={chartBottom + 3} stroke="hsl(var(--muted-foreground))" strokeWidth="0.8" />
-                                <text x={px} y={chartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">{zmm}</text>
+                                <line x1={px} y1={chartBottom} x2={px} y2={chartBottom + 3} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                                <text x={px} y={chartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">{zmm}</text>
                             </g>
                         );
                     })}
 
                     {/* Axis labels */}
-                    <text x={chartX - 35} y={chartY + chartH / 2} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))" transform={`rotate(-90, ${chartX - 35}, ${chartY + chartH / 2})`}>
+                    <text x={chartX - 35} y={chartY + chartH / 2} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${chartX - 35}, ${chartY + chartH / 2})`}>
                         I (μE/m²/s)
                     </text>
-                    <text x={chartX + chartW / 2} y={chartBottom + 28} textAnchor="middle" className="text-xs font-mono" fill="hsl(var(--muted-foreground))">
+                    <text x={chartX + chartW / 2} y={chartBottom + 28} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">
                         Depth z (mm)
                     </text>
 
@@ -246,7 +246,7 @@ const LightAttenuationVisualizer = () => {
                     <path d={genCurve()} fill="none" stroke={lightColor} strokeWidth="2.5" strokeLinejoin="round" />
 
                     {/* I₀ marker at z=0 */}
-                    <circle cx={chartX} cy={chartBottom - (I0 / 1000) * chartH} r={4} fill={lightColor} stroke="hsl(var(--background))" strokeWidth="1.5" />
+                    <circle cx={chartX} cy={chartBottom - (I0 / 1000) * chartH} r={4} fill={lightColor} stroke="var(--background)" strokeWidth="1.5" />
                     <text x={chartX + 8} y={chartBottom - (I0 / 1000) * chartH + 4} className="text-[10px] font-mono font-bold" fill={lightColor}>
                         I₀ = {I0}
                     </text>
@@ -264,7 +264,7 @@ const LightAttenuationVisualizer = () => {
                                 {/* Horizontal dashed line from y-axis to ~0 line */}
                                 <line x1={chartX} y1={thumbPy} x2={zZeroPx} y2={thumbPy}
                                     stroke="rgb(220, 180, 50)" strokeWidth="1.5" strokeDasharray="6 3" />
-                                <circle cx={thumbPx} cy={thumbPy} r={5} fill="rgb(220, 180, 50)" stroke="hsl(var(--background))" strokeWidth="1.5" />
+                                <circle cx={thumbPx} cy={thumbPy} r={5} fill="rgb(220, 180, 50)" stroke="var(--background)" strokeWidth="1.5" />
                                 <text x={thumbPx + 9} y={thumbPy - 8} className="text-[10px] font-mono font-bold" fill="rgb(220, 180, 50)">
                                     Iavg = {Iavg.toFixed(0)}
                                 </text>
@@ -279,14 +279,14 @@ const LightAttenuationVisualizer = () => {
                         return (
                             <g>
                                 {/* Shaded "dark zone" region */}
-                                <rect x={px} y={chartY} width={chartRight - px} height={chartH} fill="hsl(var(--muted-foreground))" fillOpacity="0.08" />
-                                <line x1={px} y1={chartY} x2={px} y2={chartBottom} stroke="hsl(var(--muted-foreground))" strokeWidth="1" strokeDasharray="4 3" />
+                                <rect x={px} y={chartY} width={chartRight - px} height={chartH} fill="var(--muted-foreground)" fillOpacity="0.08" />
+                                <line x1={px} y1={chartY} x2={px} y2={chartBottom} stroke="var(--muted-foreground)" strokeWidth="1" strokeDasharray="4 3" />
 
                                 {/* Label inside dark zone */}
-                                <text x={px + (chartRight - px) / 2} y={chartY + chartH / 2 - 6} textAnchor="middle" className="text-[10px] font-mono" fill="hsl(var(--muted-foreground))" opacity="0.7">
+                                <text x={px + (chartRight - px) / 2} y={chartY + chartH / 2 - 6} textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)" opacity="0.7">
                                     not enough
                                 </text>
-                                <text x={px + (chartRight - px) / 2} y={chartY + chartH / 2 + 8} textAnchor="middle" className="text-[10px] font-mono" fill="hsl(var(--muted-foreground))" opacity="0.7">
+                                <text x={px + (chartRight - px) / 2} y={chartY + chartH / 2 + 8} textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)" opacity="0.7">
                                     light to grow
                                 </text>
                             </g>
@@ -297,37 +297,37 @@ const LightAttenuationVisualizer = () => {
                 {/* ── Equations ── */}
                 <g transform="translate(0, 26)">
                     {/* Title */}
-                    <text x={eqX} y={chartY - 4} className="text-xs font-mono" fill="hsl(var(--foreground))" fontWeight="600">
+                    <text x={eqX} y={chartY - 4} className="text-xs font-mono" fill="var(--foreground)" fontWeight="600">
                         Beer-Lambert Law
                     </text>
 
                     {/* Integral form */}
                     <text x={eqX} y={chartY + 24} className="text-sm font-mono" fontWeight="500">
                         <tspan fill={lightColor}>I</tspan>
-                        <tspan fill="hsl(var(--foreground))">(z) = </tspan>
+                        <tspan fill="var(--foreground)">(z) = </tspan>
                         <tspan fill={lightColor}>I₀</tspan>
-                        <tspan fill="hsl(var(--foreground))"> · e</tspan>
-                        <tspan fontSize="0.8em" dy="-4"><tspan fill="hsl(var(--foreground))">−</tspan><tspan fill={kaColor}>ε</tspan><tspan fill="hsl(var(--foreground))">·</tspan><tspan fill={densityColor}>X</tspan><tspan fill="hsl(var(--foreground))">·z</tspan></tspan>
+                        <tspan fill="var(--foreground)"> · e</tspan>
+                        <tspan fontSize="0.8em" dy="-4"><tspan fill="var(--foreground)">−</tspan><tspan fill={kaColor}>ε</tspan><tspan fill="var(--foreground)">·</tspan><tspan fill={densityColor}>X</tspan><tspan fill="var(--foreground)">·z</tspan></tspan>
                         <tspan dy="4"> </tspan>
                     </text>
 
                     {/* Iavg symbolic form */}
                     <text x={eqX} y={chartY + 54} className="text-sm font-mono" fontWeight="500">
                         <tspan fill={lightColor}>I</tspan>
-                        <tspan fill="hsl(var(--foreground))" fontSize="0.7em" dy="3">avg</tspan>
-                        <tspan dy="-3" fill="hsl(var(--foreground))"> = </tspan>
+                        <tspan fill="var(--foreground)" fontSize="0.7em" dy="3">avg</tspan>
+                        <tspan dy="-3" fill="var(--foreground)"> = </tspan>
                         <tspan fill={lightColor}>I₀</tspan>
-                        <tspan fill="hsl(var(--foreground))"> / (</tspan>
+                        <tspan fill="var(--foreground)"> / (</tspan>
                         <tspan fill={kaColor}>ε</tspan>
-                        <tspan fill="hsl(var(--foreground))">·</tspan>
+                        <tspan fill="var(--foreground)">·</tspan>
                         <tspan fill={densityColor}>X</tspan>
-                        <tspan fill="hsl(var(--foreground))">·L) · (1 − e</tspan>
-                        <tspan fontSize="0.8em" dy="-4"><tspan fill="hsl(var(--foreground))">−</tspan><tspan fill={kaColor}>ε</tspan><tspan fill="hsl(var(--foreground))">·</tspan><tspan fill={densityColor}>X</tspan><tspan fill="hsl(var(--foreground))">·L</tspan></tspan>
-                        <tspan dy="4" fill="hsl(var(--foreground))">)</tspan>
+                        <tspan fill="var(--foreground)">·L) · (1 − e</tspan>
+                        <tspan fontSize="0.8em" dy="-4"><tspan fill="var(--foreground)">−</tspan><tspan fill={kaColor}>ε</tspan><tspan fill="var(--foreground)">·</tspan><tspan fill={densityColor}>X</tspan><tspan fill="var(--foreground)">·L</tspan></tspan>
+                        <tspan dy="4" fill="var(--foreground)">)</tspan>
                     </text>
 
                     {/* Divider */}
-                    <line x1={eqX} y1={chartY + 68} x2={eqX + 280} y2={chartY + 68} stroke="hsl(var(--border))" strokeWidth="0.5" />
+                    <line x1={eqX} y1={chartY + 68} x2={eqX + 280} y2={chartY + 68} stroke="var(--border)" strokeWidth="0.5" />
 
                     {/* Dynamic numeric equation */}
                     <text x={eqX} y={chartY + 92} className="text-sm font-mono" fontWeight="500" opacity="0.5">
@@ -336,19 +336,19 @@ const LightAttenuationVisualizer = () => {
                         <tspan fill="rgb(220, 180, 50)" dy="-3"> = {Iavg.toFixed(1)} μE/m²/s</tspan>
                     </text>
                     <text x={eqX + 35} y={chartY + 112} className="text-sm font-mono" fontWeight="500" opacity="0.5">
-                        <tspan fill="hsl(var(--foreground))">= </tspan>
+                        <tspan fill="var(--foreground)">= </tspan>
                         <tspan fill={lightColor}>{I0}</tspan>
-                        <tspan fill="hsl(var(--foreground))"> / (</tspan>
+                        <tspan fill="var(--foreground)"> / (</tspan>
                         <tspan fill={kaColor}>{Ka}</tspan>
-                        <tspan fill="hsl(var(--foreground))">×</tspan>
+                        <tspan fill="var(--foreground)">×</tspan>
                         <tspan fill={densityColor}>{X.toFixed(1)}</tspan>
-                        <tspan fill="hsl(var(--foreground))">×{L}) · (1 − e</tspan>
-                        <tspan fill="hsl(var(--foreground))" fontSize="0.8em" dy="-3">−</tspan>
+                        <tspan fill="var(--foreground)">×{L}) · (1 − e</tspan>
+                        <tspan fill="var(--foreground)" fontSize="0.8em" dy="-3">−</tspan>
                         <tspan fill={kaColor} fontSize="0.8em">{Ka}</tspan>
-                        <tspan fill="hsl(var(--foreground))" fontSize="0.8em">×</tspan>
+                        <tspan fill="var(--foreground)" fontSize="0.8em">×</tspan>
                         <tspan fill={densityColor} fontSize="0.8em">{X.toFixed(1)}</tspan>
-                        <tspan fill="hsl(var(--foreground))" fontSize="0.8em">×{L}</tspan>
-                        <tspan dy="3" fill="hsl(var(--foreground))">)</tspan>
+                        <tspan fill="var(--foreground)" fontSize="0.8em">×{L}</tspan>
+                        <tspan dy="3" fill="var(--foreground)">)</tspan>
                     </text>
 
                     {/* Growing / Not Growing percentages */}
@@ -360,7 +360,7 @@ const LightAttenuationVisualizer = () => {
                                 <text y={0} className="text-xs font-mono" fontWeight="600" fill="hsl(var(--accent-science))">
                                     Growing: {growingPct.toFixed(0)}%
                                 </text>
-                                <text y={18} className="text-xs font-mono" fontWeight="600" fill="hsl(var(--muted-foreground))">
+                                <text y={18} className="text-xs font-mono" fontWeight="600" fill="var(--muted-foreground)">
                                     Not Growing: {notGrowingPct.toFixed(0)}%
                                 </text>
                             </g>
