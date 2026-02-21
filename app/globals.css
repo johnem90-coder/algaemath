@@ -80,6 +80,11 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
+
+  /* Domain accent colors — science / simulation green */
+  --accent-science: 145 45% 42%;
+  --accent-science-muted: 145 35% 94%;
+  --accent-science-hover: 145 40% 88%;
 }
 
 .dark {
@@ -114,13 +119,64 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+
+  /* Domain accent colors — science / simulation green (dark) */
+  --accent-science: 145 50% 55%;
+  --accent-science-muted: 145 30% 18%;
+  --accent-science-hover: 145 35% 25%;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Thin vertical sliders for Light Absorption pigment contribution */
+.thin-slider {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+.thin-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  border-radius: 999px;
+  transform: translateX(5px);
+}
+
+.thin-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-top: -4.5px;
+  cursor: pointer;
+}
+
+.thin-slider::-moz-range-track {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  border-radius: 999px;
+  border: none;
+  transform: translateX(5px);
+}
+
+.thin-slider::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  border: none;
+  cursor: pointer;
 }
