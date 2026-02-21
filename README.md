@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AlgaeMath.com
+
+Interactive educational platform for photobioreactor modeling.
+
+**Tech Stack:** Next.js + TypeScript + Tailwind CSS + shadcn/ui + Recharts + KaTeX
+
+---
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the site.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Documentation
 
-## Learn More
+All project documentation lives in the [`docs/`](docs/) folder:
 
-To learn more about Next.js, take a look at the following resources:
+| File | Description |
+|------|-------------|
+| [PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) | High-level summary, site structure, architecture |
+| [FILE_STRUCTURE.md](docs/FILE_STRUCTURE.md) | Complete directory layout with explanations |
+| [MODEL_REGISTRY.md](docs/MODEL_REGISTRY.md) | Physics model system pattern |
+| [PAGE_REQUIREMENTS.md](docs/PAGE_REQUIREMENTS.md) | Detailed specs for every page |
+| [COMPONENT_LIBRARY.md](docs/COMPONENT_LIBRARY.md) | Reusable component patterns and props |
+| [QUICK_START.md](docs/QUICK_START.md) | Setup, first component, common commands |
+| [API_DESIGN.md](docs/API_DESIGN.md) | Backend endpoints for simulations & exports |
+| [GITHUB_WORKFLOW.md](docs/GITHUB_WORKFLOW.md) | Git workflow, branching, commits, PRs |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Quick Paths
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **New to the project?** Start with [PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)
+- **Looking for file locations?** See [FILE_STRUCTURE.md](docs/FILE_STRUCTURE.md)
+- **Adding a physics model?** Follow [MODEL_REGISTRY.md](docs/MODEL_REGISTRY.md)
+- **Building a page?** Check [PAGE_REQUIREMENTS.md](docs/PAGE_REQUIREMENTS.md)
+- **Git questions?** Read [GITHUB_WORKFLOW.md](docs/GITHUB_WORKFLOW.md)
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Current Status
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Branch:** `feature/core-concepts-visualizers`
+- **Completed:** Equations page with Light Response (5 models) and Temperature Response (4 models)
+- **Remaining:** Nutrient Response, pH Response, Light Attenuation sections
