@@ -14,7 +14,6 @@ const sections = [
     description:
       'The mathematical models behind algae growth, presented with live LaTeX rendering.',
     badge: 'Equations',
-    soon: true,
   },
   {
     href: '/simple-simulators',
@@ -54,7 +53,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="mx-auto max-w-5xl px-6 pt-20 pb-12 md:pt-32 md:pb-16 text-center">
+      <header className="mx-auto max-w-5xl px-6 pt-12 pb-12 md:pt-24 md:pb-16 text-center">
         <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
           <span className="text-[hsl(var(--accent-science))]">Algae</span>Math
         </h1>
