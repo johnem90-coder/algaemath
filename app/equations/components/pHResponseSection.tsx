@@ -2,10 +2,10 @@
 
 import { useState, useMemo } from "react";
 import {
-    temperatureEquations,
-    type TemperatureEquation,
+    pHEquations,
+    type PHEquation,
     type Parameter,
-} from "@/lib/equations/temperature";
+} from "@/lib/equations/pH";
 import {
     Accordion,
     AccordionContent,
@@ -28,61 +28,36 @@ import "katex/dist/katex.min.css";
 
 /* ── Local calculation functions ──────────────────────────────────── */
 
-function calcGaussianSymmetric(T: number, p: Record<string, number>): number {
-    const Topt = p["T_{opt}"];
+function calcGaussianSymmetric(pH: number, p: Record<string, number>): number {
+    const pHopt = p["pH_{opt}"];
     const alpha = p["\\alpha"];
-    return Math.exp(-alpha * (T - Topt) * (T - Topt));
+    const d = pH - pHopt;
+    return Math.exp(-alpha * d * d);
 }
 
-function calcGaussianAsymmetric(T: number, p: Record<string, number>): number {
-    const Topt = p["T_{opt}"];
-    const alpha = p["\\alpha"];
-    const beta = p["\\beta"];
-    const diff = T - Topt;
-    return T < Topt
-        ? Math.exp(-alpha * diff * diff)
-        : Math.exp(-beta * diff * diff);
-}
-
-function calcQuadraticExponential(T: number, p: Record<string, number>): number {
-    const Topt = p["T_{opt}"];
-    const Tmin = p["T_{min}"];
-    const Tmax = p["T_{max}"];
+function calcGaussianAsymmetric(pH: number, p: Record<string, number>): number {
+    const pHopt = p["pH_{opt}"];
     const alpha = p["\\alpha"];
     const beta = p["\\beta"];
-
-    if (T < Topt) {
-        const r = (T - Topt) / (Topt - Tmin);
-        return Math.exp(-r * r * alpha);
-    } else {
-        const r = (T - Topt) / (Tmax - Topt);
-        return Math.exp(-r * r * beta);
-    }
+    const shape = pH < pHopt ? alpha : beta;
+    const d = pH - pHopt;
+    return Math.exp(-shape * d * d);
 }
 
-function calcBetaFunction(T: number, p: Record<string, number>): number {
-    const Topt = p["T_{opt}"];
-    const Tmin = p["T_{min}"];
-    const Tmax = p["T_{max}"];
-    const alpha = p["\\alpha"];
-    const beta = p["\\beta"];
-
-    if (T <= Tmin || T >= Tmax) return 0;
-
-    if (T < Topt) {
-        const t = (T - Tmin) / (Topt - Tmin);
-        return Math.pow(t, alpha) * Math.exp(-alpha * (t - 1));
-    } else {
-        const t = (Tmax - T) / (Tmax - Topt);
-        return Math.pow(t, beta) * Math.exp(-beta * (t - 1));
-    }
+function calcCardinal(pH: number, p: Record<string, number>): number {
+    const pHmin = p["pH_{min}"];
+    const pHopt = p["pH_{opt}"];
+    const pHmax = p["pH_{max}"];
+    if (pH <= pHmin || pH >= pHmax) return 0;
+    const num = (pH - pHmin) * (pH - pHmax);
+    const den = (pHopt - pHmin) * (pHopt - pHmax);
+    return Math.max(0, num / den);
 }
 
-const calculators: Record<string, (T: number, p: Record<string, number>) => number> = {
+const calculators: Record<string, (pH: number, p: Record<string, number>) => number> = {
     "gaussian-symmetric": calcGaussianSymmetric,
     "gaussian-asymmetric": calcGaussianAsymmetric,
-    "quadratic-exponential": calcQuadraticExponential,
-    "beta-function": calcBetaFunction,
+    cardinal: calcCardinal,
 };
 
 /* ── Parameter envelope helper ────────────────────────────────────── */
@@ -116,7 +91,7 @@ function renderLatex(latex: string): string {
 
 /* ── Equation card ────────────────────────────────────────────────── */
 
-function EquationCard({ equation }: { equation: TemperatureEquation }) {
+function EquationCard({ equation }: { equation: PHEquation }) {
     const [params, setParams] = useState<Record<string, number>>(() => {
         const defaults: Record<string, number> = {};
         for (const p of equation.parameters) {
@@ -132,25 +107,25 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
     const data = useMemo(() => {
         const calc = calculators[equation.id];
         const combos = getParamGrid(equation.parameters);
-        const points: { T: number; muT: number; muTmin: number; muTmax: number }[] = [];
+        const points: { pH: number; fPH: number; fPHmin: number; fPHmax: number }[] = [];
         for (let i = 0; i <= 200; i++) {
-            const T = (i / 200) * 60;
-            let muT = calc(T, params);
-            muT = Math.max(0, Math.min(1, muT));
+            const pH = 3 + (i / 200) * 9;
+            let fPH = calc(pH, params);
+            fPH = Math.max(0, Math.min(1, fPH));
 
-            let muTmin = 1;
-            let muTmax = 0;
+            let fPHmin = 1;
+            let fPHmax = 0;
             for (const combo of combos) {
-                const val = Math.max(0, Math.min(1, calc(T, combo)));
-                if (val < muTmin) muTmin = val;
-                if (val > muTmax) muTmax = val;
+                const val = Math.max(0, Math.min(1, calc(pH, combo)));
+                if (val < fPHmin) fPHmin = val;
+                if (val > fPHmax) fPHmax = val;
             }
 
             points.push({
-                T: Math.round(T * 10) / 10,
-                muT: Math.round(muT * 1e6) / 1e6,
-                muTmin: Math.round(muTmin * 1e6) / 1e6,
-                muTmax: Math.round(muTmax * 1e6) / 1e6,
+                pH: Math.round(pH * 100) / 100,
+                fPH: Math.round(fPH * 1e6) / 1e6,
+                fPHmin: Math.round(fPHmin * 1e6) / 1e6,
+                fPHmax: Math.round(fPHmax * 1e6) / 1e6,
             });
         }
         return points;
@@ -210,27 +185,27 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
                         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                         <Area
                             type="monotone"
-                            dataKey="muTmax"
-                            fill="rgb(200, 80, 60)"
+                            dataKey="fPHmax"
+                            fill="rgb(20, 150, 140)"
                             fillOpacity={0.2}
                             stroke="none"
                             isAnimationActive={false}
                         />
                         <Area
                             type="monotone"
-                            dataKey="muTmin"
+                            dataKey="fPHmin"
                             fill="#ffffff"
                             fillOpacity={1}
                             stroke="none"
                             isAnimationActive={false}
                         />
                         <XAxis
-                            dataKey="T"
+                            dataKey="pH"
                             type="number"
-                            domain={[0, 60]}
-                            ticks={[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]}
+                            domain={[3, 12]}
+                            ticks={[3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 11.5, 12]}
                             label={{
-                                value: "Temperature, T (°C)",
+                                value: "pH",
                                 position: "insideBottom",
                                 offset: -13,
                                 className: "fill-muted-foreground text-xs",
@@ -241,7 +216,7 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
                             domain={[0, 1]}
                             tickCount={6}
                             label={{
-                                value: "Temperature Factor, µ_T (-)",
+                                value: "pH Factor, f_pH (-)",
                                 angle: -90,
                                 position: "center",
                                 dx: -15,
@@ -252,16 +227,14 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
                         <Tooltip
                             formatter={(value) => [
                                 Number(value).toFixed(4),
-                                "µ_T",
+                                "f_pH",
                             ]}
-                            labelFormatter={(label) =>
-                                `T = ${label} °C`
-                            }
+                            labelFormatter={(label) => `pH = ${label}`}
                         />
                         <Line
                             type="monotone"
-                            dataKey="muT"
-                            stroke="rgb(200, 80, 60)"
+                            dataKey="fPH"
+                            stroke="rgb(20, 150, 140)"
                             strokeWidth={2}
                             dot={false}
                             isAnimationActive={false}
@@ -315,10 +288,10 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
 
 /* ── Main section ─────────────────────────────────────────────────── */
 
-export default function TemperatureResponseSection() {
+export default function pHResponseSection() {
     return (
         <Accordion type="multiple" className="w-full">
-            {temperatureEquations.map((eq) => (
+            {pHEquations.map((eq) => (
                 <AccordionItem key={eq.id} value={eq.id}>
                     <AccordionTrigger className="text-base font-medium">
                         {eq.name}

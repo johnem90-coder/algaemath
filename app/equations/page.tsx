@@ -6,12 +6,9 @@ import {
 } from '@/components/ui/accordion';
 import LightResponseSection from './components/LightResponseSection';
 import TemperatureResponseSection from './components/TemperatureResponseSection';
-
-const placeholderSections = [
-    { id: 'nutrient-response', title: 'Nutrient Response' },
-    { id: 'ph-response', title: 'pH Response' },
-    { id: 'light-attenuation', title: 'Light Attenuation' },
-];
+import NutrientResponseSection from './components/NutrientResponseSection';
+import PHResponseSection from './components/pHResponseSection';
+import LightAttenuationSection from './components/LightAttenuationSection';
 
 export const metadata = {
     title: 'Equations — AlgaeMath',
@@ -57,18 +54,32 @@ export default function EquationsPage() {
                         </AccordionContent>
                     </AccordionItem>
 
-                    {placeholderSections.map((section) => (
-                        <AccordionItem key={section.id} value={section.id}>
-                            <AccordionTrigger className="text-lg">
-                                {section.title}
-                            </AccordionTrigger>
-                            <AccordionContent>
-                                <p className="text-muted-foreground py-8 text-center">
-                                    Coming soon.
-                                </p>
-                            </AccordionContent>
-                        </AccordionItem>
-                    ))}
+                    <AccordionItem value="nutrient-response">
+                        <AccordionTrigger className="text-lg">
+                            Nutrient Response
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <NutrientResponseSection />
+                        </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="ph-response">
+                        <AccordionTrigger className="text-lg">
+                            pH Response
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <PHResponseSection />
+                        </AccordionContent>
+                    </AccordionItem>
+
+                    <AccordionItem value="light-attenuation">
+                        <AccordionTrigger className="text-lg">
+                            Light Attenuation
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            <LightAttenuationSection />
+                        </AccordionContent>
+                    </AccordionItem>
                 </Accordion>
             </section>
         </div>

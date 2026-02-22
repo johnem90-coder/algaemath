@@ -2,10 +2,10 @@
 
 import { useState, useMemo } from "react";
 import {
-    temperatureEquations,
-    type TemperatureEquation,
+    attenuationEquations,
+    type AttenuationEquation,
     type Parameter,
-} from "@/lib/equations/temperature";
+} from "@/lib/equations/attenuation";
 import {
     Accordion,
     AccordionContent,
@@ -26,63 +26,26 @@ import {
 import katex from "katex";
 import "katex/dist/katex.min.css";
 
-/* ── Local calculation functions ──────────────────────────────────── */
+/* ── Local calculation functions (z in mm, return I/I₀) ──────────── */
 
-function calcGaussianSymmetric(T: number, p: Record<string, number>): number {
-    const Topt = p["T_{opt}"];
-    const alpha = p["\\alpha"];
-    return Math.exp(-alpha * (T - Topt) * (T - Topt));
+function calcBeerLambert(z_mm: number, p: Record<string, number>): number {
+    const eps = p["\\varepsilon"];
+    const X = p["X"];
+    // ε [m²/kg] × X [g/L = kg/m³] × z [m] — dimensionless
+    return Math.exp(-eps * X * (z_mm / 1000));
 }
 
-function calcGaussianAsymmetric(T: number, p: Record<string, number>): number {
-    const Topt = p["T_{opt}"];
-    const alpha = p["\\alpha"];
-    const beta = p["\\beta"];
-    const diff = T - Topt;
-    return T < Topt
-        ? Math.exp(-alpha * diff * diff)
-        : Math.exp(-beta * diff * diff);
+function calcTwoComponent(z_mm: number, p: Record<string, number>): number {
+    const Kw = p["K_w"];
+    const eps = p["\\varepsilon"];
+    const X = p["X"];
+    // (Kw [m⁻¹] + ε·X [m⁻¹]) × z [m]
+    return Math.exp(-(Kw + eps * X) * (z_mm / 1000));
 }
 
-function calcQuadraticExponential(T: number, p: Record<string, number>): number {
-    const Topt = p["T_{opt}"];
-    const Tmin = p["T_{min}"];
-    const Tmax = p["T_{max}"];
-    const alpha = p["\\alpha"];
-    const beta = p["\\beta"];
-
-    if (T < Topt) {
-        const r = (T - Topt) / (Topt - Tmin);
-        return Math.exp(-r * r * alpha);
-    } else {
-        const r = (T - Topt) / (Tmax - Topt);
-        return Math.exp(-r * r * beta);
-    }
-}
-
-function calcBetaFunction(T: number, p: Record<string, number>): number {
-    const Topt = p["T_{opt}"];
-    const Tmin = p["T_{min}"];
-    const Tmax = p["T_{max}"];
-    const alpha = p["\\alpha"];
-    const beta = p["\\beta"];
-
-    if (T <= Tmin || T >= Tmax) return 0;
-
-    if (T < Topt) {
-        const t = (T - Tmin) / (Topt - Tmin);
-        return Math.pow(t, alpha) * Math.exp(-alpha * (t - 1));
-    } else {
-        const t = (Tmax - T) / (Tmax - Topt);
-        return Math.pow(t, beta) * Math.exp(-beta * (t - 1));
-    }
-}
-
-const calculators: Record<string, (T: number, p: Record<string, number>) => number> = {
-    "gaussian-symmetric": calcGaussianSymmetric,
-    "gaussian-asymmetric": calcGaussianAsymmetric,
-    "quadratic-exponential": calcQuadraticExponential,
-    "beta-function": calcBetaFunction,
+const calculators: Record<string, (z_mm: number, p: Record<string, number>) => number> = {
+    "beer-lambert": calcBeerLambert,
+    "two-component": calcTwoComponent,
 };
 
 /* ── Parameter envelope helper ────────────────────────────────────── */
@@ -116,7 +79,9 @@ function renderLatex(latex: string): string {
 
 /* ── Equation card ────────────────────────────────────────────────── */
 
-function EquationCard({ equation }: { equation: TemperatureEquation }) {
+const Z_MAX = 100; // mm — x-axis domain, matching Core Concepts visualizer
+
+function EquationCard({ equation }: { equation: AttenuationEquation }) {
     const [params, setParams] = useState<Record<string, number>>(() => {
         const defaults: Record<string, number> = {};
         for (const p of equation.parameters) {
@@ -132,25 +97,25 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
     const data = useMemo(() => {
         const calc = calculators[equation.id];
         const combos = getParamGrid(equation.parameters);
-        const points: { T: number; muT: number; muTmin: number; muTmax: number }[] = [];
+        const points: { z: number; relI: number; relImin: number; relImax: number }[] = [];
         for (let i = 0; i <= 200; i++) {
-            const T = (i / 200) * 60;
-            let muT = calc(T, params);
-            muT = Math.max(0, Math.min(1, muT));
+            const z = (i / 200) * Z_MAX;
+            let relI = calc(z, params);
+            relI = Math.max(0, Math.min(1, relI));
 
-            let muTmin = 1;
-            let muTmax = 0;
+            let relImin = 1;
+            let relImax = 0;
             for (const combo of combos) {
-                const val = Math.max(0, Math.min(1, calc(T, combo)));
-                if (val < muTmin) muTmin = val;
-                if (val > muTmax) muTmax = val;
+                const val = Math.max(0, Math.min(1, calc(z, combo)));
+                if (val < relImin) relImin = val;
+                if (val > relImax) relImax = val;
             }
 
             points.push({
-                T: Math.round(T * 10) / 10,
-                muT: Math.round(muT * 1e6) / 1e6,
-                muTmin: Math.round(muTmin * 1e6) / 1e6,
-                muTmax: Math.round(muTmax * 1e6) / 1e6,
+                z: Math.round(z * 10) / 10,
+                relI: Math.round(relI * 1e6) / 1e6,
+                relImin: Math.round(relImin * 1e6) / 1e6,
+                relImax: Math.round(relImax * 1e6) / 1e6,
             });
         }
         return points;
@@ -210,27 +175,27 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
                         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                         <Area
                             type="monotone"
-                            dataKey="muTmax"
-                            fill="rgb(200, 80, 60)"
+                            dataKey="relImax"
+                            fill="rgb(210, 150, 20)"
                             fillOpacity={0.2}
                             stroke="none"
                             isAnimationActive={false}
                         />
                         <Area
                             type="monotone"
-                            dataKey="muTmin"
+                            dataKey="relImin"
                             fill="#ffffff"
                             fillOpacity={1}
                             stroke="none"
                             isAnimationActive={false}
                         />
                         <XAxis
-                            dataKey="T"
+                            dataKey="z"
                             type="number"
-                            domain={[0, 60]}
-                            ticks={[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]}
+                            domain={[0, Z_MAX]}
+                            ticks={[0, 20, 40, 60, 80, 100]}
                             label={{
-                                value: "Temperature, T (°C)",
+                                value: "Depth, z (mm)",
                                 position: "insideBottom",
                                 offset: -13,
                                 className: "fill-muted-foreground text-xs",
@@ -241,7 +206,7 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
                             domain={[0, 1]}
                             tickCount={6}
                             label={{
-                                value: "Temperature Factor, µ_T (-)",
+                                value: "Relative Irradiance, I/I₀ (-)",
                                 angle: -90,
                                 position: "center",
                                 dx: -15,
@@ -252,16 +217,14 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
                         <Tooltip
                             formatter={(value) => [
                                 Number(value).toFixed(4),
-                                "µ_T",
+                                "I/I₀",
                             ]}
-                            labelFormatter={(label) =>
-                                `T = ${label} °C`
-                            }
+                            labelFormatter={(label) => `z = ${label} mm`}
                         />
                         <Line
                             type="monotone"
-                            dataKey="muT"
-                            stroke="rgb(200, 80, 60)"
+                            dataKey="relI"
+                            stroke="rgb(210, 150, 20)"
                             strokeWidth={2}
                             dot={false}
                             isAnimationActive={false}
@@ -315,10 +278,10 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
 
 /* ── Main section ─────────────────────────────────────────────────── */
 
-export default function TemperatureResponseSection() {
+export default function LightAttenuationSection() {
     return (
         <Accordion type="multiple" className="w-full">
-            {temperatureEquations.map((eq) => (
+            {attenuationEquations.map((eq) => (
                 <AccordionItem key={eq.id} value={eq.id}>
                     <AccordionTrigger className="text-base font-medium">
                         {eq.name}
