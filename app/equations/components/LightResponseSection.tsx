@@ -204,8 +204,8 @@ function EquationCard({ equation }: { equation: LightEquation }) {
                         <Area
                             type="monotone"
                             dataKey="fLmax"
-                            fill="#cbd5e1"
-                            fillOpacity={0.4}
+                            fill="rgb(210, 150, 20)"
+                            fillOpacity={0.2}
                             stroke="none"
                             isAnimationActive={false}
                         />
@@ -254,7 +254,7 @@ function EquationCard({ equation }: { equation: LightEquation }) {
                         <Line
                             type="monotone"
                             dataKey="fL"
-                            stroke="#475569"
+                            stroke="rgb(210, 150, 20)"
                             strokeWidth={2}
                             dot={false}
                             isAnimationActive={false}

@@ -109,7 +109,7 @@ const LightAttenuationVisualizer = () => {
                     <span className="text-sm font-mono font-bold mb-1" style={{ color: densityColor }}>X</span>
                     <span className="text-[10px] font-mono text-muted-foreground mb-1">g/L</span>
                     <div className="h-52 relative w-full flex justify-center">
-                        <Slider orientation="vertical" min={0} max={10} step={0.2} value={densityState} onValueChange={setDensityState}
+                        <Slider orientation="vertical" min={0.1} max={10} step={0.1} value={densityState} onValueChange={setDensityState}
                             className="h-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[rgb(40,160,100)] [&_span[role=slider]]:!border-[rgb(40,160,100)] [&_span[role=slider]]:!bg-background" />
                         <span className="absolute text-[10px] font-mono font-bold pointer-events-none leading-tight" style={{ left: 'calc(50% + 14px)', top: xThumbTop - 1, transform: 'translateY(-30%)', color: densityColor }}>
                             {X.toFixed(1)}

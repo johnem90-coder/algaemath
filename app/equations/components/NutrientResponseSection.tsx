@@ -2,10 +2,10 @@
 
 import { useState, useMemo } from "react";
 import {
-    temperatureEquations,
-    type TemperatureEquation,
+    nutrientEquations,
+    type NutrientEquation,
     type Parameter,
-} from "@/lib/equations/temperature";
+} from "@/lib/equations/nutrient";
 import {
     Accordion,
     AccordionContent,
@@ -28,61 +28,32 @@ import "katex/dist/katex.min.css";
 
 /* ── Local calculation functions ──────────────────────────────────── */
 
-function calcGaussianSymmetric(T: number, p: Record<string, number>): number {
-    const Topt = p["T_{opt}"];
-    const alpha = p["\\alpha"];
-    return Math.exp(-alpha * (T - Topt) * (T - Topt));
+function calcMonod(S: number, p: Record<string, number>): number {
+    const Ks = p["K_s"];
+    if (S <= 0) return 0;
+    return S / (Ks + S);
 }
 
-function calcGaussianAsymmetric(T: number, p: Record<string, number>): number {
-    const Topt = p["T_{opt}"];
-    const alpha = p["\\alpha"];
-    const beta = p["\\beta"];
-    const diff = T - Topt;
-    return T < Topt
-        ? Math.exp(-alpha * diff * diff)
-        : Math.exp(-beta * diff * diff);
+function calcHaldane(S: number, p: Record<string, number>): number {
+    const Ks = p["K_s"];
+    const Ki = p["K_i"];
+    if (S <= 0) return 0;
+    return S / (Ks + S + (S * S) / Ki);
 }
 
-function calcQuadraticExponential(T: number, p: Record<string, number>): number {
-    const Topt = p["T_{opt}"];
-    const Tmin = p["T_{min}"];
-    const Tmax = p["T_{max}"];
-    const alpha = p["\\alpha"];
-    const beta = p["\\beta"];
-
-    if (T < Topt) {
-        const r = (T - Topt) / (Topt - Tmin);
-        return Math.exp(-r * r * alpha);
-    } else {
-        const r = (T - Topt) / (Tmax - Topt);
-        return Math.exp(-r * r * beta);
-    }
+function calcHill(S: number, p: Record<string, number>): number {
+    const Ks = p["K_s"];
+    const n = p["n"];
+    if (S <= 0) return 0;
+    const Sn = Math.pow(S, n);
+    const Ksn = Math.pow(Ks, n);
+    return Sn / (Ksn + Sn);
 }
 
-function calcBetaFunction(T: number, p: Record<string, number>): number {
-    const Topt = p["T_{opt}"];
-    const Tmin = p["T_{min}"];
-    const Tmax = p["T_{max}"];
-    const alpha = p["\\alpha"];
-    const beta = p["\\beta"];
-
-    if (T <= Tmin || T >= Tmax) return 0;
-
-    if (T < Topt) {
-        const t = (T - Tmin) / (Topt - Tmin);
-        return Math.pow(t, alpha) * Math.exp(-alpha * (t - 1));
-    } else {
-        const t = (Tmax - T) / (Tmax - Topt);
-        return Math.pow(t, beta) * Math.exp(-beta * (t - 1));
-    }
-}
-
-const calculators: Record<string, (T: number, p: Record<string, number>) => number> = {
-    "gaussian-symmetric": calcGaussianSymmetric,
-    "gaussian-asymmetric": calcGaussianAsymmetric,
-    "quadratic-exponential": calcQuadraticExponential,
-    "beta-function": calcBetaFunction,
+const calculators: Record<string, (S: number, p: Record<string, number>) => number> = {
+    monod: calcMonod,
+    haldane: calcHaldane,
+    hill: calcHill,
 };
 
 /* ── Parameter envelope helper ────────────────────────────────────── */
@@ -116,7 +87,9 @@ function renderLatex(latex: string): string {
 
 /* ── Equation card ────────────────────────────────────────────────── */
 
-function EquationCard({ equation }: { equation: TemperatureEquation }) {
+const S_MAX = 50; // mg/L — x-axis domain
+
+function EquationCard({ equation }: { equation: NutrientEquation }) {
     const [params, setParams] = useState<Record<string, number>>(() => {
         const defaults: Record<string, number> = {};
         for (const p of equation.parameters) {
@@ -132,25 +105,25 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
     const data = useMemo(() => {
         const calc = calculators[equation.id];
         const combos = getParamGrid(equation.parameters);
-        const points: { T: number; muT: number; muTmin: number; muTmax: number }[] = [];
+        const points: { S: number; fN: number; fNmin: number; fNmax: number }[] = [];
         for (let i = 0; i <= 200; i++) {
-            const T = (i / 200) * 60;
-            let muT = calc(T, params);
-            muT = Math.max(0, Math.min(1, muT));
+            const S = (i / 200) * S_MAX;
+            let fN = calc(S, params);
+            fN = Math.max(0, Math.min(1, fN));
 
-            let muTmin = 1;
-            let muTmax = 0;
+            let fNmin = 1;
+            let fNmax = 0;
             for (const combo of combos) {
-                const val = Math.max(0, Math.min(1, calc(T, combo)));
-                if (val < muTmin) muTmin = val;
-                if (val > muTmax) muTmax = val;
+                const val = Math.max(0, Math.min(1, calc(S, combo)));
+                if (val < fNmin) fNmin = val;
+                if (val > fNmax) fNmax = val;
             }
 
             points.push({
-                T: Math.round(T * 10) / 10,
-                muT: Math.round(muT * 1e6) / 1e6,
-                muTmin: Math.round(muTmin * 1e6) / 1e6,
-                muTmax: Math.round(muTmax * 1e6) / 1e6,
+                S: Math.round(S * 100) / 100,
+                fN: Math.round(fN * 1e6) / 1e6,
+                fNmin: Math.round(fNmin * 1e6) / 1e6,
+                fNmax: Math.round(fNmax * 1e6) / 1e6,
             });
         }
         return points;
@@ -210,27 +183,27 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
                         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                         <Area
                             type="monotone"
-                            dataKey="muTmax"
-                            fill="rgb(200, 80, 60)"
+                            dataKey="fNmax"
+                            fill="rgb(140, 80, 200)"
                             fillOpacity={0.2}
                             stroke="none"
                             isAnimationActive={false}
                         />
                         <Area
                             type="monotone"
-                            dataKey="muTmin"
+                            dataKey="fNmin"
                             fill="#ffffff"
                             fillOpacity={1}
                             stroke="none"
                             isAnimationActive={false}
                         />
                         <XAxis
-                            dataKey="T"
+                            dataKey="S"
                             type="number"
-                            domain={[0, 60]}
-                            ticks={[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]}
+                            domain={[0, S_MAX]}
+                            ticks={[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]}
                             label={{
-                                value: "Temperature, T (°C)",
+                                value: "Nutrient Concentration, S (mg/L)",
                                 position: "insideBottom",
                                 offset: -13,
                                 className: "fill-muted-foreground text-xs",
@@ -241,7 +214,7 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
                             domain={[0, 1]}
                             tickCount={6}
                             label={{
-                                value: "Temperature Factor, µ_T (-)",
+                                value: "Nutrient Factor, f_N (-)",
                                 angle: -90,
                                 position: "center",
                                 dx: -15,
@@ -252,16 +225,16 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
                         <Tooltip
                             formatter={(value) => [
                                 Number(value).toFixed(4),
-                                "µ_T",
+                                "f_N",
                             ]}
                             labelFormatter={(label) =>
-                                `T = ${label} °C`
+                                `S = ${label} mg/L`
                             }
                         />
                         <Line
                             type="monotone"
-                            dataKey="muT"
-                            stroke="rgb(200, 80, 60)"
+                            dataKey="fN"
+                            stroke="rgb(140, 80, 200)"
                             strokeWidth={2}
                             dot={false}
                             isAnimationActive={false}
@@ -315,10 +288,10 @@ function EquationCard({ equation }: { equation: TemperatureEquation }) {
 
 /* ── Main section ─────────────────────────────────────────────────── */
 
-export default function TemperatureResponseSection() {
+export default function NutrientResponseSection() {
     return (
         <Accordion type="multiple" className="w-full">
-            {temperatureEquations.map((eq) => (
+            {nutrientEquations.map((eq) => (
                 <AccordionItem key={eq.id} value={eq.id}>
                     <AccordionTrigger className="text-base font-medium">
                         {eq.name}
