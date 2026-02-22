@@ -14,6 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://algaemath.com"),
   title: "AlgaeMath — Interactive Algae Cultivation Tools",
   description:
     "Open-source interactive tools for algae cultivation engineering — growth kinetics, reactor design, and techno-economics.",
