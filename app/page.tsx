@@ -21,7 +21,6 @@ const sections = [
     description:
       'Quick, single-reactor simulators for flat-panel, open-pond, and tubular PBR systems.',
     badge: 'Simulate',
-    soon: true,
   },
   {
     href: '/models',

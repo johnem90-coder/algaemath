@@ -2,6 +2,8 @@
 
 Reusable component patterns for consistent UX across the site.
 
+**Note:** Many components described below are aspirational patterns for future development. Currently implemented page-specific components include the open pond simulator suite (`OpenPondSimulator`, `WorldMap`, `PondCanvas`, `PondControls`, `DataStrip`, `WeatherPanel`, `WindIndicator`) and the equations/core-concepts section components. The patterns below serve as a design guide for building new shared components.
+
 ---
 
 ## Shared Components (`components/shared/`)

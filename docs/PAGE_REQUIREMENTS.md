@@ -69,14 +69,17 @@ Detailed specifications for each page.
 **Route:** `/equations`
 **Type:** Single scrollable page with model comparisons
 
-**Sections:**
-1. **Light Models** - Compare all 6 models side-by-side
-2. **Temperature Models** - Compare all 6 models
-3. **Nutrient Models** - Compare all 3 models
-4. **pH Models** - Compare 2 models
-5. **Heat Flux** - 6 components explained
-6. **Optical Physics** - Beer-Lambert, Snell, Fresnel
-7. **Growth Rate** - Multiplicative vs Liebig
+**Sections (implemented):**
+1. **Light Response** - Light models with interactive curves
+2. **Temperature Response** - Temperature models with interactive curves
+3. **Nutrient Response** - Nutrient limitation models
+4. **pH Response** - pH effect models
+5. **Light Attenuation** - Beer-Lambert, depth profiles
+
+**Sections (planned):**
+6. **Heat Flux** - 6+ components explained (see SIMULATION_DESIGN.md)
+7. **Surface Optics** - Fresnel, Snell's law, refraction
+8. **Growth Rate** - Multiplicative vs Liebig
 
 **Each model shows:**
 - Name & description
@@ -176,8 +179,8 @@ Detailed specifications for each page.
 **Type:** Interactive simulation (1-2 weeks)
 
 **Inputs:**
-- Location (Google Maps interface)
-- Date range (calendar, max 2 weeks)
+- Location (SVG world map with predefined cities + custom coordinates)
+- Season selection (Spring, Summer, Autumn, Winter — maps to 14-day date ranges)
 - Initial conditions (biomass, depth, etc.)
 - System parameters (area, design specs)
 
@@ -203,14 +206,18 @@ Detailed specifications for each page.
 - CSV: Time-series simulation data
 - PDF: Simulation summary report
 
-**Components (shared):**
-- `LocationInput.tsx`
-- `DateRangeInput.tsx`
-- `InitialConditions.tsx`
-- `SimulationRunner.tsx`
-- `LiveOutputs/` (charts)
-- `InternalFactors/` (response curves)
-- `ClimateOverlay.tsx`
+**Components (open-pond, implemented):**
+- `OpenPondSimulator.tsx` - Main orchestrator
+- `WorldMap.tsx` - SVG world map with city markers and weather data table
+- `PondCanvas.tsx` - Three.js 3D pond renderer
+- `PondControls.tsx` - Play/pause/speed/time controls
+- `DataStrip.tsx` - Live data cards overlay
+- `WeatherPanel.tsx` - Current weather conditions display
+- `WindIndicator.tsx` - Wind direction compass
+
+**Additional components (planned for all simulator types):**
+- `LiveOutputs/` (Recharts time-series)
+- `InternalFactors/` (response curves with current position markers)
 - `ResultsExport.tsx`
 
 ---

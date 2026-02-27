@@ -6,32 +6,14 @@ How to get started building AlgaeMath.com
 
 ## Initial Setup
 
-### 1. Create Next.js Project
+### 1. Clone and Install
 ```bash
-npx create-next-app@latest algaemath --typescript --tailwind --app
-cd algaemath
+git clone https://github.com/johnem90-coder/algaemathdotcom.git
+cd algaemathdotcom
+npm install
 ```
 
-### 2. Install Dependencies
-```bash
-# UI Components
-npm install @radix-ui/react-slot class-variance-authority clsx tailwind-merge
-
-# Charts
-npm install recharts
-
-# LaTeX Rendering
-npm install katex @types/katex
-
-# Forms
-npm install react-hook-form zod @hookform/resolvers
-
-# Icons
-npm install lucide-react
-
-# Animation
-npm install framer-motion
-```
+The project already includes all dependencies: Next.js 16, React 19, Tailwind CSS 4, Three.js, Recharts, KaTeX, Framer Motion, Lucide icons, Shadcn/ui components, and more.
 
 ### 3. Set Up Shadcn/ui
 ```bash
@@ -310,13 +292,9 @@ git push origin main
 
 ## Environment Variables
 
-Create `.env.local`:
-```
-WEATHERBIT_API_KEY=your_key_here
-NEXT_PUBLIC_GOOGLE_MAPS_KEY=your_key_here
-```
+No API keys are required for v1. Weather data uses the free Open-Meteo API (no key needed) and is pre-cached as static TypeScript in `lib/simulation/weather-data.ts`.
 
-Never commit `.env.local` to git!
+If environment variables are needed in the future, create `.env.local` and never commit it to git.
 
 ---
 

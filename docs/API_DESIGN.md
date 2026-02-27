@@ -8,34 +8,52 @@ Backend endpoints for simulations and exports.
 
 ### `GET /api/climate`
 
-**Purpose:** Fetch historical weather data from Weatherbit API
+**Purpose:** Fetch historical weather data from Open-Meteo Historical Weather API
+
+**Note:** Currently, weather data is fetched at build time via `scripts/generate-weather-data.mjs` and stored as a static TypeScript cache in `lib/simulation/weather-data.ts`. The runtime API client in `lib/simulation/weather-api.ts` can also fetch on-demand for locations not in the static cache.
 
 **Query Parameters:**
 - `location` (string, required) - City name or coordinates
 - `start_date` (string, required) - ISO format: `2024-01-01`
 - `end_date` (string, required) - ISO format: `2024-01-14`
 
-**Response:**
+**Response (matches `SeasonWeather` interface in `weather-types.ts`):**
 ```json
 {
-  "city": "Sydney, Australia",
-  "latitude": -33.8688,
-  "longitude": 151.2093,
-  "data": [
+  "location": "Gainesville, FL",
+  "lat": 29.6516,
+  "lng": -82.3248,
+  "season": "spring",
+  "startDate": "2024-03-01",
+  "endDate": "2024-03-14",
+  "raw": [
     {
-      "timestamp": "2024-01-01T00:00:00Z",
-      "dni": 850.2,
-      "dhi": 120.5,
-      "temp": 28.5,
-      "wind_speed": 3.2,
-      "humidity": 0.65,
-      "pressure": 101325
+      "date": "2024-03-01",
+      "hours": [
+        {
+          "hour": 0,
+          "temperature": 15.2,
+          "relativeHumidity": 82,
+          "dewPoint": 12.1,
+          "cloudCover": 45,
+          "windSpeed": 2.8,
+          "windDirection": 180,
+          "precipitation": 0.0,
+          "directRadiation": 0,
+          "diffuseRadiation": 0,
+          "shortwaveRadiation": 0,
+          "soilTemperature": 18.5,
+          "solarElevation": -25.3,
+          "solarAzimuth": 0
+        }
+      ]
     }
-  ]
+  ],
+  "profile": { "hours": [] }
 }
 ```
 
-**Caching:** Cache results for 24 hours
+**Caching:** Static cache for predefined cities/seasons; runtime fetch for custom locations
 
 ---
 
@@ -284,7 +302,7 @@ All endpoints return errors in this format:
 
 **Error Codes:**
 - `INVALID_PARAMETER` - Bad input
-- `API_ERROR` - External API failure (Weatherbit)
+- `API_ERROR` - External API failure (Open-Meteo)
 - `SIMULATION_ERROR` - Simulation failed to converge
 - `EXPORT_ERROR` - File generation failed
 - `RATE_LIMIT` - Too many requests
@@ -301,15 +319,16 @@ All endpoints return errors in this format:
 
 ## Implementation Notes
 
-### Python Integration
-- Use Vercel Python runtime for simulation endpoints
-- Port existing Python code to serverless functions
-- Keep functions under 10s execution time
+### Architecture
+- Simulation runs client-side in TypeScript (no server-side compute needed for v1)
+- Weather data is pre-cached as static TypeScript for common cities/seasons
+- Runtime weather fetching uses the Open-Meteo Historical Weather API (free, no API key)
+- API routes may be used for PDF/Excel export in the future
 
 ### Caching Strategy
-- Cache climate data for 24 hours (Redis/Vercel KV)
-- Cache common simulation results (predefined scenarios)
+- Static TypeScript cache for predefined city/season combinations (`lib/simulation/weather-data.ts`)
+- Runtime fetch for custom locations (cached in memory during session)
 
-### Streaming
-- Use Server-Sent Events for long simulations
-- Send progress updates every 10% complete
+### Simulation Output
+- See `docs/SIMULATION_DESIGN.md` Section 2.6 for the full per-timestep output interface
+- Results are computed client-side and rendered directly to Three.js canvas and Recharts

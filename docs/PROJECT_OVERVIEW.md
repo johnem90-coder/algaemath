@@ -2,8 +2,7 @@
 
 **Goal:** Interactive educational platform for photobioreactor modeling
 
-**Tech Stack:** Next.js 14 + TypeScript + Tailwind CSS + Vercel
-**Timeline:** 12 weeks
+**Tech Stack:** Next.js 16 + React 19 + TypeScript 5 + Tailwind CSS 4 + Three.js + Vercel
 **Approach:** Build one page at a time, test thoroughly before moving on
 
 ---
@@ -47,9 +46,10 @@ All physics models (light, temperature, nutrient, pH) stored as:
 ### 2. Separation of Concerns
 - **`lib/models/`** - Pure calculation functions
 - **`lib/equations/`** - Rendering strings (LaTeX, metadata)
-- **`lib/simulation/`** - Simulation engines
+- **`lib/simulation/`** - Simulation engines, weather data, 3D renderers
 - **`components/`** - UI components
 - **`app/`** - Pages and routes
+- **`scripts/`** - Data generation scripts (weather cache, etc.)
 
 ### 3. Downloads Distribution
 Each page provides its own relevant downloads:
@@ -73,14 +73,26 @@ Each page provides its own relevant downloads:
 
 - `docs/FILE_STRUCTURE.md` - Complete directory structure
 - `docs/MODEL_REGISTRY.md` - How to add/use physics models
+- `docs/SIMULATION_DESIGN.md` - Engineering equations and process models for simulators
 - `docs/PAGE_REQUIREMENTS.md` - Specifications for each page
 - `docs/COMPONENT_LIBRARY.md` - Reusable component patterns
+- `docs/API_DESIGN.md` - Backend API endpoint design
 - `docs/GITHUB_WORKFLOW.md` - Git and GitHub practices
 
 ---
 
 ## Current Status
 
-**Phase:** Building Core Content
-**Completed:** Project setup, Equations page (Light Response + Temperature Response)
-**Next Step:** Continue building equation sections or Core Concepts page
+**Phase:** Building Simulators
+**Completed:**
+- Project setup, deployment to Vercel
+- Equations page (Light Response, Temperature Response, Nutrient, pH, Light Attenuation sections)
+- Open Pond simulator foundation: 3D pond renderer (Three.js), world map with city selection, weather data pipeline (Open-Meteo API + static cache), animation loop with weather-driven effects
+- Simulation design document (engineering equations, heat balance, optics)
+
+**In Progress:**
+- Connecting the simulation engine to the open pond animation (implementing equations from SIMULATION_DESIGN.md)
+
+**Next:**
+- Complete open pond simulation integration
+- Continue with remaining pages
