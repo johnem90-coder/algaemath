@@ -5,23 +5,22 @@ const sections = [
     href: '/core-concepts',
     title: 'Core Concepts',
     description:
-      'Interactive visualizations of algae growth kinetics — light, temperature, nutrients, and combined effects.',
+      'Interactive visualizations of key algae growth metrics. Designed for conceptual understanding.',
     badge: 'Concepts',
   },
   {
     href: '/equations',
     title: 'Equations',
     description:
-      'The mathematical models behind algae growth, presented with live LaTeX rendering.',
+      'Various mathematical models behind algae growth metrics. Designed to show differences between models and their potential ranges.',
     badge: 'Equations',
   },
   {
     href: '/simple-simulators',
     title: 'Simple Simulators',
     description:
-      'Quick, single-reactor simulators for flat-panel, open-pond, and tubular PBR systems.',
+      'Quick, single-reactor simulators for open pond, flat panel, and tubular photobioreactor systems. Designed for flexibility & scenario comparisons.',
     badge: 'Simulate',
-    soon: true,
   },
   {
     href: '/models',
@@ -70,7 +69,7 @@ export default function HomePage() {
             const card = (
               <div
                 className={`group relative flex flex-col rounded-xl border p-6 transition-colors ${s.soon
-                    ? 'opacity-60 cursor-default'
+                    ? 'opacity-30 cursor-default'
                     : 'hover:border-[hsl(var(--accent-science))] hover:bg-[hsl(var(--accent-science-muted))]'
                   }`}
               >
@@ -102,10 +101,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t py-8 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} AlgaeMath — Open-source algae cultivation tools
-      </footer>
     </div>
   );
 }

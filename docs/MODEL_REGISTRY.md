@@ -109,30 +109,57 @@ export { monod, steele, banerjee }
 
 ## Model Categories
 
+Implemented models are marked with a checkmark. Others are planned.
+
 ### Light Models
-- `monod` - Simple hyperbolic
-- `steele` - Exponential inhibition
-- `banerjee` - Power inhibition
-- `pfaffinger` - Power-law inhibition
-- `eilers-peeters` - Alternative formulation
-- `haldane` - Substrate inhibition adapted
+
+**Calculation functions** (`lib/models/light/`):
+- ✅ `steele` - Exponential inhibition (Steele photoinhibition) — used by the simulation engine
+- Also: `beer-lambert.ts` (attenuation), `pigment-absorption.ts`, `solar-spectrum.ts`
+
+**Equation metadata** (`lib/equations/light.ts`) — LaTeX, parameters, interactive curves on the Equations page:
+- ✅ `monod` - Simple hyperbolic (Monod)
+- ✅ `haldane` - Substrate inhibition (Haldane)
+- ✅ `webb` - Webb model
+- ✅ `steele` - Steele photoinhibition
+- ✅ `beta-function` - Flexible beta function
 
 ### Temperature Models
-- `marsullo` - Lethal-based exponential
-- `james` - Gaussian
-- `arrhenius` - Basic activation energy
-- `modified-arrhenius` - With optimum
-- `cardinal` - Three-point cardinal
-- `beta-function` - Flexible shape
+
+**Calculation functions** (`lib/models/temperature/`):
+- ✅ `gaussian` - Gaussian response curve — used by the simulation engine
+
+**Equation metadata** (`lib/equations/temperature.ts`) — LaTeX, parameters, interactive curves on the Equations page:
+- ✅ `gaussian-symmetric` - Symmetric Gaussian
+- ✅ `gaussian-asymmetric` - Asymmetric Gaussian (separate widths above/below Topt)
+- ✅ `quadratic-exponential` - Piecewise exponential with α/β shape parameters
+- ✅ `beta-function` - Flexible beta function (Cardinal temperature model)
 
 ### Nutrient Models
-- `monod` - Hyperbolic limitation
-- `droop` - Internal quota
-- `morel` - Multi-nutrient
+
+**Calculation functions** (`lib/models/nutrient/`):
+- ✅ `monod` - Hyperbolic limitation (modified Monod) — returns 1.0 in v1 (nutrients not limiting)
+
+**Equation metadata** (`lib/equations/nutrient.ts`):
+- ✅ `monod` - Monod hyperbolic
+- ✅ `haldane` - Haldane substrate inhibition
+- ✅ `hill` - Hill equation
 
 ### pH Models
-- `cardinal` - Three-point
-- `gaussian` - Normal distribution
+
+**Equation metadata** (`lib/equations/pH.ts`):
+- ✅ `gaussian-symmetric` - Symmetric Gaussian
+- ✅ `gaussian-asymmetric` - Asymmetric Gaussian
+- ✅ `cardinal` - Cardinal pH model
+
+### Light Attenuation Models
+
+**Equation metadata** (`lib/equations/attenuation.ts`):
+- ✅ `beer-lambert` - Standard Beer-Lambert (single extinction)
+- ✅ `two-component` - Two-component extinction (biomass + background)
+
+### Combined Models
+- ✅ `multiplicative` - µ_eff = µ_max × f(I) × f(T) × f(N) × f(pH)
 
 ## Usage Examples
 
@@ -177,10 +204,12 @@ const results = Object.values(lightModels).map(model => ({
 ## Adding a New Model
 
 1. Create `lib/models/[category]/[new-model].ts`
-2. Implement interface from `types.ts`
-3. Add to registry in `index.ts`
-4. Add LaTeX in `lib/equations/latex/[category]/[new-model].ts`
-5. Add test in `test/models/[category]/[new-model].test.ts`
+2. Implement interface from `lib/models/types.ts`
+3. Add to registry in `lib/models/[category]/index.ts`
+4. Add LaTeX/metadata in `lib/equations/[category].ts`
+5. Add test in `test/models/[category]/`
+
+**Note:** The simulation engine consumes growth factors (0–1) from these models. The engineering equations that combine them into net growth rate and drive the mass/energy balances are documented in `docs/SIMULATION_DESIGN.md`.
 
 ## Benefits
 

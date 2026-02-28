@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useEffect, useState, useRef } from 'react';
+import { shouldYieldToInteraction } from '@/lib/simulation/shared-timer';
 
 // ── Blob path (same as GrowthRateVisualizer) ──
 type ShapeVar = number[];
@@ -246,6 +247,10 @@ const LightAbsorptionVisualizer = () => {
     let rafId: number;
 
     const step = (now: number) => {
+      if (shouldYieldToInteraction()) {
+        rafId = requestAnimationFrame(step);
+        return;
+      }
       const dt = Math.min((now - lastTime) / 16.67, 3);
       lastTime = now;
 

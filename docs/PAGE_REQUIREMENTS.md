@@ -7,60 +7,64 @@ Detailed specifications for each page.
 ## 1. Landing Page
 
 **Route:** `/`
-**Type:** Static with animations
+**Type:** Static with section cards
+**Status:** ✅ Implemented
 
-**Sections:**
-1. Hero - Site title, tagline, main CTA
-2. Feature Grid - 8 clickable cards (one per main page)
-   - Thumbnail/icon
-   - Title
-   - Short description (2-3 sentences)
-   - "Explore" link
-3. About Section - Brief project description
-4. Footer - Contact, about link
+**Layout:**
+1. Hero - Site title ("AlgaeMath"), tagline, centered
+2. Section Grid - 6 cards in 3-column grid:
+   - **Core Concepts** — "Interactive visualizations of key algae growth metrics. Designed for conceptual understanding."
+   - **Equations** — "Various mathematical models behind algae growth metrics. Designed to show differences between models and their potential ranges."
+   - **Simple Simulators** — "Quick, single-reactor simulators for open pond, flat panel, and tubular photobioreactor systems. Designed for flexibility & scenario comparisons."
+   - **Reactor Models** — coming soon (opacity-30)
+   - **Experiments** — coming soon (opacity-30)
+   - **Techno-Economics** — coming soon (opacity-30)
+3. Global footer (from layout.tsx) — copyright left, LinkedIn right
 
-**Downloads:** None
-
-**Components:**
-- `Hero.tsx`
-- `PagePreviewCard.tsx` (reusable for 8 sections)
-- `FeatureHighlight.tsx`
+**Components:** Inline in `page.tsx` (no separate component files needed)
 
 ---
 
 ## 2. Core Concepts
 
 **Route:** `/core-concepts`
-**Type:** Single scrollable page with 10 interactive sections
+**Type:** Single scrollable page with accordion sections
+**Status:** ✅ Implemented (7 visualizers)
 
-**Sections (each with interactive explorer):**
-1. **Density** - g/L, what it means, typical ranges
-2. **Productivity** - Areal vs volumetric, units, calculation
-3. **Growth Rate** - Exponential growth, doubling time
-4. **Light Response** - Interactive curve with slider
-5. **Temperature Response** - Interactive curve with zones
-6. **Nutrient Response** - Interactive limitation curve
-7. **Combined Effects** - Multiplicative vs Liebig
-8. **Light Attenuation** - Beer-Lambert visualization
-9. **Absorption & Efficiency** - PAR, quantum yield
-10. **Adaptation** - Photoacclimation concepts
+**Architecture:**
+- `page.tsx` is a server component (exports `metadata`)
+- `CoreConceptsAccordions.tsx` is a client component that renders all accordions
+- Each visualizer is wrapped in `VisibleOnly` (IntersectionObserver) to unmount when off-screen
 
-**Downloads:**
-- PDF: Core concepts summary
-- PDF: Visual guide
+**Sections (two accordion groups):**
+
+*Core Growth Concepts:*
+1. **Growth Rate** — Cell animation + growth rate visualization
+2. **Light Effects** — Cell animation + light response curves
+3. **Temperature Effects** — Cell animation + temperature response
+4. **Nutrient Effects** — Cell animation + nutrient limitation
+5. **Combined Effects** — Combined growth factor visualization
+
+*Specific Light Concepts:*
+6. **Light Attenuation** — Beer-Lambert depth profile (slider-driven, no RAF loop)
+7. **Light Absorption** — Pigment random walk animation
+
+**Performance notes:**
+- 5 of 7 visualizers use RAF loops with cell animations (3–6 setState calls per frame)
+- All RAF loops import `shouldYieldToInteraction()` from `shared-timer.ts` — skips animation frames for 200ms after any click/tap
+- `VisibleOnly` ensures off-screen visualizers are fully unmounted
+- Accordions use uncontrolled `type="multiple"` (no open-panel limit)
 
 **Components (in `app/core-concepts/components/`):**
-- `DensityExplorer.tsx`
-- `ProductivityExplorer.tsx`
-- `GrowthRateExplorer.tsx`
-- `LightResponseExplorer.tsx`
-- `TempResponseExplorer.tsx`
-- `NutrientResponseExplorer.tsx`
-- `CombinedEffects.tsx`
-- `LightAttenuation.tsx`
-- `AbsorptionEfficiency.tsx`
-- `AdaptationExplorer.tsx`
-- `DownloadSection.tsx`
+- `CoreConceptsAccordions.tsx` — Accordion layout, section definitions, visualizer map
+- `VisibleOnly.tsx` — IntersectionObserver wrapper
+- `GrowthRateVisualizer.tsx`
+- `LightEffectsVisualizer.tsx`
+- `TemperatureEffectsVisualizer.tsx`
+- `NutrientEffectsVisualizer.tsx`
+- `CombinedEffectsVisualizer.tsx`
+- `LightAttenuationVisualizer.tsx`
+- `LightAbsorptionVisualizer.tsx`
 
 ---
 
@@ -68,214 +72,132 @@ Detailed specifications for each page.
 
 **Route:** `/equations`
 **Type:** Single scrollable page with model comparisons
+**Status:** ✅ Implemented (5 sections)
 
-**Sections:**
-1. **Light Models** - Compare all 6 models side-by-side
-2. **Temperature Models** - Compare all 6 models
-3. **Nutrient Models** - Compare all 3 models
-4. **pH Models** - Compare 2 models
-5. **Heat Flux** - 6 components explained
-6. **Optical Physics** - Beer-Lambert, Snell, Fresnel
-7. **Growth Rate** - Multiplicative vs Liebig
+**Sections (implemented):**
+1. **Light Response** — Light models with interactive curves
+2. **Temperature Response** — Temperature models with interactive curves
+3. **Nutrient Response** — Nutrient limitation models
+4. **pH Response** — pH effect models
+5. **Light Attenuation** — Beer-Lambert, depth profiles
+
+**Sections (planned):**
+6. **Heat Flux** — 6+ components explained (see SIMULATION_DESIGN.md)
+7. **Surface Optics** — Fresnel, Snell's law, refraction
+8. **Growth Rate** — Multiplicative vs Liebig
 
 **Each model shows:**
 - Name & description
-- Equation (LaTeX rendered)
+- Equation (LaTeX rendered via KaTeX)
 - Variables table
 - Use cases
 - Limitations
 - Reference citation
 - Interactive curve (some sections)
 
-**Downloads:**
-- PDF: Complete equation reference
-- PDF: Model comparison tables
-
-**Components:**
-- `EquationSection.tsx` (reusable template)
-- `ModelComparison.tsx` (side-by-side display)
-- `AnimatedCurve.tsx` (looping animations)
-- `InteractiveEquation.tsx` (editable parameters)
+**Components (in `app/equations/components/`):**
+- `LightResponseSection.tsx`
+- `TemperatureResponseSection.tsx`
+- `NutrientResponseSection.tsx`
+- `pHResponseSection.tsx`
+- `LightAttenuationSection.tsx`
 
 ---
 
 ## 4. Models Pages
 
+**Status:** 📋 Planned (placeholder directories only)
+
 ### Open Pond (`/models/open-pond`)
-**Type:** Descriptive with visuals
-
-**Content:**
-- System overview & description
-- Animated pond diagram
-- Mixing visualization (paddlewheel)
-- Depth analysis charts
-- Heat balance breakdown
-- Design considerations
-
-**Downloads:** PDF with specs & diagrams
-
 ### Flat Panel (`/models/flat-panel`)
-**Content:**
-- System overview
-- Panel diagram
-- Light path visualization
-- Gas sparging animation
-- Orientation analysis (angle effects)
-
-**Downloads:** PDF with specs & diagrams
-
 ### Tubular PBR (`/models/pbr-tubular`)
-**Content:**
-- System overview
-- Tubular diagram
-- Flow visualization
-- Photoperiod analysis (light/dark cycles)
-- Scaling factors
-
-**Downloads:** PDF with specs & diagrams
-
 ### Design Exploration (`/models/design-exploration`)
-**Content:**
-- Parameter sweep visualizations
-- Cost vs productivity tradeoffs
-- 2D/3D optimization plots
-- Side-by-side design comparison
-
-**Downloads:** PDF with design guidelines
 
 ---
 
 ## 5. Technoeconomics Pages
 
+**Status:** 📋 Planned (placeholder directories only)
+
 ### All Three (`open-pond`, `flat-panel`, `pbr-tubular`)
-**Type:** Interactive calculators with charts
-
-**Content:**
-- CapEx breakdown (pie chart)
-- OpEx breakdown (stacked bar)
-- Production cost over time ($/kg biomass)
-- Sensitivity analysis (tornado diagram)
-- NPV/IRR calculator (interactive)
-
-**Downloads:**
-- Excel: Cost calculator template
-- PDF: Economic analysis report
-
-**Components (shared across all three):**
-- `CapExBreakdown.tsx`
-- `OpExBreakdown.tsx`
-- `ProductionCostChart.tsx`
-- `SensitivityAnalysis.tsx`
-- `NPVCalculator.tsx`
 
 ---
 
 ## 6. Simple Outdoor Simulators
 
-### All Three (`open-pond`, `flat-panel`, `pbr-tubular`)
-**Type:** Interactive simulation (1-2 weeks)
+### Index Page (`/simple-simulators`)
+**Status:** ✅ Implemented
+
+3 cards in grid: Open Raceway Pond (active), Flat Panel PBR (coming soon, opacity-30), Tubular PBR (coming soon, opacity-30).
+
+### Open Pond (`/simple-simulators/open-pond`)
+**Status:** ✅ Implemented
+
+**Description:** "Interactive simulations of an open raceway algae pond, accounting for weather/environmental effects. Adjustable modes & response variables/coefficients."
 
 **Inputs:**
-- Location (Google Maps interface)
-- Date range (calendar, max 2 weeks)
-- Initial conditions (biomass, depth, etc.)
-- System parameters (area, design specs)
+- Location (SVG world map with 29 predefined cities across 6 continents)
+- Season selection (Spring, Summer, Autumn, Winter — maps to 14-day date ranges)
+- Simulation duration (1–14 days, adjustable via slider)
+- Growth model parameters (µ_max, I_opt, T_opt, alpha, death rate, epsilon, kb)
+- Harvest mode (none, semi-continuous, periodic) with configurable thresholds
 
 **Real-time Outputs:**
-- Growth rate chart
-- Density chart
-- Productivity chart (areal & volumetric)
-- Harvest mass chart
-- Energy use/efficiency
+- 3D pond visualization (Three.js) with weather-driven effects
+- Weather gauges overlay (rain, cloud, wind + compass direction)
+- Pond dimensions overlay
+- Time-series SVG charts (biomass density, productivity, accumulated biomass)
+- Day/time display
 
-**Internal Factors (shown alongside):**
-- Light response curve (current position marked)
-- Temperature response curve (current position)
-- Attenuation profile (depth vs intensity)
-- Climate overlay (weather data)
+**"Under the Hood" Panels (GrowthModelPanels):**
+- Light Response — model curves with live position marker, parameter sliders
+- Temperature Response — model curves with live temperature marker, parameter sliders
+- Light Attenuation — depth profile + Fresnel transmission chart
+- Mass Balance — growth/harvest/net tracking charts
+- Water Balance — cumulative evaporation, makeup, harvest water charts
+- Heat / Energy Balance — placeholder (coming soon)
+- Inline sub-controls (days, harvest mode, harvest parameter sliders) in each accordion trigger
+
+**Simulation Data Export:**
+- "Simulation Data" button appears top-right of 3D renderer after simulation completes
+- Toggles a scrollable data table overlay covering the 3D renderer area
+- Sticky Date and Hour columns, all 40+ simulation variables displayed
+- "Download CSV" button generates CSV with metadata comment header
+- CSV filename: `open-pond-{city}-{season}-{days}d.csv`
 
 **Controls:**
-- Play/pause/reset
-- Speed control
-- Time scrubber
+- Run Simulation / Pause / Resume / Stop buttons
+- Day/time indicator
 
-**Downloads:**
-- CSV: Time-series simulation data
-- PDF: Simulation summary report
+**Components (in `app/simple-simulators/open-pond/components/`):**
+- `OpenPondSimulator.tsx` — Main orchestrator (simulation state, animation loop, pause/resume, data export overlay, CSV download)
+- `WorldMap.tsx` — SVG world map with city markers, season selection, weather data table overlay
+- `PondCanvas.tsx` — Three.js 3D pond renderer with weather-driven effects
+- `SimulationCharts.tsx` — SVG time-series charts with harvest config sliders
+- `GrowthModelPanels.tsx` — "Under the Hood" accordion with interactive growth model panels
+- `DataStrip.tsx` — Live data cards (PAR, pond temp, density, growth rate, productivity, wind)
+- `PondControls.tsx` — Legacy (unused)
+- `WeatherPanel.tsx` — Legacy (unused)
+- `WindIndicator.tsx` — Wind direction compass
 
-**Components (shared):**
-- `LocationInput.tsx`
-- `DateRangeInput.tsx`
-- `InitialConditions.tsx`
-- `SimulationRunner.tsx`
-- `LiveOutputs/` (charts)
-- `InternalFactors/` (response curves)
-- `ClimateOverlay.tsx`
-- `ResultsExport.tsx`
+### Flat Panel PBR (`/simple-simulators/flat-panel`)
+**Status:** 📋 Planned (placeholder directory only)
+
+### Tubular PBR (`/simple-simulators/pbr-tubular`)
+**Status:** 📋 Planned (placeholder directory only)
 
 ---
 
 ## 7. Dynamic PBR Simulator
 
 **Route:** `/dynamic-pbr/controlled-environment`
-**Type:** Advanced interactive simulation
-
-**Features:**
-- All features from Simple Simulators PLUS:
-- User-defined setpoints (temp, pH, nutrients, light, CO2)
-- Real-time system monitoring:
-  - Heater (on/off, power draw)
-  - Fan (RPM, airflow)
-  - Nutrient pump (flow rate, volume dosed)
-  - Water pump (evaporation makeup)
-  - CO2 bubble column (dissolution, pH effect)
-  - LED control (spectrum, intensity, PWM)
-- Feedback loop visualization
-- PID tuning interface (Kp, Ki, Kd)
-- Animated process diagram
-- Event log (all control actions)
-
-**Downloads:**
-- CSV: Full system state history
-- PDF: Control system performance report
-
-**Components:**
-- Everything from Simple Simulators
-- `ControlPanel/` (setpoints)
-- `SystemsMonitoring/` (real-time status)
-- `FeedbackLoops/` (control visualization)
-- `ProcessDiagram.tsx`
-- `EventLog.tsx`
+**Status:** 📋 Planned (placeholder directory only)
 
 ---
 
 ## 8. Experiments & Model Fitting
 
-### All Three Experiments
-**Type:** Data visualization & analysis
-
-**Content:**
-- Experiment overview & motivation
-- Methods description (how data collected)
-- Raw data scatter plot
-- Multiple fitted curves overlaid
-- Residual plots
-- Goodness of fit metrics (R2, RMSE, AIC, BIC)
-- Parameter table (fitted values)
-- Model comparison discussion
-
-**Downloads:**
-- CSV: Raw experimental data
-- CSV: Fitted model parameters
-- PDF: Methods & results document
-
-**Components (shared):**
-- `ExperimentalData.tsx`
-- `ModelFitting.tsx`
-- `ResidualPlot.tsx`
-- `GoodnessOfFit.tsx`
-- `ParameterTable.tsx`
-- `MethodsDescription.tsx`
+**Status:** 📋 Planned (placeholder directories only)
 
 ---
 
@@ -283,20 +205,11 @@ Detailed specifications for each page.
 
 ### All Pages Have:
 1. Page header with title & description
-2. Navigation breadcrumbs
-3. Responsive layout (mobile, tablet, desktop)
-4. Loading states
-5. Error boundaries
+2. Responsive layout (mobile, tablet, desktop)
+3. Global footer (copyright + LinkedIn link) from `layout.tsx`
 
 ### Interactive Pages Have:
 - Parameter sliders with units
 - Real-time chart updates
 - Model selection dropdowns
-- Reset button
-- Export functionality
-
-### Static Pages Have:
-- Clear section headers
-- Visual diagrams/animations
-- Download buttons
-- Citation references
+- Export functionality (CSV for simulators)

@@ -1,39 +1,4 @@
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from '@/components/ui/accordion';
-import GrowthRateVisualizer from './components/GrowthRateVisualizer';
-import LightEffectsVisualizer from './components/LightEffectsVisualizer';
-import TemperatureEffectsVisualizer from './components/TemperatureEffectsVisualizer';
-import NutrientEffectsVisualizer from './components/NutrientEffectsVisualizer';
-import CombinedEffectsVisualizer from './components/CombinedEffectsVisualizer';
-import LightAttenuationVisualizer from './components/LightAttenuationVisualizer';
-import LightAbsorptionVisualizer from './components/LightAbsorptionVisualizer';
-
-const coreSections = [
-    { id: 'growth-rate', title: 'Growth Rate' },
-    { id: 'light-effects', title: 'Light Effects' },
-    { id: 'temperature-effects', title: 'Temperature Effects' },
-    { id: 'nutrient-effects', title: 'Nutrient Effects' },
-    { id: 'combined-effects', title: 'Combined Effects' },
-];
-
-const lightSections = [
-    { id: 'light-attenuation', title: 'Light Attenuation' },
-    { id: 'light-absorption', title: 'Light Absorption' },
-];
-
-const visualizerMap: Record<string, React.FC> = {
-    'growth-rate': GrowthRateVisualizer,
-    'light-effects': LightEffectsVisualizer,
-    'temperature-effects': TemperatureEffectsVisualizer,
-    'nutrient-effects': NutrientEffectsVisualizer,
-    'combined-effects': CombinedEffectsVisualizer,
-    'light-attenuation': LightAttenuationVisualizer,
-    'light-absorption': LightAbsorptionVisualizer,
-};
+import CoreConceptsAccordions from './components/CoreConceptsAccordions';
 
 export const metadata = {
     title: 'Core Concepts — AlgaeMath',
@@ -60,51 +25,7 @@ export default function CoreConceptsPage() {
             </header>
 
             <section className="mx-auto max-w-[90rem] px-6 pb-24">
-                <div className="space-y-12">
-                    {/* Core Growth Concepts */}
-                    <div>
-                        <h2 className="mb-4 text-xl font-medium tracking-tight">
-                            Core Growth Concepts
-                        </h2>
-                        <Accordion type="multiple" className="w-full">
-                            {coreSections.map((section) => {
-                                const Viz = visualizerMap[section.id];
-                                return (
-                                    <AccordionItem key={section.id} value={section.id}>
-                                        <AccordionTrigger className="text-lg">
-                                            {section.title}
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            {Viz ? <Viz /> : <p className="text-muted-foreground">Coming soon.</p>}
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                );
-                            })}
-                        </Accordion>
-                    </div>
-
-                    {/* Specific Light Concepts */}
-                    <div>
-                        <h2 className="mb-4 text-xl font-medium tracking-tight">
-                            Specific Light Concepts
-                        </h2>
-                        <Accordion type="multiple" className="w-full">
-                            {lightSections.map((section) => {
-                                const Viz = visualizerMap[section.id];
-                                return (
-                                    <AccordionItem key={section.id} value={section.id}>
-                                        <AccordionTrigger className="text-lg">
-                                            {section.title}
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            {Viz ? <Viz /> : <p className="text-muted-foreground">Coming soon.</p>}
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                );
-                            })}
-                        </Accordion>
-                    </div>
-                </div>
+                <CoreConceptsAccordions />
             </section>
         </div>
     );

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const navItems = [
     { href: "/core-concepts", title: "Core Concepts" },
     { href: "/equations", title: "Equations" },
-    { href: "/simple-simulators", title: "Simulators", soon: true },
+    { href: "/simple-simulators", title: "Simulators" },
     { href: "/models", title: "Models", soon: true },
     { href: "/experiments", title: "Experiments", soon: true },
     { href: "/technoeconomics", title: "TEA", soon: true },
@@ -14,9 +14,6 @@ const navItems = [
 
 export default function SiteHeader() {
     const pathname = usePathname();
-    const isHome = pathname === "/";
-
-    const currentPage = navItems.find((item) => pathname.startsWith(item.href));
 
     return (
         <header>
@@ -59,26 +56,6 @@ export default function SiteHeader() {
                     </div>
                 </div>
             </nav>
-
-            {/* Breadcrumb — sub-pages only */}
-            {!isHome && currentPage && (
-                <div className="border-b bg-background">
-                    <div className="mx-auto max-w-[90rem] px-6 py-2">
-                        <nav className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <Link
-                                href="/"
-                                className="no-underline hover:text-foreground transition-colors"
-                            >
-                                Home
-                            </Link>
-                            <span>/</span>
-                            <span className="text-foreground font-medium">
-                                {currentPage.title}
-                            </span>
-                        </nav>
-                    </div>
-                </div>
-            )}
         </header>
     );
 }
