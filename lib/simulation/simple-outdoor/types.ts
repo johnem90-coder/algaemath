@@ -124,19 +124,19 @@ export const DEFAULT_CONFIG: OpenPondConfig = {
   aspect_ratio: 250 / 17, // ≈ 14.71 → W = 17 m, L = 250 m
   berm_width: 0.8, // 800 mm center divider
 
-  initial_density: 0.3, // g/L
+  initial_density: 0.1, // g/L
   initial_temperature: 25, // °C
 
   mu_max: 4.0, // /day (Spirulina typical)
   Iopt: 200, // µmol/m²/s
-  Topt: 30, // °C
+  Topt: 32, // °C
   alpha: 0.03, // Gaussian width
   death_rate: 0.05, // /day
 
-  epsilon: 0.15, // m²/g
+  epsilon: 0.3, // m²/g
   kb: 0.2, // m⁻¹
 
   harvest_mode: "none",
   harvest_threshold: 2.0, // g/L — trigger density for both modes
-  harvest_target: 0.3, // g/L — reset density (semi-continuous and batch)
+  harvest_target: 0.1, // g/L — reset density (semi-continuous and batch)
 };

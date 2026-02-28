@@ -279,7 +279,7 @@ function MiniChart({
               />
               <line
                 x1={CHART_L} y1={py} x2={CHART_R} y2={py}
-                stroke="var(--border)" strokeWidth="0.5" strokeOpacity="0.3"
+                stroke="var(--muted-foreground)" strokeWidth="0.5" strokeOpacity="0.2"
               />
               <text
                 x={CHART_L - 8} y={py + 4.5}
@@ -292,7 +292,7 @@ function MiniChart({
           );
         })}
 
-        {/* X-axis ticks (days) */}
+        {/* X-axis ticks + vertical grid (days) */}
         {data.dayTicks.map((h) => {
           const px = CHART_L + (h / data.totalHours) * CHART_W;
           if (px > CHART_R + 1) return null;
@@ -301,6 +301,10 @@ function MiniChart({
               <line
                 x1={px} y1={CHART_B} x2={px} y2={CHART_B + 4}
                 stroke="var(--muted-foreground)" strokeWidth="0.8"
+              />
+              <line
+                x1={px} y1={CHART_T} x2={px} y2={CHART_B}
+                stroke="var(--muted-foreground)" strokeWidth="0.5" strokeOpacity="0.2"
               />
               <text
                 x={px} y={CHART_B + 18}

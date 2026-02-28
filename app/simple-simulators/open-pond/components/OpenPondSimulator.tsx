@@ -190,6 +190,8 @@ export default function OpenPondSimulator() {
 
   const [underTheHoodOpen, setUnderTheHoodOpen] = useState(false);
   const [showSimData, setShowSimData] = useState(false);
+  const [speciesOpen, setSpeciesOpen] = useState(false);
+  const [speciesResetKey, setSpeciesResetKey] = useState(0);
   const [simRunning, setSimRunning] = useState(false);
   const [simPaused, setSimPaused] = useState(false);
   const [simDay, setSimDay] = useState(0);
@@ -511,18 +513,54 @@ export default function OpenPondSimulator() {
             </div>
           </div>
 
-          {/* Simulation Data button — top-right, only after sim completes */}
-          {simComplete && (
-            <button
-              onClick={() => setShowSimData((v) => !v)}
-              className="absolute top-3 right-3 z-10 flex items-center gap-1 rounded-md bg-white/90 px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-widest text-foreground/70 backdrop-blur-sm transition-colors hover:text-foreground"
-            >
-              Simulation Data
-              <svg width="8" height="8" viewBox="0 0 8 8" className={`transition-transform ${showSimData ? "rotate-180" : ""}`}>
-                <path d="M1.5 3L4 5.5L6.5 3" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          )}
+          {/* Top-right overlay buttons — species + simulation data */}
+          <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+            {/* Species selector */}
+            <div className="relative">
+              <button
+                onClick={() => setSpeciesOpen((v) => !v)}
+                className="flex items-center gap-1 rounded-md bg-white/90 px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-widest text-foreground/70 backdrop-blur-sm transition-colors hover:text-foreground"
+              >
+                Species: Spirulina
+                <svg width="8" height="8" viewBox="0 0 8 8" className={`transition-transform ${speciesOpen ? "rotate-180" : ""}`}>
+                  <path d="M1.5 3L4 5.5L6.5 3" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              {speciesOpen && (
+                <div className="absolute top-full right-0 mt-1 rounded-md border bg-white/95 shadow-md backdrop-blur-sm overflow-hidden">
+                  <button
+                    onClick={() => {
+                      setSimConfig(DEFAULT_CONFIG);
+                      setSpeciesResetKey((k) => k + 1);
+                      setSpeciesOpen(false);
+                    }}
+                    className="w-full px-3 py-1.5 text-left text-[10px] font-medium uppercase tracking-widest text-foreground/70 hover:bg-foreground/5 transition-colors"
+                  >
+                    Spirulina
+                  </button>
+                  <button
+                    disabled
+                    className="w-full px-3 py-1.5 text-left text-[10px] font-medium uppercase tracking-widest text-foreground/30 cursor-not-allowed"
+                  >
+                    Chlorella
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Simulation Data button — only after sim completes */}
+            {simComplete && (
+              <button
+                onClick={() => setShowSimData((v) => !v)}
+                className="flex items-center gap-1 rounded-md bg-white/90 px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-widest text-foreground/70 backdrop-blur-sm transition-colors hover:text-foreground"
+              >
+                Simulation Data
+                <svg width="8" height="8" viewBox="0 0 8 8" className={`transition-transform ${showSimData ? "rotate-180" : ""}`}>
+                  <path d="M1.5 3L4 5.5L6.5 3" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            )}
+          </div>
 
           {/* Simulation data table overlay */}
           {showSimData && simResultsRef.current && (
@@ -733,6 +771,7 @@ export default function OpenPondSimulator() {
             onStopSim={stopSimulation}
             onPauseSim={pauseSimulation}
             onResumeSim={resumeSimulation}
+            speciesResetKey={speciesResetKey}
           />
         )}
       </div>

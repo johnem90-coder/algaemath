@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import katex from "katex";
 import "katex/dist/katex.min.css";
 import {
@@ -96,7 +96,7 @@ const LIGHT_XAXIS: AxisConfig = {
   ticks: [0, 250, 500, 750, 1000, 1250, 1500],
 };
 const LIGHT_YAXIS: AxisConfig = {
-  label: "f_L (-)",
+  label: "fL (-)",
   domain: [0, 1],
   ticks: [0, 0.2, 0.4, 0.6, 0.8, 1.0],
 };
@@ -106,7 +106,7 @@ const TEMP_XAXIS: AxisConfig = {
   ticks: [0, 10, 20, 30, 40, 50],
 };
 const TEMP_YAXIS: AxisConfig = {
-  label: "f_T (-)",
+  label: "fT (-)",
   domain: [0, 1],
   ticks: [0, 0.2, 0.4, 0.6, 0.8, 1.0],
 };
@@ -114,10 +114,10 @@ const ATT_XAXIS: AxisConfig = (() => {
   const d_mm = DEFAULT_CONFIG.depth * 1000;
   const step = Math.round(d_mm / 4);
   const ticks = Array.from({ length: 5 }, (_, i) => i * step);
-  return { label: "Depth, z (mm)", domain: [0, d_mm] as [number, number], ticks };
+  return { label: "Depth (mm)", domain: [0, d_mm] as [number, number], ticks };
 })();
 const ATT_YAXIS: AxisConfig = {
-  label: "I(z) (\u00B5mol/m\u00B2/s)",
+  label: "I (\u00B5mol/m\u00B2/s)",
   domain: [0, 2000] as [number, number],
   ticks: [0, 400, 800, 1200, 1600, 2000],
 };
@@ -157,7 +157,7 @@ const LIGHT_RESPONSE_MODELS: ModelConfig[] = [
     xAxis: LIGHT_XAXIS,
     yAxis: LIGHT_YAXIS,
     color: C_LIGHT,
-    getSimX: (ts) => ({ x: ts.par_avg_culture, labelPrefix: "f_L" }),
+    getSimX: (ts) => ({ x: ts.par_avg_culture, labelPrefix: "fL" }),
     latex: EQ_LIGHT["steele"].latexNormalized,
     renderLiveEq: (params, ts) => {
       const Iopt = params["Iopt"];
@@ -175,7 +175,7 @@ const LIGHT_RESPONSE_MODELS: ModelConfig[] = [
       );
     },
     getTimeSeriesX: (ts) => ts.par_avg_culture,
-    timeSeriesLabel: "f_L",
+    timeSeriesLabel: "fL",
   },
   {
     id: "monod",
@@ -190,7 +190,7 @@ const LIGHT_RESPONSE_MODELS: ModelConfig[] = [
     xAxis: LIGHT_XAXIS,
     yAxis: LIGHT_YAXIS,
     color: C_LIGHT,
-    getSimX: (ts) => ({ x: ts.par_avg_culture, labelPrefix: "f_L" }),
+    getSimX: (ts) => ({ x: ts.par_avg_culture, labelPrefix: "fL" }),
     latex: EQ_LIGHT["monod"].latexNormalized,
     renderLiveEq: (params, ts) => {
       const Ks = params["K_s"];
@@ -205,7 +205,7 @@ const LIGHT_RESPONSE_MODELS: ModelConfig[] = [
       );
     },
     getTimeSeriesX: (ts) => ts.par_avg_culture,
-    timeSeriesLabel: "f_L",
+    timeSeriesLabel: "fL",
   },
   {
     id: "haldane",
@@ -216,13 +216,13 @@ const LIGHT_RESPONSE_MODELS: ModelConfig[] = [
       return I / (Ks + I + (I * I) / Ki);
     },
     parameters: [
-      { symbol: "K_s", label: "Half-Saturation", unit: "\u00B5mol/m\u00B2/s", min: 10, max: 100, step: 1, color: C_LIGHT, defaultValue: 50 },
+      { symbol: "K_s", label: "Half-Saturation", unit: "\u00B5mol/m\u00B2/s", min: 10, max: 200, step: 1, color: C_LIGHT, defaultValue: 80 },
       { symbol: "K_i", label: "Inhibition Constant", unit: "\u00B5mol/m\u00B2/s", min: 300, max: 2000, step: 10, color: C_LIGHT, defaultValue: 1000 },
     ],
     xAxis: LIGHT_XAXIS,
     yAxis: LIGHT_YAXIS,
     color: C_LIGHT,
-    getSimX: (ts) => ({ x: ts.par_avg_culture, labelPrefix: "f_L" }),
+    getSimX: (ts) => ({ x: ts.par_avg_culture, labelPrefix: "fL" }),
     latex: EQ_LIGHT["haldane"].latexNormalized,
     renderLiveEq: (params, ts) => {
       const Ks = params["K_s"];
@@ -238,7 +238,7 @@ const LIGHT_RESPONSE_MODELS: ModelConfig[] = [
       );
     },
     getTimeSeriesX: (ts) => ts.par_avg_culture,
-    timeSeriesLabel: "f_L",
+    timeSeriesLabel: "fL",
   },
   {
     id: "webb",
@@ -255,7 +255,7 @@ const LIGHT_RESPONSE_MODELS: ModelConfig[] = [
     xAxis: LIGHT_XAXIS,
     yAxis: LIGHT_YAXIS,
     color: C_LIGHT,
-    getSimX: (ts) => ({ x: ts.par_avg_culture, labelPrefix: "f_L" }),
+    getSimX: (ts) => ({ x: ts.par_avg_culture, labelPrefix: "fL" }),
     latex: EQ_LIGHT["webb"].latexNormalized,
     renderLiveEq: (params, ts) => {
       const Iopt = params["I_{opt}"];
@@ -271,7 +271,7 @@ const LIGHT_RESPONSE_MODELS: ModelConfig[] = [
       );
     },
     getTimeSeriesX: (ts) => ts.par_avg_culture,
-    timeSeriesLabel: "f_L",
+    timeSeriesLabel: "fL",
   },
   {
     id: "beta-function-light",
@@ -301,7 +301,7 @@ const LIGHT_RESPONSE_MODELS: ModelConfig[] = [
     xAxis: LIGHT_XAXIS,
     yAxis: LIGHT_YAXIS,
     color: C_LIGHT,
-    getSimX: (ts) => ({ x: ts.par_avg_culture, labelPrefix: "f_L" }),
+    getSimX: (ts) => ({ x: ts.par_avg_culture, labelPrefix: "fL" }),
     latex: EQ_LIGHT["beta-function"].latexNormalized,
     renderLiveEq: (params, ts) => {
       const I = ts?.par_avg_culture;
@@ -348,7 +348,7 @@ const LIGHT_RESPONSE_MODELS: ModelConfig[] = [
       );
     },
     getTimeSeriesX: (ts) => ts.par_avg_culture,
-    timeSeriesLabel: "f_L",
+    timeSeriesLabel: "fL",
   },
 ];
 
@@ -452,7 +452,7 @@ const TEMPERATURE_RESPONSE_MODELS: ModelConfig[] = [
     xAxis: TEMP_XAXIS,
     yAxis: TEMP_YAXIS,
     color: C_TEMP,
-    getSimX: (ts) => ({ x: ts.pond_temperature, labelPrefix: "f_T" }),
+    getSimX: (ts) => ({ x: ts.pond_temperature, labelPrefix: "fT" }),
     latex: String.raw`f_T = e^{-\alpha \cdot (T - T_{opt})^2}`,
     renderLiveEq: (params, ts) => {
       const Topt = params["Topt"];
@@ -468,7 +468,7 @@ const TEMPERATURE_RESPONSE_MODELS: ModelConfig[] = [
       );
     },
     getTimeSeriesX: (ts) => ts.pond_temperature,
-    timeSeriesLabel: "f_T",
+    timeSeriesLabel: "fT",
   },
   {
     id: "gaussian-asymmetric",
@@ -488,7 +488,7 @@ const TEMPERATURE_RESPONSE_MODELS: ModelConfig[] = [
     xAxis: TEMP_XAXIS,
     yAxis: TEMP_YAXIS,
     color: C_TEMP,
-    getSimX: (ts) => ({ x: ts.pond_temperature, labelPrefix: "f_T" }),
+    getSimX: (ts) => ({ x: ts.pond_temperature, labelPrefix: "fT" }),
     latex: EQ_TEMP["gaussian-asymmetric"].latexNormalized,
     renderLiveEq: (params, ts) => {
       const Topt = params["Topt"];
@@ -522,7 +522,7 @@ const TEMPERATURE_RESPONSE_MODELS: ModelConfig[] = [
       );
     },
     getTimeSeriesX: (ts) => ts.pond_temperature,
-    timeSeriesLabel: "f_T",
+    timeSeriesLabel: "fT",
   },
   {
     id: "quadratic-exponential",
@@ -551,7 +551,7 @@ const TEMPERATURE_RESPONSE_MODELS: ModelConfig[] = [
     xAxis: TEMP_XAXIS,
     yAxis: TEMP_YAXIS,
     color: C_TEMP,
-    getSimX: (ts) => ({ x: ts.pond_temperature, labelPrefix: "f_T" }),
+    getSimX: (ts) => ({ x: ts.pond_temperature, labelPrefix: "fT" }),
     latex: EQ_TEMP["quadratic-exponential"].latexNormalized,
     renderLiveEq: (params, ts) => {
       const Topt = params["Topt"];
@@ -587,7 +587,7 @@ const TEMPERATURE_RESPONSE_MODELS: ModelConfig[] = [
       );
     },
     getTimeSeriesX: (ts) => ts.pond_temperature,
-    timeSeriesLabel: "f_T",
+    timeSeriesLabel: "fT",
   },
   {
     id: "beta-function-temp",
@@ -608,16 +608,16 @@ const TEMPERATURE_RESPONSE_MODELS: ModelConfig[] = [
       }
     },
     parameters: [
-      { symbol: "Topt", label: "Optimal Temp.", unit: "\u00B0C", min: 20, max: 40, step: 0.2, color: C_TEMP, defaultValue: 30 },
+      { symbol: "Topt", label: "Optimal Temp.", unit: "\u00B0C", min: 20, max: 40, step: 0.2, color: C_TEMP, defaultValue: 32 },
       { symbol: "T_{min}", label: "Min Temp.", unit: "\u00B0C", min: 5, max: 15, step: 0.2, color: C_TEMP, defaultValue: 10 },
-      { symbol: "T_{max}", label: "Max Temp.", unit: "\u00B0C", min: 45, max: 55, step: 0.2, color: C_TEMP, defaultValue: 50 },
-      { symbol: "\u03B1", label: "Sub-optimal Shape", unit: "-", min: 1, max: 10, step: 0.1, color: C_TEMP, defaultValue: 1 },
-      { symbol: "\u03B2", label: "Super-optimal Shape", unit: "-", min: 1, max: 10, step: 0.1, color: C_TEMP, defaultValue: 2 },
+      { symbol: "T_{max}", label: "Max Temp.", unit: "\u00B0C", min: 40, max: 55, step: 0.2, color: C_TEMP, defaultValue: 47 },
+      { symbol: "\u03B1", label: "Sub-optimal Shape", unit: "-", min: 1, max: 10, step: 0.1, color: C_TEMP, defaultValue: 3 },
+      { symbol: "\u03B2", label: "Super-optimal Shape", unit: "-", min: 1, max: 10, step: 0.1, color: C_TEMP, defaultValue: 5 },
     ],
     xAxis: TEMP_XAXIS,
     yAxis: TEMP_YAXIS,
     color: C_TEMP,
-    getSimX: (ts) => ({ x: ts.pond_temperature, labelPrefix: "f_T" }),
+    getSimX: (ts) => ({ x: ts.pond_temperature, labelPrefix: "fT" }),
     latex: EQ_TEMP["beta-function"].latexNormalized,
     renderLiveEq: (params, ts) => {
       const T = ts?.pond_temperature;
@@ -664,7 +664,7 @@ const TEMPERATURE_RESPONSE_MODELS: ModelConfig[] = [
       );
     },
     getTimeSeriesX: (ts) => ts.pond_temperature,
-    timeSeriesLabel: "f_T",
+    timeSeriesLabel: "fT",
   },
 ];
 
@@ -1067,9 +1067,9 @@ function ModelVisualizer({
                 y1={py}
                 x2={CHART_R}
                 y2={py}
-                stroke="var(--border)"
+                stroke="var(--muted-foreground)"
                 strokeWidth="0.5"
-                strokeOpacity="0.3"
+                strokeOpacity="0.2"
               />
               <text
                 x={CHART_L - 8}
@@ -1085,7 +1085,7 @@ function ModelVisualizer({
           );
         })}
 
-        {/* X-axis ticks */}
+        {/* X-axis ticks + vertical grid */}
         {model.xAxis.ticks.map((val) => {
           const [xMin, xMax] = model.xAxis.domain;
           const px =
@@ -1099,6 +1099,15 @@ function ModelVisualizer({
                 y2={CHART_B + 4}
                 stroke="var(--muted-foreground)"
                 strokeWidth="0.8"
+              />
+              <line
+                x1={px}
+                y1={CHART_T}
+                x2={px}
+                y2={CHART_B}
+                stroke="var(--muted-foreground)"
+                strokeWidth="0.5"
+                strokeOpacity="0.2"
               />
               <text
                 x={px}
@@ -1296,7 +1305,7 @@ function ModelVisualizer({
           return (
             <g key={`ts-y-${val}`}>
               <line x1={CHART_L - 3} y1={py} x2={CHART_L} y2={py} stroke="var(--muted-foreground)" strokeWidth="0.8" />
-              <line x1={CHART_L} y1={py} x2={CHART_R} y2={py} stroke="var(--border)" strokeWidth="0.5" strokeOpacity="0.3" />
+              <line x1={CHART_L} y1={py} x2={CHART_R} y2={py} stroke="var(--muted-foreground)" strokeWidth="0.5" strokeOpacity="0.2" />
               <text x={CHART_L - 8} y={py + 4.5} textAnchor="end" className="font-mono" fontSize="14" fill="var(--muted-foreground)">
                 {val}
               </text>
@@ -1304,7 +1313,7 @@ function ModelVisualizer({
           );
         })}
 
-        {/* X-axis ticks (days) */}
+        {/* X-axis ticks + vertical grid (days) */}
         {(() => {
           const hours = tsData?.totalHours || 120;
           const dayTicks: number[] = [];
@@ -1315,6 +1324,7 @@ function ModelVisualizer({
             return (
               <g key={`ts-x-${h}`}>
                 <line x1={px} y1={CHART_B} x2={px} y2={CHART_B + 4} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                <line x1={px} y1={CHART_T} x2={px} y2={CHART_B} stroke="var(--muted-foreground)" strokeWidth="0.5" strokeOpacity="0.2" />
                 <text x={px} y={CHART_B + 18} textAnchor="middle" className="font-mono" fontSize="14" fill="var(--muted-foreground)">
                   {h / 24}
                 </text>
@@ -1635,7 +1645,7 @@ function HeatBalancePanel({
             return (
               <g key={`y-${val}`}>
                 <line x1={CHART_L - 3} y1={py} x2={CHART_L} y2={py} stroke="var(--muted-foreground)" strokeWidth="0.8" />
-                <line x1={CHART_L} y1={py} x2={CHART_R} y2={py} stroke="var(--border)" strokeWidth="0.5" strokeOpacity="0.3" />
+                <line x1={CHART_L} y1={py} x2={CHART_R} y2={py} stroke="var(--muted-foreground)" strokeWidth="0.5" strokeOpacity="0.2" />
                 <text x={CHART_L - 8} y={py + 4.5} textAnchor="end" className="font-mono" fontSize="13" fill="var(--muted-foreground)">
                   {formatQ(val)}
                 </text>
@@ -1643,13 +1653,14 @@ function HeatBalancePanel({
             );
           })}
 
-          {/* X-axis ticks */}
+          {/* X-axis ticks + vertical grid */}
           {data.dayTicks.map((h) => {
             const px = CHART_L + (h / data.displayHours) * CHART_W;
             if (px > CHART_R + 1) return null;
             return (
               <g key={`x-${h}`}>
                 <line x1={px} y1={CHART_B} x2={px} y2={CHART_B + 4} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                <line x1={px} y1={CHART_T} x2={px} y2={CHART_B} stroke="var(--muted-foreground)" strokeWidth="0.5" strokeOpacity="0.2" />
                 <text x={px} y={CHART_B + 18} textAnchor="middle" className="font-mono" fontSize="13" fill="var(--muted-foreground)">
                   {h / 24}
                 </text>
@@ -2017,7 +2028,7 @@ function MassBalancePanel({
             return (
               <g key={`y-${val}`}>
                 <line x1={CHART_L - 3} y1={py} x2={CHART_L} y2={py} stroke="var(--muted-foreground)" strokeWidth="0.8" />
-                <line x1={CHART_L} y1={py} x2={CHART_R} y2={py} stroke="var(--border)" strokeWidth="0.5" strokeOpacity="0.3" />
+                <line x1={CHART_L} y1={py} x2={CHART_R} y2={py} stroke="var(--muted-foreground)" strokeWidth="0.5" strokeOpacity="0.2" />
                 <text x={CHART_L - 8} y={py + 4.5} textAnchor="end" className="font-mono" fontSize="13" fill="var(--muted-foreground)">
                   {formatW(val)}
                 </text>
@@ -2031,6 +2042,7 @@ function MassBalancePanel({
             return (
               <g key={`x-${h}`}>
                 <line x1={px} y1={CHART_B} x2={px} y2={CHART_B + 4} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                <line x1={px} y1={CHART_T} x2={px} y2={CHART_B} stroke="var(--muted-foreground)" strokeWidth="0.5" strokeOpacity="0.2" />
                 <text x={px} y={CHART_B + 18} textAnchor="middle" className="font-mono" fontSize="13" fill="var(--muted-foreground)">
                   {h / 24}
                 </text>
@@ -2205,8 +2217,8 @@ function InlineSimControls({
         <span className="flex items-center gap-1">
           <span className="text-[10px] font-medium text-muted-foreground whitespace-nowrap">Restart</span>
           <Slider
-            min={0.3}
-            max={Math.max(0.3, config.harvest_threshold / 2)}
+            min={0.1}
+            max={Math.max(0.1, config.harvest_threshold / 2)}
             step={0.1}
             value={[config.harvest_target]}
             onValueChange={([v]) => onConfigChange({ harvest_target: v })}
@@ -2222,7 +2234,7 @@ function InlineSimControls({
         <span className="flex items-center gap-1">
           <span className="text-[10px] font-medium text-muted-foreground whitespace-nowrap">Min</span>
           <Slider
-            min={0.3}
+            min={0.1}
             max={2}
             step={0.1}
             value={[config.harvest_threshold]}
@@ -2404,6 +2416,7 @@ export default function GrowthModelPanels({
   onStopSim,
   onPauseSim,
   onResumeSim,
+  speciesResetKey,
 }: {
   config: OpenPondConfig;
   simTimestep: OpenPondTimestep | null;
@@ -2418,10 +2431,19 @@ export default function GrowthModelPanels({
   onStopSim: () => void;
   onPauseSim: () => void;
   onResumeSim: () => void;
+  speciesResetKey: number;
 }) {
   const [lightModelId, setLightModelId] = useState("haldane");
   const [attModelId, setAttModelId] = useState("beer-lambert");
-  const [tempModelId, setTempModelId] = useState("gaussian-symmetric");
+  const [tempModelId, setTempModelId] = useState("beta-function-temp");
+
+  // Reset model selections to defaults when species preset is applied
+  useEffect(() => {
+    if (speciesResetKey === 0) return; // skip initial mount
+    setLightModelId("haldane");
+    setAttModelId("beer-lambert");
+    setTempModelId("beta-function-temp");
+  }, [speciesResetKey]);
 
   const lightModel = LIGHT_RESPONSE_MODELS.find((m) => m.id === lightModelId) ?? LIGHT_RESPONSE_MODELS[0];
   const attModel = LIGHT_ATTENUATION_MODELS.find((m) => m.id === attModelId) ?? LIGHT_ATTENUATION_MODELS[0];
@@ -2459,6 +2481,7 @@ export default function GrowthModelPanels({
           </AccordionTrigger>
           <AccordionContent>
             <ModelVisualizer
+              key={`light-${speciesResetKey}`}
               model={lightModel}
               config={config}
               simTimestep={simTimestep}
@@ -2484,6 +2507,7 @@ export default function GrowthModelPanels({
           </AccordionTrigger>
           <AccordionContent>
             <ModelVisualizer
+              key={`att-${speciesResetKey}`}
               model={attModel}
               config={config}
               simTimestep={simTimestep}
@@ -2509,6 +2533,7 @@ export default function GrowthModelPanels({
           </AccordionTrigger>
           <AccordionContent>
             <ModelVisualizer
+              key={`temp-${speciesResetKey}`}
               model={tempModel}
               config={config}
               simTimestep={simTimestep}
