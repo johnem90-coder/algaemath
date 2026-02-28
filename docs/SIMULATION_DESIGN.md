@@ -211,7 +211,7 @@ Diffuse sky radiation arrives from all directions across the hemisphere. For cal
 
 ## 2. Outdoor Open Raceway Pond
 
-**Status: v1 implemented** — simulation engine, visualization, and interactive panels are complete.
+**Status: v1 implemented** — simulation engine, visualization, interactive panels, and data export (CSV + table overlay) are complete.
 
 **Geometry:** Elongated racetrack (oval) loop with a paddlewheel for mixing. Typical aspect ratio 10:1 (length:width). Culture is well-mixed horizontally; vertical mixing assumed complete (CSTR approximation in the vertical direction).
 
@@ -220,8 +220,8 @@ Diffuse sky radiation arrives from all directions across the hemisphere. For cal
 - CO₂ is not limiting (externally supplied or ignored)
 - Nutrients are not limiting (µN = 1.0)
 - pH is not modeled explicitly (µpH = 1.0)
-- Evaporation affects water volume but salinity/nutrient concentration effects are ignored
-- Precipitation effects on volume and dilution are ignored
+- Evaporation and precipitation affect water volume and biomass concentration (dilution)
+- Salinity/nutrient concentration effects from evaporation are ignored
 
 ---
 
@@ -534,6 +534,44 @@ This term is typically small relative to solar and evaporative terms (on the ord
 
 ---
 
+#### 2.4.8 Water Balance — Volume ODE and Rainfall
+
+The pond volume V changes each timestep based on evaporation, precipitation, harvest, and makeup water:
+
+```
+dV/dt = (R + M - E - H_net) / 1000     [m³/h, inputs in L/h]
+```
+
+**Rainfall volume (L/h):**
+```
+R = P_mm · A_surface
+```
+where P_mm is hourly precipitation (mm) from weather data, and 1 mm over 1 m² = 1 L.
+
+**Makeup water (L/h):**
+```
+M = max(0, E + H_net - R)
+```
+Makeup compensates for evaporation and harvest losses, reduced by rainfall. When rainfall exceeds losses, no makeup is needed and V increases.
+
+**Biomass dilution from volume increase:**
+When V increases (e.g., from heavy rainfall exceeding evaporation), the biomass concentration is diluted by mass conservation:
+```
+X_new = X · (V_old / V_new)     [when V_new > V_old]
+```
+Total biomass mass is conserved — only concentration changes.
+
+| Symbol | Description | Units |
+|---|---|---|
+| R | Rainfall volume | L/h |
+| M | Makeup water added | L/h |
+| E | Evaporative water loss | L/h |
+| H_net | Net harvest water loss (removed − returned) | L/h |
+| P_mm | Precipitation rate | mm/h |
+| A_surface | Pond surface area | m² |
+
+---
+
 ### 2.5 Design Parameters
 
 User-specified inputs that define the physical pond:
@@ -618,6 +656,7 @@ interface OpenPondTimestep {
 
   // Water balance
   evap_L: number                   // Evaporative water loss this hour (L)
+  rainfall_L: number               // Rainfall volume added this hour (L)
   makeup_L: number                 // Fresh water added this hour (L)
   harvest_water_removed_L: number  // Culture volume removed during harvest (L)
   harvest_water_returned_L: number // Water recycled from harvest (80%) (L)

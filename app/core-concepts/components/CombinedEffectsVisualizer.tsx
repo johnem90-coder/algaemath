@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Slider } from '@/components/ui/slider';
-import { getGlobalStart } from '@/lib/simulation/shared-timer';
+import { getGlobalStart, shouldYieldToInteraction } from '@/lib/simulation/shared-timer';
 
 const LOOP_DURATION = 6000;
 const PAUSE_START = 1000;
@@ -51,6 +51,10 @@ const CombinedEffectsVisualizer = () => {
 
     const animate = useCallback(
         (timestamp: number) => {
+            if (shouldYieldToInteraction()) {
+                animRef.current = requestAnimationFrame(animate);
+                return;
+            }
             if (!startTimeRef.current) startTimeRef.current = getGlobalStart(timestamp);
             const elapsed = (timestamp - startTimeRef.current) % TOTAL_CYCLE;
 

@@ -837,7 +837,7 @@ function ModelVisualizer({
     const pts2: string[] = [];
     const MIN_DISPLAY_DAYS = 5;
     const lastTs = simResults[end - 1];
-    const currentHour = (lastTs.day - 1) * 24 + lastTs.hour;
+    const currentHour = end - 1;
     const displayDays = Math.max(MIN_DISPLAY_DAYS, Math.ceil(currentHour / 24));
     const totalHours = displayDays * 24;
     const [yMin, yMax] = yAxis.domain;
@@ -845,7 +845,7 @@ function ModelVisualizer({
     let last2Px = 0, last2Py = 0;
     for (let i = 0; i < end; i++) {
       const ts = simResults[i];
-      const h = (ts.day - 1) * 24 + ts.hour;
+      const h = i;
       const px = CHART_L + (h / totalHours) * CHART_W;
 
       const val = model.getTimeSeriesX
@@ -1502,8 +1502,7 @@ function HeatBalancePanel({
     if (!simResults || end === 0) return null;
 
     const MIN_DAYS = 5;
-    const lastTs = simResults[end - 1];
-    const currentHour = (lastTs.day - 1) * 24 + lastTs.hour;
+    const currentHour = end - 1;
     const displayDays = Math.max(MIN_DAYS, Math.ceil(currentHour / 24));
     const displayHours = displayDays * 24;
 
@@ -1519,7 +1518,7 @@ function HeatBalancePanel({
 
       for (let i = 0; i < end; i++) {
         const ts = simResults![i];
-        const h = (ts.day - 1) * 24 + ts.hour;
+        const h = i;
         hours.push(h);
         for (let s = 0; s < series.length; s++) {
           const v = series[s].extract(ts);
@@ -1793,6 +1792,8 @@ const WC_EVAP = "hsl(180, 50%, 40%)"; // teal — evaporation
 const WC_MAKEUP = "hsl(210, 70%, 50%)"; // blue — makeup water
 const WC_HARVEST = "hsl(25, 70%, 45%)"; // amber — harvest net loss
 const WC_TOTAL = "hsl(0, 0%, 25%)"; // dark — total consumption
+const WC_RAIN = "hsl(240, 50%, 55%)"; // indigo — rainfall
+const WC_VOLUME = "hsl(270, 40%, 50%)"; // purple — pond volume
 
 interface WaterSeries {
   key: string;
@@ -1805,6 +1806,7 @@ const WC_RETURNED = "hsl(150, 45%, 40%)"; // green — returned water
 
 const RATE_SERIES: WaterSeries[] = [
   { key: "evap", label: "Evaporation", color: WC_EVAP },
+  { key: "rain", label: "Rainfall", color: WC_RAIN },
   { key: "harvest", label: "Harvest out", color: WC_HARVEST },
   { key: "returned", label: "Returned", color: WC_RETURNED, dashed: true },
   { key: "makeup", label: "Makeup", color: WC_MAKEUP, dashed: true },
@@ -1812,8 +1814,10 @@ const RATE_SERIES: WaterSeries[] = [
 
 const CUM_SERIES: WaterSeries[] = [
   { key: "evap", label: "Evaporation", color: WC_EVAP },
+  { key: "rain", label: "Rainfall", color: WC_RAIN },
   { key: "makeup", label: "Makeup", color: WC_MAKEUP },
   { key: "harvest", label: "Harvest (net)", color: WC_HARVEST, dashed: true },
+  { key: "volume", label: "Pond Vol", color: WC_VOLUME, dashed: true },
 ];
 
 function MassBalancePanel({
@@ -1833,8 +1837,7 @@ function MassBalancePanel({
     if (!simResults || end === 0) return null;
 
     const MIN_DAYS = 5;
-    const lastTs = simResults[end - 1];
-    const currentHour = (lastTs.day - 1) * 24 + lastTs.hour;
+    const currentHour = end - 1;
     const displayDays = Math.max(MIN_DAYS, Math.ceil(currentHour / 24));
     const displayHours = displayDays * 24;
 
@@ -1844,6 +1847,7 @@ function MassBalancePanel({
     // ── Chart 1: Water rates (L/h) ─────────────────────────
     const rateHours: number[] = [];
     const evapRates: number[] = [];
+    const rainRates: number[] = [];
     const harvestRates: number[] = [];
     const returnedRates: number[] = [];
     const makeupRates: number[] = [];
@@ -1852,16 +1856,16 @@ function MassBalancePanel({
 
     for (let i = 0; i < end; i++) {
       const ts = simResults[i];
-      const h = (ts.day - 1) * 24 + ts.hour;
-      rateHours.push(h);
+      rateHours.push(i);
       const evapNeg = -ts.evap_L;
       const harvestNeg = -ts.harvest_water_removed_L;
       evapRates.push(evapNeg);
+      rainRates.push(ts.rainfall_L);
       harvestRates.push(harvestNeg);
       returnedRates.push(ts.harvest_water_returned_L);
       makeupRates.push(ts.makeup_L);
       rateMin = Math.min(rateMin, evapNeg, harvestNeg);
-      rateMax = Math.max(rateMax, ts.makeup_L, ts.harvest_water_returned_L);
+      rateMax = Math.max(rateMax, ts.rainfall_L, ts.makeup_L, ts.harvest_water_returned_L);
     }
 
     const rateAbsMax = Math.max(Math.abs(rateMin), Math.abs(rateMax));
@@ -1888,30 +1892,34 @@ function MassBalancePanel({
     }
 
     const ratePathData = {
-      paths: [buildRatePath(evapRates), buildRatePath(harvestRates), buildRatePath(returnedRates), buildRatePath(makeupRates)],
+      paths: [buildRatePath(evapRates), buildRatePath(rainRates), buildRatePath(harvestRates), buildRatePath(returnedRates), buildRatePath(makeupRates)],
       yMin: rateYMin, yMax: rateYMax,
       ticks: rateTicks, dayTicks, displayHours,
     };
 
-    // ── Chart 2: Cumulative water (L) ──────────────────────
+    // ── Chart 2: Cumulative water (L) + pond volume (L) ────
     const cumHours: number[] = [];
     const cumEvap: number[] = [];
+    const cumRain: number[] = [];
     const cumMakeup: number[] = [];
     const cumHarvest: number[] = [];
-    let sumEvap = 0, sumMakeup = 0, sumHarvest = 0;
+    const pondVolume: number[] = [];
+    let sumEvap = 0, sumRain = 0, sumMakeup = 0, sumHarvest = 0;
     let cumMax = 0;
 
     for (let i = 0; i < end; i++) {
       const ts = simResults[i];
-      const h = (ts.day - 1) * 24 + ts.hour;
-      cumHours.push(h);
+      cumHours.push(i);
       sumEvap += ts.evap_L;
+      sumRain += ts.rainfall_L;
       sumMakeup += ts.makeup_L;
       sumHarvest += (ts.harvest_water_removed_L - ts.harvest_water_returned_L);
       cumEvap.push(sumEvap);
+      cumRain.push(sumRain);
       cumMakeup.push(sumMakeup);
       cumHarvest.push(sumHarvest);
-      cumMax = Math.max(cumMax, sumEvap, sumMakeup);
+      pondVolume.push(ts.culture_volume * 1000); // m³ → L
+      cumMax = Math.max(cumMax, sumEvap, sumRain, sumMakeup, ts.culture_volume * 1000);
     }
 
     const cumYMax = heatNiceMax(cumMax);
@@ -1922,7 +1930,8 @@ function MassBalancePanel({
       let lastPx = 0, lastPy = 0;
       for (let i = 0; i < vals.length; i++) {
         const px = CHART_L + (cumHours[i] / displayHours) * CHART_W;
-        const py = CHART_B - (vals[i] / cumYMax) * CHART_H;
+        const clamped = Math.max(0, Math.min(cumYMax, vals[i]));
+        const py = CHART_B - (clamped / cumYMax) * CHART_H;
         pts.push(`${px.toFixed(1)},${py.toFixed(1)}`);
         lastPx = px;
         lastPy = py;
@@ -1935,7 +1944,7 @@ function MassBalancePanel({
     }
 
     const cumPathData = {
-      paths: [buildCumPath(cumEvap), buildCumPath(cumMakeup), buildCumPath(cumHarvest)],
+      paths: [buildCumPath(cumEvap), buildCumPath(cumRain), buildCumPath(cumMakeup), buildCumPath(cumHarvest), buildCumPath(pondVolume)],
       yMin: 0, yMax: cumYMax,
       ticks: cumTicks, dayTicks, displayHours,
     };
@@ -2064,14 +2073,6 @@ function MassBalancePanel({
     );
   }
 
-  // Derive evaporation rate in mm/day for display
-  const A_surface = simTimestep
-    ? simTimestep.culture_volume / config.depth
-    : 0;
-  const evap_mm_day = simTimestep && A_surface > 0
-    ? (simTimestep.evap_L * 24) / A_surface
-    : 0;
-
   return (
     <div className="grid grid-cols-1 gap-2 lg:grid-cols-[1fr_1fr_290px] py-4 select-none">
       {/* Water rates chart */}
@@ -2099,13 +2100,13 @@ function MassBalancePanel({
         <div
           className="text-left overflow-x-auto overflow-y-hidden [&_.katex-mathml]:!hidden [&_.katex-display]:!text-left [&_.katex-display]:!m-0 [&_.fleqn]:!pl-0 [&_.fleqn>.katex]:!pl-0"
           dangerouslySetInnerHTML={{
-            __html: renderLatex(String.raw`E = \frac{Q_{evap} \cdot A_s}{\lambda_w}`),
+            __html: renderLatex(String.raw`R = P_{mm} \cdot A_s`),
           }}
         />
         <div
           className="text-left overflow-x-auto overflow-y-hidden [&_.katex-mathml]:!hidden [&_.katex-display]:!text-left [&_.katex-display]:!m-0 [&_.fleqn]:!pl-0 [&_.fleqn>.katex]:!pl-0"
           dangerouslySetInnerHTML={{
-            __html: renderLatex(String.raw`\dot{m}_{in} = E + 0.2 \, V_{harvest}`),
+            __html: renderLatex(String.raw`\dot{m}_{in} = \max(0,\; E + 0.2\,V_h - R)`),
           }}
         />
         <hr className="border-border" />
@@ -2116,8 +2117,8 @@ function MassBalancePanel({
               <span className="font-semibold" style={{ color: WC_EVAP }}>{formatW(simTimestep.evap_L)} L/h</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Evap rate</span>
-              <span className="font-semibold text-muted-foreground">{evap_mm_day.toFixed(1)} mm/day</span>
+              <span style={{ color: WC_RAIN }}>Rainfall</span>
+              <span className="font-semibold" style={{ color: WC_RAIN }}>{formatW(simTimestep.rainfall_L)} L/h</span>
             </div>
             <div className="flex justify-between">
               <span style={{ color: WC_MAKEUP }}>Makeup water</span>
@@ -2138,8 +2139,8 @@ function MassBalancePanel({
             </div>
             <hr className="border-border" />
             <div className="flex justify-between">
-              <span className="text-muted-foreground">V_pond</span>
-              <span className="font-semibold text-muted-foreground">{formatW(simTimestep.culture_volume * 1000)} L</span>
+              <span style={{ color: WC_VOLUME }}>V_pond</span>
+              <span className="font-semibold" style={{ color: WC_VOLUME }}>{formatW(simTimestep.culture_volume * 1000)} L</span>
             </div>
           </div>
         ) : (

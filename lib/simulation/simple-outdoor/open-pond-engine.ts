@@ -1,7 +1,7 @@
 // Open pond simulation engine
 // Reference: docs/SIMULATION_DESIGN.md
 
-import type { DayProfile } from "../weather-types";
+import type { RawDayData } from "../weather-types";
 import type {
   OpenPondConfig,
   OpenPondTimestep,
@@ -17,16 +17,16 @@ import { gaussianTempFactor } from "@/lib/models/temperature/gaussian";
 /**
  * Run the full open pond simulation.
  *
- * Pre-computes all hourly timesteps deterministically from weather profile data.
- * The profile represents a single "typical day" (24 hours) that repeats each day.
+ * Pre-computes all hourly timesteps deterministically from raw daily weather data.
+ * Each simulation day uses a distinct day from the raw data, cycling if needed.
  *
- * @param profile - Averaged weather profile (24 hourly entries)
+ * @param raw - Array of raw daily weather data (each entry = 24 hourly observations)
  * @param config - Simulation configuration
  * @param totalDays - Number of days to simulate
  * @returns Array of timesteps and summary statistics
  */
 export function runSimulation(
-  profile: DayProfile,
+  raw: RawDayData[],
   config: OpenPondConfig,
   totalDays: number
 ): { timesteps: OpenPondTimestep[]; summary: OpenPondSummary } {
@@ -45,12 +45,15 @@ export function runSimulation(
   const HARVEST_HOURS = 4;
   let harvestRateGLPerHour = 0; // g/L to remove each hour during active harvest
 
+  const START_HOUR = 7; // Simulation starts at 7 AM local time
+
   for (let step = 0; step < totalDays * 24; step++) {
     const day = Math.floor(step / 24) + 1;
-    const hour = step % 24;
+    const hour = (step + START_HOUR) % 24;
 
-    // Get weather for this hour from the repeating daily profile
-    const weather = profile.hours[hour];
+    // Get weather for this hour from the raw daily data (cycles through available days)
+    const dayIndex = Math.floor(step / 24) % raw.length;
+    const weather = raw[dayIndex].hours[hour];
 
     // Initialize pond temperature from air temperature on first step
     if (step === 0 && config.initial_temperature === 0) {
@@ -126,9 +129,23 @@ export function runSimulation(
     // ── Water balance ────────────────────────────────────────
     // Evaporative loss: q_evap (W/m²) → L/h over pond surface
     const evap_L = (heat.q_evap * 3600 * geometry.A_surface) / (LAMBDA_WATER * 1e6);
-    // Makeup water offsets evaporation + net harvest water loss (20% not returned)
+    // Rainfall volume: 1 mm over 1 m² = 1 L
+    const rainfall_L = weather.precipitation * geometry.A_surface;
+    // Makeup water offsets evaporation + net harvest loss, reduced by rainfall
+    // Only add makeup water when pond volume is at or below baseline
     const harvestNetLoss = harvestWaterRemovedL - harvestWaterReturnedL;
-    const makeup_L = evap_L + harvestNetLoss;
+    const makeup_L = V <= geometry.V_m3
+      ? Math.max(0, evap_L + harvestNetLoss - rainfall_L)
+      : 0;
+
+    // ── Update pond volume (V is now a state variable) ────────
+    const V_old = V;
+    V = V + (rainfall_L + makeup_L - evap_L - harvestNetLoss) / 1000; // L → m³
+
+    // ── Dilute biomass from volume change (mass conservation) ──
+    if (V > V_old) {
+      X_new = X_new * (V_old / V);
+    }
 
     // ── Productivity ─────────────────────────────────────────
     const productivity_vol = mu_eff > 0 ? mu_eff * X : 0; // g/L/day
@@ -179,6 +196,7 @@ export function runSimulation(
       precipitation: weather.precipitation,
 
       evap_L,
+      rainfall_L,
       makeup_L,
       harvest_water_removed_L: harvestWaterRemovedL,
       harvest_water_returned_L: harvestWaterReturnedL,

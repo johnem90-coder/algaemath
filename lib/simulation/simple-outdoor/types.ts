@@ -94,6 +94,7 @@ export interface OpenPondTimestep {
 
   // Water balance
   evap_L: number; // Evaporative water loss this hour (L)
+  rainfall_L: number; // Rainfall volume added this hour (L)
   makeup_L: number; // Fresh water added this hour (L)
   harvest_water_removed_L: number; // Culture volume removed during harvest (L)
   harvest_water_returned_L: number; // Water recycled from harvest (80%) (L)

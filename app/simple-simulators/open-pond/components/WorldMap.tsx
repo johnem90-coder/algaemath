@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback, useState } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
 import { WORLD_LAND_PATH } from "@/lib/simulation/world-map-path";
 import type { SeasonWeather } from "@/lib/simulation/weather-types";
 
@@ -28,7 +28,7 @@ interface SeasonTheme {
 
 const SEASON_THEMES: Record<Season, SeasonTheme> = {
   summer: {
-    label: "Summer",
+    label: "Sum",
     ocean: "#d6eaf8",
     land: "#8aba78",
     landStroke: "#8aba78",
@@ -40,7 +40,7 @@ const SEASON_THEMES: Record<Season, SeasonTheme> = {
     bg: "#d6eaf8",
   },
   autumn: {
-    label: "Autumn",
+    label: "Aut",
     ocean: "#e8e0d4",
     land: "#c4a04a",
     landStroke: "#c4a04a",
@@ -52,7 +52,7 @@ const SEASON_THEMES: Record<Season, SeasonTheme> = {
     bg: "#e8e0d4",
   },
   winter: {
-    label: "Winter",
+    label: "Wint",
     ocean: "#dce4ec",
     land: "#a8b8c0",
     landStroke: "#a8b8c0",
@@ -64,7 +64,7 @@ const SEASON_THEMES: Record<Season, SeasonTheme> = {
     bg: "#dce4ec",
   },
   spring: {
-    label: "Spring",
+    label: "Spr",
     ocean: "#e4f0e8",
     land: "#a3cc8f",
     landStroke: "#a3cc8f",
@@ -132,6 +132,9 @@ interface WorldMapProps {
   weatherData: SeasonWeather | null;
   onCityChange: (city: string | null) => void;
   onSeasonChange: (season: Season) => void;
+  simComplete?: boolean;
+  simDays?: number;
+  loading?: boolean;
 }
 
 export default function WorldMap({
@@ -140,6 +143,9 @@ export default function WorldMap({
   weatherData,
   onCityChange,
   onSeasonChange,
+  simComplete,
+  simDays,
+  loading,
 }: WorldMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -149,6 +155,11 @@ export default function WorldMap({
   const didDrag = useRef(false);
 
   const theme = SEASON_THEMES[season];
+
+  // Close weather data overlay when a new sim starts (simComplete goes false)
+  useEffect(() => {
+    if (!simComplete) setShowData(false);
+  }, [simComplete]);
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
@@ -186,7 +197,13 @@ export default function WorldMap({
   );
 
   const headerText = selectedCity ?? "Select a City";
-  const hasData = selectedCity && weatherData;
+
+  /* Slice raw weather data to the simulated duration */
+  const displayRaw = weatherData?.raw
+    ? simDays
+      ? weatherData.raw.slice(0, simDays)
+      : weatherData.raw
+    : null;
 
   return (
     <div
@@ -197,12 +214,16 @@ export default function WorldMap({
       <div className="flex items-center justify-between border-b px-4 py-2">
         <div className="flex items-center gap-2">
           <div className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent-science))]" />
-          {hasData ? (
+          <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+            {headerText}
+            {loading && <span className="ml-1 animate-pulse">...</span>}
+          </span>
+          {simComplete && weatherData && (
             <button
               onClick={() => setShowData((v) => !v)}
-              className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-widest text-muted-foreground transition-colors hover:text-foreground"
+              className="flex items-center gap-1 rounded-sm bg-foreground/5 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-widest text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
             >
-              {headerText}
+              Weather Data
               <svg
                 width="8"
                 height="8"
@@ -219,10 +240,6 @@ export default function WorldMap({
                 />
               </svg>
             </button>
-          ) : (
-            <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-              {headerText}
-            </span>
           )}
         </div>
         <div className="flex gap-1">
@@ -346,16 +363,16 @@ export default function WorldMap({
       </div>
 
       {/* Data dropdown overlay */}
-      {showData && weatherData && (
+      {showData && displayRaw && weatherData && (
         <div className="absolute inset-x-0 top-[33px] bottom-0 z-10 flex flex-col border-t bg-background/80 backdrop-blur-sm">
           <div className="flex items-center justify-between px-3 py-1.5 border-b">
             <span className="text-[9px] font-medium text-muted-foreground">
-              {weatherData.startDate} to {weatherData.endDate} &middot; {weatherData.raw.length} days
+              {displayRaw[0].date} to {displayRaw[displayRaw.length - 1].date} &middot; {displayRaw.length} days
             </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
-                  const rows = weatherData.raw.flatMap((day) =>
+                  const rows = displayRaw.flatMap((day) =>
                     day.hours.map((h) =>
                       [day.date, h.hour, h.temperature, h.relativeHumidity, h.dewPoint, h.cloudCover, h.windSpeed, h.windDirection, h.precipitation, h.directRadiation, h.diffuseRadiation, h.shortwaveRadiation, h.soilTemperature, h.solarElevation, h.solarAzimuth].join(",")
                     )
@@ -365,7 +382,7 @@ export default function WorldMap({
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement("a");
                   a.href = url;
-                  a.download = `${weatherData.location}-${weatherData.season}-weather.csv`;
+                  a.download = `${weatherData.location}-${weatherData.season}-${displayRaw.length}d-weather.csv`;
                   a.click();
                   URL.revokeObjectURL(url);
                 }}
@@ -433,7 +450,7 @@ export default function WorldMap({
                 </tr>
               </thead>
               <tbody>
-                {weatherData.raw.map((day) =>
+                {displayRaw.map((day) =>
                   day.hours.map((h) => (
                     <tr
                       key={`${day.date}-${h.hour}`}

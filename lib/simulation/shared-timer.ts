@@ -31,3 +31,31 @@ export function getGlobalStart(timestamp: number): number {
 export function resetGlobalStart(): void {
     globalStart = null
 }
+
+// ─── Interaction Priority ──────────────────────────────────────────────────
+//
+// When the user clicks/taps anywhere, all animation RAF loops should yield
+// for a short period so the browser can process the interaction (e.g.
+// navigating to another page) without being starved by heavy render work.
+// ────────────────────────────────────────────────────────────────────────────
+
+let yieldUntil = 0
+
+/**
+ * Returns true if animations should skip work this frame to let the
+ * browser handle a pending user interaction.
+ */
+export function shouldYieldToInteraction(): boolean {
+    return performance.now() < yieldUntil
+}
+
+// Attach the listener once, lazily, on first import in the browser.
+if (typeof window !== "undefined") {
+    window.addEventListener(
+        "pointerdown",
+        () => {
+            yieldUntil = performance.now() + 200
+        },
+        { capture: true, passive: true },
+    )
+}

@@ -19,9 +19,9 @@ export default function OpenPondPage() {
             Open Raceway Pond
           </h1>
           <p className="text-muted-foreground max-w-2xl">
-            Interactive 3D model of an open raceway pond with paddlewheel
-            mixing, dynamic day/night cycle, and weather effects. Adjust biomass
-            density, time of day, and environmental conditions.
+            Interactive simulations of an open raceway algae pond, accounting for
+            weather/environmental effects. Adjustable modes &amp; response
+            variables/coefficients.
           </p>
         </div>
       </header>

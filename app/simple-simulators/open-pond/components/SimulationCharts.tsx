@@ -78,6 +78,12 @@ interface SeriesData {
   lastVal: number;
 }
 
+interface RainfallBar {
+  px: number;
+  width: number;
+  opacity: number;
+}
+
 interface ChartData {
   primary: SeriesData | null;
   secondary: SeriesData | null; // 24h avg or cumulative harvest
@@ -87,6 +93,8 @@ interface ChartData {
   dayTicks: number[];
   totalHours: number;
   harvestMarkers: { px: number }[];
+  rainfallBars: RainfallBar[];
+  hasRain: boolean;
 }
 
 const MIN_DISPLAY_DAYS = 5;
@@ -98,11 +106,8 @@ function buildChartData(
 ): ChartData {
   const end = Math.min(simIndex + 1, simResults.length);
 
-  // Current progress in hours
-  const currentHour =
-    end > 0
-      ? (simResults[end - 1].day - 1) * 24 + simResults[end - 1].hour
-      : 0;
+  // Current progress in elapsed hours (array index = elapsed hour)
+  const currentHour = end > 0 ? end - 1 : 0;
   // Display range: at least MIN_DISPLAY_DAYS, grows with data
   const displayDays = Math.max(MIN_DISPLAY_DAYS, Math.ceil(currentHour / 24));
   const displayHours = displayDays * 24;
@@ -111,13 +116,14 @@ function buildChartData(
   const values: number[] = [];
   const values2: number[] = []; // secondary series
   const harvestMarkers: { px: number }[] = [];
+  const rainfallBars: RainfallBar[] = [];
 
   // Accumulated biomass tracking
   let harvestedTotal = 0;
 
   for (let i = 0; i < end; i++) {
     const ts = simResults[i];
-    const h = (ts.day - 1) * 24 + ts.hour;
+    const h = i; // elapsed hours from simulation start
     hours.push(h);
 
     if (kind === "biomass") {
@@ -143,6 +149,15 @@ function buildChartData(
       const pondMass_kg = (ts.biomass_concentration * ts.culture_volume * 1000) / 1000;
       values.push(pondMass_kg); // pond mass — drops when harvested
       values2.push(harvestedTotal); // cumulative harvested — rises with each harvest
+    }
+
+    // Rainfall bars (biomass chart only)
+    if (kind === "biomass" && ts.precipitation > 0) {
+      const barPx = CHART_L + (h / displayHours) * CHART_W;
+      const barW = (1 / displayHours) * CHART_W;
+      // Scale opacity: light drizzle ~0.08, heavy rain (3+ mm/h) → 0.4
+      const opacity = Math.min(0.4, 0.08 + (ts.precipitation / 3) * 0.32);
+      rainfallBars.push({ px: barPx, width: barW, opacity });
     }
 
     // Mark harvest events
@@ -195,6 +210,8 @@ function buildChartData(
     dayTicks,
     totalHours: displayHours,
     harvestMarkers,
+    rainfallBars,
+    hasRain: rainfallBars.length > 0,
   };
 }
 
@@ -208,6 +225,7 @@ function MiniChart({
   secondaryLabel,
   data,
   showHarvestMarkers,
+  showRainLegend,
   topRightTag,
 }: {
   title: string;
@@ -217,6 +235,7 @@ function MiniChart({
   secondaryLabel?: string;
   data: ChartData;
   showHarvestMarkers?: boolean;
+  showRainLegend?: boolean;
   topRightTag?: { label: string; value: string; color: string; width: number };
 }) {
   return (
@@ -313,6 +332,20 @@ function MiniChart({
           Simulation Time (days)
         </text>
 
+        {/* Rainfall indicator bars (behind all series) */}
+        {data.rainfallBars.length > 0 &&
+          data.rainfallBars.map((bar, i) => (
+            <rect
+              key={`rain-${i}`}
+              x={bar.px}
+              y={CHART_T}
+              width={bar.width}
+              height={CHART_H}
+              fill="hsl(220, 70%, 55%)"
+              opacity={bar.opacity}
+            />
+          ))}
+
         {/* Top-right tag (e.g. 24h avg) */}
         {topRightTag && (
           <g>
@@ -408,6 +441,14 @@ function MiniChart({
                 </>
               );
             })()}
+          </g>
+        )}
+
+        {/* Rain legend — appears on first rain event */}
+        {showRainLegend && data.hasRain && (
+          <g>
+            <rect x={CHART_R - 52} y={CHART_B - 22} width={10} height={10} rx={1.5} fill="hsl(220, 70%, 55%)" fillOpacity={0.35} />
+            <text x={CHART_R - 38} y={CHART_B - 13} fontSize="12" fill="hsl(220, 70%, 55%)" fontWeight="600" className="font-mono">Rain</text>
           </g>
         )}
       </svg>
@@ -593,6 +634,7 @@ export default function SimulationCharts({
             color={C_BIOMASS}
             data={biomassData}
             showHarvestMarkers={hasHarvest}
+            showRainLegend
           />
         ) : (
           <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-muted-foreground/30">

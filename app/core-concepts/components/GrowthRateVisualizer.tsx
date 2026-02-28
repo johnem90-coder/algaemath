@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Slider } from '@/components/ui/slider';
-import { getGlobalStart } from '@/lib/simulation/shared-timer';
+import { getGlobalStart, shouldYieldToInteraction } from '@/lib/simulation/shared-timer';
 import {
   type Cell,
   type ShapeVar,
@@ -40,6 +40,10 @@ const GrowthRateVisualizer = () => {
 
   const animate = useCallback(
     (timestamp: number) => {
+      if (shouldYieldToInteraction()) {
+        animRef.current = requestAnimationFrame(animate);
+        return;
+      }
       if (!startTimeRef.current) startTimeRef.current = getGlobalStart(timestamp);
       const elapsed = (timestamp - startTimeRef.current) % TOTAL_CYCLE;
 

@@ -12,7 +12,7 @@ const simulators = [
     href: "/simple-simulators/open-pond",
     title: "Open Raceway Pond",
     description:
-      "Interactive 3D open raceway pond with paddlewheel mixing, day/night cycle, and weather effects.",
+      "Interactive simulations of an outdoor pond growing algae. Location based. Breakdown of calculations. Data downloads available.",
     badge: "Open Pond",
   },
   {
@@ -55,7 +55,7 @@ export default function SimpleSimulatorsPage() {
               <div
                 className={`group relative flex flex-col rounded-xl border p-6 transition-colors ${
                   s.soon
-                    ? "opacity-60 cursor-default"
+                    ? "opacity-30 cursor-default"
                     : "hover:border-[hsl(var(--accent-science))] hover:bg-[hsl(var(--accent-science-muted))]"
                 }`}
               >

@@ -13,9 +13,9 @@ cd algaemathdotcom
 npm install
 ```
 
-The project already includes all dependencies: Next.js 16, React 19, Tailwind CSS 4, Three.js, Recharts, KaTeX, Framer Motion, Lucide icons, Shadcn/ui components, and more.
+The project already includes all dependencies: Next.js 16, React 19, Tailwind CSS 4, Three.js, KaTeX, Lucide icons, Shadcn/ui components, Vercel Analytics, and more.
 
-### 3. Run the Development Server
+### 2. Run the Development Server
 ```bash
 npm run dev
 ```
@@ -28,33 +28,10 @@ The project already includes Shadcn/ui components (button, slider, select, card,
 
 ### Page-by-Page Process
 
-1. **Plan in Claude Chat**
-   - Discuss component structure
-   - Design data flow
-   - Review API needs
-
-2. **Build in VSCode**
-   - Create page file: `app/[page]/page.tsx`
-   - Create components: `app/[page]/components/`
-   - Use Copilot for boilerplate
-   - Implement logic manually
-
-3. **Test Locally**
-   ```bash
-   npm run dev
-   ```
-   - Open http://localhost:3000
-   - Test all interactions
-   - Verify responsive design
-   - Check console for errors
-
-4. **Commit When Complete**
-   ```bash
-   git add .
-   git commit -m "feat: complete [page name]"
-   git push
-   ```
-
+1. **Plan** — Discuss component structure, design data flow
+2. **Build in VSCode** — Create page and components
+3. **Test Locally** — `npm run dev`, verify functionality
+4. **Commit When Complete** — Git workflow (feature branches)
 5. **Move to Next Page**
 
 ---
@@ -63,12 +40,13 @@ The project already includes Shadcn/ui components (button, slider, select, card,
 
 The following pages are already built and functional:
 
-- **Landing page** (`/`) — overview with page previews
-- **Core Concepts** (`/core-concepts`) — 7 interactive visualizers
+- **Landing page** (`/`) — overview with 6 section cards (3 active, 3 "coming soon")
+- **Core Concepts** (`/core-concepts`) — 7 interactive visualizers in accordion layout
 - **Equations** (`/equations`) — 5 sections with LaTeX equations and interactive curves
-- **Open Pond Simulator** (`/simple-simulators/open-pond`) — full simulation with 3D renderer, weather data, growth model panels, charts, and inline controls
+- **Simple Simulators** (`/simple-simulators`) — index page with 3 simulator cards
+- **Open Pond Simulator** (`/simple-simulators/open-pond`) — full simulation with 3D renderer, 29-city weather data, growth model panels, charts, data export (CSV + table overlay), and inline controls
 
-The model registry pattern, equation metadata, simulation engine, and component patterns are all established. New pages should follow the existing patterns visible in these implementations.
+The model registry pattern, equation metadata, simulation engine, weather data pipeline, and component patterns are all established. New pages should follow the existing patterns visible in these implementations.
 
 ---
 
@@ -93,6 +71,18 @@ npm run start
 
 ---
 
+## Weather Data
+
+Weather data for 29 cities is pre-cached as JSON files in `public/weather/`. To regenerate or add cities:
+
+```bash
+node scripts/generate-weather-data.mjs
+```
+
+This fetches historical weather from the Open-Meteo API (free, no API key needed) and writes JSON files. Each file contains 4 seasons × 14 days of hourly data.
+
+---
+
 ## Troubleshooting
 
 ### "Module not found"
@@ -107,17 +97,8 @@ npm run dev
 # Check for errors
 npm run type-check
 
-# Generate types
+# Full build check
 npm run build
-```
-
-### Tailwind not working
-Check `tailwind.config.ts` includes:
-```typescript
-content: [
-  './app/**/*.{js,ts,jsx,tsx,mdx}',
-  './components/**/*.{js,ts,jsx,tsx,mdx}',
-]
 ```
 
 ---
@@ -126,34 +107,28 @@ content: [
 
 ### Create Feature Branch
 ```bash
-git checkout -b feature/light-response-explorer
+git checkout -b feature/[feature-name]
 ```
 
 ### Commit Regularly
 ```bash
-git add .
-git commit -m "feat: add light response explorer component"
+git add [files]
+git commit -m "feat: [description]"
 ```
 
-### Push When Complete
+### Push and Create PR
 ```bash
-git push origin feature/light-response-explorer
-```
-
-### Merge to Main
-```bash
-git checkout main
-git merge feature/light-response-explorer
-git push origin main
+git push origin feature/[feature-name]
+gh pr create --title "..." --body "..."
 ```
 
 ---
 
 ## Environment Variables
 
-No API keys are required for v1. Weather data uses the free Open-Meteo API (no key needed) and is pre-cached as static TypeScript in `lib/simulation/weather-data.ts`.
+No API keys are required. Weather data uses the free Open-Meteo API (no key needed) and is pre-cached as static JSON in `public/weather/`.
 
-If environment variables are needed in the future, create `.env.local` and never commit it to git.
+Vercel Analytics is configured via `@vercel/analytics/next` and works automatically on Vercel deployments.
 
 ---
 
@@ -163,14 +138,14 @@ If environment variables are needed in the future, create `.env.local` and never
 
 1. Push to GitHub
 2. Import project in Vercel dashboard
-3. Add environment variables
-4. Deploy!
+3. Deploy!
 
 Vercel automatically:
 - Deploys on every push to main
 - Generates preview URLs for PRs
 - Handles serverless functions
 - Provides global CDN
+- Includes Vercel Analytics
 
 ---
 
@@ -193,5 +168,5 @@ Upcoming work:
 - Check `PAGE_REQUIREMENTS.md` for specs
 - Check `COMPONENT_LIBRARY.md` for patterns
 - Check `MODEL_REGISTRY.md` for model structure
-- Ask in Claude chat for architecture questions
-- Use Copilot in VSCode for implementation
+- Check `SIMULATION_DESIGN.md` for engineering equations
+- Check `API_DESIGN.md` for backend design

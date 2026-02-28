@@ -1,6 +1,9 @@
 /**
- * One-time script to fetch historical weather data from Open-Meteo
- * and write it to lib/simulation/weather-data.ts as a static cache.
+ * Fetches historical weather data from Open-Meteo for all simulator cities
+ * and writes individual JSON files to public/weather/{city-slug}.json.
+ *
+ * Southern-hemisphere cities get inverted season-to-date mappings so that
+ * "summer" always means local summer regardless of hemisphere.
  *
  * Usage: node scripts/generate-weather-data.mjs
  */
@@ -20,21 +23,78 @@ const HOURLY_PARAMS = [
   "soil_temperature_7_to_28cm",
 ].join(",");
 
+/* ── Cities (must match WorldMap.tsx CITIES array) ──────────────────── */
+
 const CITIES = [
+  // Australia
+  { name: "Sydney", lat: -33.87, lng: 151.21 },
+  { name: "Perth", lat: -31.95, lng: 115.86 },
+  { name: "Alice Springs", lat: -23.7, lng: 133.88 },
+  // India
+  { name: "Delhi", lat: 28.61, lng: 77.21 },
+  { name: "Pune", lat: 18.52, lng: 73.86 },
+  { name: "Bangalore", lat: 12.97, lng: 77.59 },
+  // United States
   { name: "Gainesville", lat: 29.65, lng: -82.32 },
+  { name: "Dallas", lat: 32.78, lng: -96.8 },
+  { name: "San Diego", lat: 32.72, lng: -117.16 },
+  { name: "Honolulu", lat: 21.31, lng: -157.86 },
+  // South America
+  { name: "Lima", lat: -12.05, lng: -77.04 },
+  { name: "Santiago", lat: -33.45, lng: -70.67 },
+  { name: "Natal", lat: -5.79, lng: -35.21 },
+  // Central America
+  { name: "Mexico City", lat: 19.43, lng: -99.13 },
+  // Southeast Asia
+  { name: "Ho Chi Minh City", lat: 10.82, lng: 106.63 },
+  // Middle East
+  { name: "Muscat", lat: 23.59, lng: 58.54 },
+  { name: "Jeddah", lat: 21.49, lng: 39.19 },
+  // North Africa
+  { name: "Cairo", lat: 30.04, lng: 31.24 },
+  { name: "Tripoli", lat: 32.9, lng: 13.18 },
+  { name: "Casablanca", lat: 33.57, lng: -7.59 },
+  // Europe
+  { name: "Madrid", lat: 40.42, lng: -3.7 },
+  { name: "Rome", lat: 41.9, lng: 12.5 },
+  { name: "Paris", lat: 48.86, lng: 2.35 },
+  { name: "Berlin", lat: 52.52, lng: 13.41 },
+  // Sub-Saharan Africa
+  { name: "Dakar", lat: 14.69, lng: -17.44 },
+  { name: "Lagos", lat: 6.52, lng: 3.38 },
+  { name: "Mombasa", lat: -4.05, lng: 39.67 },
+  { name: "Cape Town", lat: -33.93, lng: 18.42 },
+  { name: "Johannesburg", lat: -26.2, lng: 28.04 },
 ];
 
-const SEASONS = {
+/* ── Season date ranges ─────────────────────────────────────────────── */
+
+// Northern hemisphere: standard meteorological seasons
+const NH_SEASONS = {
   spring: { start: "2024-03-01", end: "2024-03-14" },
   summer: { start: "2024-06-01", end: "2024-06-14" },
   autumn: { start: "2024-09-01", end: "2024-09-14" },
   winter: { start: "2024-12-01", end: "2024-12-14" },
 };
 
+// Southern hemisphere: seasons shifted 6 months so "summer" = local summer
+const SH_SEASONS = {
+  spring: { start: "2024-09-01", end: "2024-09-14" },
+  summer: { start: "2024-12-01", end: "2024-12-14" },
+  autumn: { start: "2024-03-01", end: "2024-03-14" },
+  winter: { start: "2024-06-01", end: "2024-06-14" },
+};
+
+/* ── Helpers ─────────────────────────────────────────────────────────── */
+
 const DEG = Math.PI / 180;
 
 function round1(v) {
   return Math.round(v * 10) / 10;
+}
+
+function slugify(name) {
+  return name.toLowerCase().replace(/\s+/g, "-");
 }
 
 /**
@@ -89,6 +149,8 @@ function solarPosition(lat, lng, dateStr, hour) {
   return { elevation: round1(elevation), azimuth: round1(azimuth) };
 }
 
+/* ── API fetch ──────────────────────────────────────────────────────── */
+
 async function fetchWeather(lat, lng, startDate, endDate) {
   const url = new URL(BASE_URL);
   url.searchParams.set("latitude", String(lat));
@@ -103,6 +165,8 @@ async function fetchWeather(lat, lng, startDate, endDate) {
   if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`);
   return res.json();
 }
+
+/* ── Process API response into SeasonWeather ────────────────────────── */
 
 function processResponse(data, location, season, lat, lng, startDate, endDate) {
   const { hourly } = data;
@@ -140,7 +204,7 @@ function processResponse(data, location, season, lat, lng, startDate, endDate) {
   }
   raw.sort((a, b) => a.date.localeCompare(b.date));
 
-  // Average across days
+  // Average across days → profile
   const profileHours = [];
   for (let h = 0; h < 24; h++) {
     let temperature = 0, relativeHumidity = 0, dewPoint = 0, cloudCover = 0, windSpeed = 0;
@@ -206,52 +270,49 @@ function processResponse(data, location, season, lat, lng, startDate, endDate) {
   };
 }
 
+/* ── Main ───────────────────────────────────────────────────────────── */
+
 async function main() {
-  const cache = {};
-
-  for (const city of CITIES) {
-    console.log(`Fetching data for ${city.name}...`);
-    cache[city.name] = {};
-
-    for (const [season, dates] of Object.entries(SEASONS)) {
-      console.log(`  ${season}: ${dates.start} → ${dates.end}`);
-      const data = await fetchWeather(city.lat, city.lng, dates.start, dates.end);
-      cache[city.name][season] = processResponse(
-        data, city.name, season, city.lat, city.lng, dates.start, dates.end
-      );
-      // Brief pause to be polite to the API
-      await new Promise((r) => setTimeout(r, 500));
-    }
-  }
-
-  // Write TypeScript file
   const fs = await import("fs");
   const path = await import("path");
-  const outPath = path.join(process.cwd(), "lib", "simulation", "weather-data.ts");
+  const outDir = path.join(process.cwd(), "public", "weather");
 
-  const content = `import type { WeatherCache } from "./weather-types";
+  // Ensure output directory exists
+  fs.mkdirSync(outDir, { recursive: true });
 
-// Auto-generated by scripts/generate-weather-data.mjs
-// Source: Open-Meteo Historical Weather API (archive-api.open-meteo.com)
-// Solar position calculated via NOAA/Meeus approximations.
-// Do not edit manually.
+  const totalCities = CITIES.length;
+  let completed = 0;
 
-export const WEATHER_CACHE: WeatherCache = ${JSON.stringify(cache, null, 2)};
-`;
+  for (const city of CITIES) {
+    const hemisphere = city.lat < 0 ? "SH" : "NH";
+    const seasons = city.lat < 0 ? SH_SEASONS : NH_SEASONS;
+    console.log(`\n[${++completed}/${totalCities}] ${city.name} (${hemisphere}, ${city.lat}°, ${city.lng}°)`);
 
-  fs.writeFileSync(outPath, content, "utf-8");
-  console.log(`\nWritten to ${outPath}`);
+    const cityData = {};
 
-  // Print summary
-  for (const [city, seasons] of Object.entries(cache)) {
-    for (const [season, sw] of Object.entries(seasons)) {
-      const p = sw.profile.hours;
-      console.log(`  ${city}/${season}: ${sw.raw.length} days`);
-      console.log(`    Temp: ${p[6].temperature}°C (6am) – ${p[14].temperature}°C (2pm)`);
-      console.log(`    Solar noon elev: ${p[12].solarElevation}°, azimuth: ${p[12].solarAzimuth}°`);
-      console.log(`    Direct rad noon: ${p[12].directRadiation} W/m², Diffuse: ${p[12].diffuseRadiation} W/m²`);
+    for (const [season, dates] of Object.entries(seasons)) {
+      console.log(`  ${season}: ${dates.start} → ${dates.end}`);
+      try {
+        const data = await fetchWeather(city.lat, city.lng, dates.start, dates.end);
+        cityData[season] = processResponse(
+          data, city.name, season, city.lat, city.lng, dates.start, dates.end
+        );
+      } catch (err) {
+        console.error(`  ERROR fetching ${city.name}/${season}: ${err.message}`);
+        process.exit(1);
+      }
+      // Brief pause to be polite to the API
+      await new Promise((r) => setTimeout(r, 300));
     }
+
+    const slug = slugify(city.name);
+    const filePath = path.join(outDir, `${slug}.json`);
+    fs.writeFileSync(filePath, JSON.stringify(cityData), "utf-8");
+    const sizeKB = Math.round(fs.statSync(filePath).size / 1024);
+    console.log(`  → ${slug}.json (${sizeKB} KB)`);
   }
+
+  console.log(`\nDone! Generated ${totalCities} city files in public/weather/`);
 }
 
 main().catch(console.error);
