@@ -45,7 +45,7 @@ export function runSimulation(
   const HARVEST_HOURS = 4;
   let harvestRateGLPerHour = 0; // g/L to remove each hour during active harvest
 
-  const START_HOUR = 7; // Simulation starts at 7 AM local time
+  const START_HOUR = 8; // Simulation starts at 8 AM local time
 
   for (let step = 0; step < totalDays * 24; step++) {
     const day = Math.floor(step / 24) + 1;

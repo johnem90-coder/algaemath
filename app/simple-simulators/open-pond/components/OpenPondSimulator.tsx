@@ -301,7 +301,7 @@ export default function OpenPondSimulator() {
       // Continuous hour for 3D renderer (day/night cycle)
       const totalHours = progress * days * 24;
       const day = Math.floor(totalHours / 24);
-      const hour = (totalHours + 7) % 24; // sim starts at 7 AM
+      const hour = (totalHours + 8) % 24; // sim starts at 8 AM
 
       pondRef.current?.setTime(hour);
       pondRef.current?.setDensity(current.biomass_concentration);
@@ -343,7 +343,7 @@ export default function OpenPondSimulator() {
     setSimPaused(false);
     pausedElapsedRef.current = 0;
     setSimDay(1);
-    setSimHour(7);
+    setSimHour(8);
 
     // Apply initial state
     const t0 = timesteps[0];
@@ -353,7 +353,7 @@ export default function OpenPondSimulator() {
     pondRef.current?.setDensity(t0.biomass_concentration);
     pondRef.current?.setTime(t0.hour);
 
-    const w = interpolateWeather(raw, 0, 7);
+    const w = interpolateWeather(raw, 0, 8);
     setWindDirection(Math.round(w.windDirection));
     setWindSpeed(Math.round(w.windSpeed * 10) / 10);
     setClouds(Math.round(w.cloudCover));
