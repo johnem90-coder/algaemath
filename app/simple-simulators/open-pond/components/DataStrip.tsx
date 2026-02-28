@@ -1,5 +1,7 @@
 "use client";
 
+import type { OpenPondTimestep } from "@/lib/simulation/simple-outdoor/types";
+
 const COMPASS_DIRS = [
   "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
   "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW",
@@ -9,28 +11,13 @@ function degToCompass(d: number): string {
   return COMPASS_DIRS[Math.round(d / 22.5) % 16];
 }
 
-function computeIrradiance(hour: number, clouds: number): number {
-  if (hour < 6 || hour > 18) return 0;
-  const elev = Math.sin(((hour - 6) / 12) * Math.PI);
-  const clearSky = elev * 2000;
-  return Math.round(clearSky * (1 - clouds * 0.007));
-}
-
-function computeCultureTemp(hour: number, clouds: number): number {
-  const baseTemp = 22;
-  const solarGain = hour >= 6 && hour <= 18
-    ? Math.sin(((hour - 6) / 12) * Math.PI) * 12
-    : 0;
-  const cloudCooling = clouds * 0.03;
-  return baseTemp + solarGain - cloudCooling;
-}
-
 interface DataStripProps {
   density: number;
   timeOfDay: number;
   windSpeed: number;
   windDirection: number;
   clouds: number;
+  simTimestep: OpenPondTimestep | null;
 }
 
 function DataCard({
@@ -66,35 +53,61 @@ export default function DataStrip({
   windSpeed,
   windDirection,
   clouds,
+  simTimestep,
 }: DataStripProps) {
-  const irradiance = computeIrradiance(timeOfDay, clouds);
-  const cultureTemp = computeCultureTemp(timeOfDay, clouds);
+  // Use simulation values when available, fall back to simple estimates
+  const irradiance = simTimestep
+    ? Math.round(simTimestep.par_avg_culture)
+    : 0;
+  const pondTemp = simTimestep
+    ? simTimestep.pond_temperature
+    : 0;
+  const growthRate = simTimestep
+    ? simTimestep.net_growth_rate
+    : 0;
+  const productivity = simTimestep
+    ? simTimestep.productivity_areal
+    : 0;
+
+  const hasData = simTimestep !== null;
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
       <DataCard
-        label="Irradiance"
-        value={irradiance.toString()}
-        unit={"\u00B5mol m\u00B2/s"}
+        label="PAR (culture avg)"
+        value={hasData ? irradiance.toString() : "—"}
+        unit={"\u00B5mol/m\u00B2/s"}
         color="hsl(30, 65%, 42%)"
       />
       <DataCard
-        label="Wind"
-        value={windSpeed.toFixed(1)}
-        unit={`m/s  ${degToCompass(windDirection)}`}
-        color="hsl(220, 65%, 37%)"
-      />
-      <DataCard
-        label="Culture Temp"
-        value={cultureTemp.toFixed(1)}
+        label="Pond Temp"
+        value={hasData ? pondTemp.toFixed(1) : "—"}
         unit={"\u00B0C"}
-        color="hsl(30, 65%, 42%)"
+        color="hsl(0, 60%, 45%)"
       />
       <DataCard
         label="Density"
         value={density.toFixed(2)}
         unit="g/L"
         color="hsl(145, 45%, 32%)"
+      />
+      <DataCard
+        label="Growth Rate"
+        value={hasData ? growthRate.toFixed(3) : "—"}
+        unit="/day"
+        color="hsl(145, 45%, 32%)"
+      />
+      <DataCard
+        label="Productivity"
+        value={hasData ? productivity.toFixed(1) : "—"}
+        unit="g/m\u00B2/day"
+        color="hsl(200, 55%, 40%)"
+      />
+      <DataCard
+        label="Wind"
+        value={windSpeed.toFixed(1)}
+        unit={`m/s  ${degToCompass(windDirection)}`}
+        color="hsl(220, 65%, 37%)"
       />
     </div>
   );

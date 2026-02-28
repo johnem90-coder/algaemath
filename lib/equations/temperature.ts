@@ -89,8 +89,8 @@ export const temperatureEquations: TemperatureEquation[] = [
   {
     id: "quadratic-exponential",
     name: "Quadratic Exponential",
-    latexNormalized: String.raw`T < T_{opt}:\quad \mu_T = e^{-\left(\frac{T - T_{opt}}{T_{opt} - T_{min}}\right)^2 \cdot \alpha} \\[8pt] T \geq T_{opt}:\quad \mu_T = e^{-\left(\frac{T - T_{opt}}{T_{max} - T_{opt}}\right)^2 \cdot \beta}`,
-    latexFull: String.raw`\mu_T = \begin{cases} e^{-\left(\dfrac{T - T_{opt}}{T_{opt} - T_{min}}\right)^2 \cdot \alpha} & T < T_{opt} \\[8pt] e^{-\left(\dfrac{T - T_{opt}}{T_{max} - T_{opt}}\right)^2 \cdot \beta} & T \geq T_{opt} \end{cases}`,
+    latexNormalized: String.raw`T < T_{opt}:\quad \mu_T = e^{-\alpha\left(\frac{T - T_{opt}}{T_{opt} - T_{min}}\right)^2} \\[8pt] T \geq T_{opt}:\quad \mu_T = e^{-\beta\left(\frac{T - T_{opt}}{T_{max} - T_{opt}}\right)^2}`,
+    latexFull: String.raw`\mu_T = \begin{cases} e^{-\alpha\left(\dfrac{T - T_{opt}}{T_{opt} - T_{min}}\right)^2} & T < T_{opt} \\[8pt] e^{-\beta\left(\dfrac{T - T_{opt}}{T_{max} - T_{opt}}\right)^2} & T \geq T_{opt} \end{cases}`,
     description:
       "Piecewise exponential with quadratic terms normalized by the distance from Topt to each cardinal point. Smooth at Topt, soft-bounded near Tmin and Tmax. Parameters \u03B1 and \u03B2 independently control curvature on each side.",
     piecewise: true,
