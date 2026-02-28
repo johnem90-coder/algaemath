@@ -32,12 +32,14 @@ algaemathdotcom/
 │   │   ├── open-pond/
 │   │   │   ├── page.tsx                    # Open pond simulator page
 │   │   │   └── components/
-│   │   │       ├── OpenPondSimulator.tsx    # Main orchestrator component
+│   │   │       ├── OpenPondSimulator.tsx    # Main orchestrator (sim state, animation loop, pause/resume)
 │   │   │       ├── WorldMap.tsx            # SVG world map for city/season selection
 │   │   │       ├── PondCanvas.tsx          # Three.js 3D pond renderer wrapper
-│   │   │       ├── PondControls.tsx        # Play/pause/speed/time controls
-│   │   │       ├── DataStrip.tsx           # Live data cards overlay
-│   │   │       ├── WeatherPanel.tsx        # Current weather conditions display
+│   │   │       ├── SimulationCharts.tsx    # Biomass, productivity, accumulated biomass time-series charts
+│   │   │       ├── GrowthModelPanels.tsx   # "Under the Hood" accordion with interactive growth model panels
+│   │   │       ├── DataStrip.tsx           # Live data cards (PAR, pond temp, density, growth rate, productivity, wind)
+│   │   │       ├── PondControls.tsx        # Legacy controls (may be removed)
+│   │   │       ├── WeatherPanel.tsx        # Legacy weather display (may be removed)
 │   │   │       └── WindIndicator.tsx       # Wind direction compass
 │   │   ├── flat-panel/                     # Placeholder
 │   │   └── pbr-tubular/                    # Placeholder
@@ -122,7 +124,14 @@ algaemathdotcom/
 │   │   ├── cell-animation.ts               # Algae cell particle animation
 │   │   ├── shared-timer.ts                 # Shared animation timer
 │   │   ├── world-map-path.ts               # Simplified world SVG path data
-│   │   ├── simple-outdoor/                 # Placeholder for simulation engine
+│   │   ├── simple-outdoor/                 # Open pond simulation engine
+│   │   │   ├── types.ts                    # OpenPondTimestep, OpenPondConfig interfaces
+│   │   │   ├── constants.ts                # Physical constants (σ, ρ, Cp, etc.)
+│   │   │   ├── geometry.ts                 # Racetrack pond geometry calculator
+│   │   │   ├── optics.ts                   # Fresnel reflection, Beer-Lambert, PAR conversion
+│   │   │   ├── heat-balance.ts             # All 8 heat flux components + temperature ODE
+│   │   │   ├── open-pond-engine.ts         # Main simulation loop (runSimulation)
+│   │   │   └── index.ts                    # Re-exports
 │   │   └── dynamic-pbr/                    # Placeholder for dynamic PBR
 │   │
 │   ├── technoeconomics/                    # Placeholder
@@ -186,7 +195,13 @@ LaTeX strings, variable definitions, parameter ranges. Used by the Equations pag
 - 3D rendering: `pond-renderer.ts`, `cell-animation.ts`, `pond-types.ts`
 - Animation: `shared-timer.ts`
 - Map data: `world-map-path.ts`
-- `simple-outdoor/` - Will contain the simulation engine (equations from SIMULATION_DESIGN.md)
+- `simple-outdoor/` - Open pond simulation engine implementing equations from SIMULATION_DESIGN.md:
+  - `types.ts` defines `OpenPondTimestep` (per-timestep output) and `OpenPondConfig` (user-adjustable parameters)
+  - `constants.ts` has all physical constants (Stefan-Boltzmann, water properties, etc.)
+  - `geometry.ts` computes racetrack pond dimensions from area, aspect ratio, and depth
+  - `optics.ts` handles Fresnel reflection, Snell's law refraction, Beer-Lambert attenuation, and PAR conversion
+  - `heat-balance.ts` computes all 8 heat flux components (solar, longwave in/out, evaporative, convective, conductive, biomass, net)
+  - `open-pond-engine.ts` runs the full hourly-timestep simulation loop with mass balance, heat balance, and harvest logic
 - `dynamic-pbr/` - Future dynamic PBR simulation
 
 ### `scripts/` - Data Generation

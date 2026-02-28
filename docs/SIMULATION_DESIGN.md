@@ -211,7 +211,7 @@ Diffuse sky radiation arrives from all directions across the hemisphere. For cal
 
 ## 2. Outdoor Open Raceway Pond
 
-**Status: Active development** — this is the first simulator being built.
+**Status: v1 implemented** — simulation engine, visualization, and interactive panels are complete.
 
 **Geometry:** Elongated racetrack (oval) loop with a paddlewheel for mixing. Typical aspect ratio 10:1 (length:width). Culture is well-mixed horizontally; vertical mixing assumed complete (CSTR approximation in the vertical direction).
 
@@ -616,8 +616,11 @@ interface OpenPondTimestep {
   soil_temperature: number         // °C (7–28cm depth)
   precipitation: number            // mm
 
-  // Energy tracking
-  temperature_control_energy: number   // MJ (heating/cooling to maintain viability)
+  // Water balance
+  evap_L: number                   // Evaporative water loss this hour (L)
+  makeup_L: number                 // Fresh water added this hour (L)
+  harvest_water_removed_L: number  // Culture volume removed during harvest (L)
+  harvest_water_returned_L: number // Water recycled from harvest (80%) (L)
 
   // Harvest events
   harvest_occurred: boolean
@@ -636,7 +639,7 @@ interface OpenPondSummary {
   harvest_count: number
   min_temperature: number
   max_temperature: number
-  total_temperature_control_energy: number  // MJ
+  final_density: number                // g/L
 }
 ```
 
@@ -650,15 +653,18 @@ How simulation outputs connect to the Three.js visualization and Recharts:
 |---|---|---|
 | Pond water color (green intensity) | `biomass_concentration` | Scale 0–4 g/L → color gradient |
 | Weather particle effects | `wind_speed_10m`, `cloud_cover`, `precipitation` | Rain/clouds from climate data |
-| Temperature display | `pond_temperature` | °C, shown in UI overlay |
+| Temperature display | `pond_temperature` | °C, shown in data strip |
 | Light beam angle/intensity | `solar_elevation`, `direct_radiation` | Daylight arc visualization |
-| Biomass density chart | `biomass_concentration` vs time | Recharts LineChart |
-| Productivity chart | `productivity_areal` vs time | Recharts LineChart |
-| Heat flux breakdown | All `q_*` values | Recharts AreaChart stacked |
-| Growth factor gauges | `light_factor`, `temperature_factor` | Current value displays |
-| Light response position | `par_avg_culture` | Marker on the µL curve |
-| Temperature response position | `pond_temperature` | Marker on the µT curve |
-| Fresnel transmission | `fresnel_transmission_direct` vs `solar_elevation` | Shows angle-dependent reflection |
+| Biomass density chart | `biomass_concentration` vs time | SVG time-series in SimulationCharts |
+| Productivity chart | `productivity_areal` vs time | SVG time-series in SimulationCharts |
+| Accumulated biomass chart | cumulative `harvest_mass_kg` vs time | SVG time-series in SimulationCharts |
+| Growth factor gauges | `light_factor`, `temperature_factor` | Current value displays in data strip |
+| Light response position | `par_avg_culture` | Marker on µL curve in GrowthModelPanels |
+| Temperature response position | `pond_temperature` | Marker on µT curve in GrowthModelPanels |
+| Light attenuation profile | `biomass_concentration`, `epsilon`, `kb` | Depth vs intensity in GrowthModelPanels |
+| Mass balance | `biomass_concentration`, `harvest_mass_kg` | Growth/harvest/net chart in GrowthModelPanels |
+| Water balance | `evap_L`, `makeup_L`, `harvest_water_*` | Cumulative water tracking in GrowthModelPanels |
+| Fresnel transmission | `fresnel_transmission_direct` vs `solar_elevation` | Shown on light attenuation chart |
 
 ---
 
@@ -725,7 +731,7 @@ When designing a new reactor/environment combination, add to this document follo
 
 | Reactor Type | Environment | Status | Notes |
 |---|---|---|---|
-| Open Raceway Pond | Outdoor | ✅ Active | v1 in development |
+| Open Raceway Pond | Outdoor | ✅ Complete | v1 implemented |
 | Flat Panel PBR | Outdoor | 📋 Planned | Equations not yet designed |
 | Tubular PBR | Outdoor | 📋 Planned | Equations not yet designed |
 | Any | Indoor/Controlled | 📋 Planned | Dynamic PBR Simulator |

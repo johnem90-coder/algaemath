@@ -15,28 +15,12 @@ npm install
 
 The project already includes all dependencies: Next.js 16, React 19, Tailwind CSS 4, Three.js, Recharts, KaTeX, Framer Motion, Lucide icons, Shadcn/ui components, and more.
 
-### 3. Set Up Shadcn/ui
+### 3. Run the Development Server
 ```bash
-npx shadcn-ui@latest init
+npm run dev
 ```
 
-Add components as needed:
-```bash
-npx shadcn-ui@latest add button
-npx shadcn-ui@latest add slider
-npx shadcn-ui@latest add select
-npx shadcn-ui@latest add card
-```
-
-### 4. Project Structure
-Create the directory structure from `FILE_STRUCTURE.md`.
-
-```bash
-mkdir -p app/{core-concepts,equations,models,technoeconomics,simple-simulators,dynamic-pbr,experiments}
-mkdir -p components/{ui,layout,shared,landing}
-mkdir -p lib/{models,equations,simulation,technoeconomics,curve-fitting,export,data,utils}
-mkdir -p public/{images,downloads}
-```
+The project already includes Shadcn/ui components (button, slider, select, card, accordion, tabs) in `components/ui/` and all required directory structure. See `docs/FILE_STRUCTURE.md` for the complete layout.
 
 ---
 
@@ -75,141 +59,16 @@ mkdir -p public/{images,downloads}
 
 ---
 
-## First Page to Build
+## Current Project State
 
-**Recommendation: Core Concepts - Light Response Explorer**
+The following pages are already built and functional:
 
-Why?
-- Self-contained (no API needed)
-- Tests model registry pattern
-- Tests interactive components
-- Visual & satisfying
-- Reusable for other concepts
+- **Landing page** (`/`) — overview with page previews
+- **Core Concepts** (`/core-concepts`) — 7 interactive visualizers
+- **Equations** (`/equations`) — 5 sections with LaTeX equations and interactive curves
+- **Open Pond Simulator** (`/simple-simulators/open-pond`) — full simulation with 3D renderer, weather data, growth model panels, charts, and inline controls
 
-### Step-by-Step
-
-#### 1. Create Model Registry
-```typescript
-// lib/models/light/types.ts
-export interface LightModel {
-  id: string
-  name: string
-  calculate: (I: number, params: any) => number
-  // ... rest from MODEL_REGISTRY.md
-}
-```
-
-#### 2. Implement One Model
-```typescript
-// lib/models/light/banerjee.ts
-export const banerjee: LightModel = {
-  id: 'banerjee',
-  name: 'Banerjee Model',
-  calculate: (I, params) => {
-    const { I_half_sat, I_inhibition } = params
-    return I / (I_half_sat + I + (I * I) / I_inhibition)
-  },
-  // ...
-}
-```
-
-#### 3. Create Registry
-```typescript
-// lib/models/light/index.ts
-export const lightModels = {
-  banerjee,
-  // ... add more later
-}
-```
-
-#### 4. Build Component
-```typescript
-// app/core-concepts/components/LightResponseExplorer.tsx
-'use client'
-
-import { useState } from 'react'
-import { lightModels } from '@/lib/models/light'
-import { Slider } from '@/components/ui/slider'
-import { LineChart, Line, XAxis, YAxis } from 'recharts'
-
-export function LightResponseExplorer() {
-  const [intensity, setIntensity] = useState(500)
-  const model = lightModels.banerjee
-
-  const params = {
-    I_half_sat: 112.2,
-    I_inhibition: 369.3
-  }
-
-  // Generate curve data
-  const curveData = Array.from({length: 100}, (_, i) => {
-    const I = i * 20  // 0 to 2000
-    return {
-      I,
-      mu: model.calculate(I, params)
-    }
-  })
-
-  // Current value
-  const currentMu = model.calculate(intensity, params)
-
-  return (
-    <div className="space-y-4">
-      <h3 className="text-xl font-semibold">Light Response</h3>
-      <p>Explore how light intensity affects growth rate...</p>
-
-      <div>
-        <label>Intensity: {intensity} umol/m2/s</label>
-        <Slider
-          value={[intensity]}
-          onValueChange={([v]) => setIntensity(v)}
-          min={0}
-          max={2000}
-          step={10}
-        />
-      </div>
-
-      <LineChart width={600} height={300} data={curveData}>
-        <XAxis dataKey="I" label="Light Intensity" />
-        <YAxis label="Growth Factor" />
-        <Line type="monotone" dataKey="mu" stroke="#3b82f6" />
-      </LineChart>
-
-      <div className="p-4 bg-blue-50 rounded">
-        <p>At {intensity} umol/m2/s:</p>
-        <p className="text-2xl font-bold">mu = {currentMu.toFixed(3)}</p>
-      </div>
-    </div>
-  )
-}
-```
-
-#### 5. Add to Page
-```typescript
-// app/core-concepts/page.tsx
-import { LightResponseExplorer } from './components/LightResponseExplorer'
-
-export default function CoreConceptsPage() {
-  return (
-    <div className="container mx-auto py-8 space-y-12">
-      <h1 className="text-4xl font-bold">Core Concepts</h1>
-
-      <section id="light-response">
-        <LightResponseExplorer />
-      </section>
-
-      {/* Add other sections as you build them */}
-    </div>
-  )
-}
-```
-
-#### 6. Test
-```bash
-npm run dev
-# Navigate to http://localhost:3000/core-concepts
-# Move slider, verify chart updates
-```
+The model registry pattern, equation metadata, simulation engine, and component patterns are all established. New pages should follow the existing patterns visible in these implementations.
 
 ---
 
@@ -317,13 +176,15 @@ Vercel automatically:
 
 ## Next Steps
 
-After first component works:
+Upcoming work:
 
-1. **Add more models** to registry (Steele, Monod, etc.)
-2. **Add model selector** dropdown
-3. **Build remaining concept explorers**
-4. **Move to Equations page**
-5. **Continue page by page**
+1. **Heat / Energy Balance panel** for the open pond simulator
+2. **Flat Panel PBR simulator** — new reactor geometry and heat balance equations
+3. **Tubular PBR simulator** — tube geometry and flow modeling
+4. **Models pages** — detailed reactor descriptions and design analysis
+5. **Technoeconomics pages** — cost calculators
+6. **Dynamic PBR Simulator** — controlled environment with PID control
+7. **Experiments & Model Fitting** — data visualization and curve fitting
 
 ---
 

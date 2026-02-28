@@ -2,7 +2,7 @@
 
 Reusable component patterns for consistent UX across the site.
 
-**Note:** Many components described below are aspirational patterns for future development. Currently implemented page-specific components include the open pond simulator suite (`OpenPondSimulator`, `WorldMap`, `PondCanvas`, `PondControls`, `DataStrip`, `WeatherPanel`, `WindIndicator`) and the equations/core-concepts section components. The patterns below serve as a design guide for building new shared components.
+**Note:** Many components described below are aspirational patterns for future development. Currently implemented page-specific components include the open pond simulator suite (`OpenPondSimulator`, `WorldMap`, `PondCanvas`, `SimulationCharts`, `GrowthModelPanels`, `DataStrip`), the equations section components, and the core-concepts visualizers. Charts are rendered as SVG (not Recharts) for the simulator. The patterns below serve as a design guide for building new shared components.
 
 ---
 

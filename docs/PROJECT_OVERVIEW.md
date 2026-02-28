@@ -85,14 +85,28 @@ Each page provides its own relevant downloads:
 
 **Phase:** Building Simulators
 **Completed:**
-- Project setup, deployment to Vercel
+- Project setup, deployment to Vercel (with Vercel Analytics)
+- Landing page
+- Core Concepts page (7 interactive visualizers: light effects, temperature effects, nutrient effects, combined effects, growth rate, light absorption, light attenuation)
 - Equations page (Light Response, Temperature Response, Nutrient, pH, Light Attenuation sections)
-- Open Pond simulator foundation: 3D pond renderer (Three.js), world map with city selection, weather data pipeline (Open-Meteo API + static cache), animation loop with weather-driven effects
+- Open Pond simulator — fully functional:
+  - 3D pond renderer (Three.js) with weather-driven effects (wind, rain, clouds, day/night)
+  - SVG world map with city selection and season picker
+  - Weather data pipeline (Open-Meteo API + static TypeScript cache)
+  - Simulation engine (`lib/simulation/simple-outdoor/`) implementing full mass balance, heat balance (8 flux components), Fresnel optics, Beer-Lambert light attenuation, and harvest logic
+  - Time-series charts (biomass density, productivity, accumulated biomass)
+  - "Under the Hood" accordion with interactive growth model panels (light response, temperature response, light attenuation, mass balance, water balance — each with SVG charts, KaTeX equations, and live simulation values)
+  - Inline simulation controls (days slider, harvest mode, harvest parameter sliders) in each accordion trigger
+  - Pause/resume simulation support
+  - Pond dimensions overlay on 3D renderer
+  - Live data strip (PAR, pond temp, density, growth rate, productivity, wind)
 - Simulation design document (engineering equations, heat balance, optics)
 
 **In Progress:**
-- Connecting the simulation engine to the open pond animation (implementing equations from SIMULATION_DESIGN.md)
+- Heat / Energy Balance accordion panel (planned, not yet implemented)
 
 **Next:**
-- Complete open pond simulation integration
-- Continue with remaining pages
+- Flat Panel PBR and Tubular PBR simulators
+- Models pages, Technoeconomics pages
+- Dynamic PBR Simulator
+- Experiments & Model Fitting pages

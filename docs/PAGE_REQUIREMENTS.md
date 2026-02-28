@@ -207,18 +207,25 @@ Detailed specifications for each page.
 - PDF: Simulation summary report
 
 **Components (open-pond, implemented):**
-- `OpenPondSimulator.tsx` - Main orchestrator
-- `WorldMap.tsx` - SVG world map with city markers and weather data table
-- `PondCanvas.tsx` - Three.js 3D pond renderer
-- `PondControls.tsx` - Play/pause/speed/time controls
-- `DataStrip.tsx` - Live data cards overlay
-- `WeatherPanel.tsx` - Current weather conditions display
+- `OpenPondSimulator.tsx` - Main orchestrator (simulation state, animation loop, pause/resume, inline controls overlay)
+- `WorldMap.tsx` - SVG world map with city markers, season selection, and weather data table
+- `PondCanvas.tsx` - Three.js 3D pond renderer with weather-driven effects
+- `SimulationCharts.tsx` - SVG time-series charts (biomass density, productivity, accumulated biomass) with harvest config sliders
+- `GrowthModelPanels.tsx` - "Under the Hood" accordion with interactive growth model panels:
+  - Light Response — model curves with live position marker, parameter sliders
+  - Temperature Response — model curves with live temperature marker, parameter sliders
+  - Light Attenuation — depth profile + Fresnel transmission chart
+  - Mass Balance — growth/harvest/net tracking charts
+  - Water Balance — cumulative evaporation, makeup, harvest water charts
+  - Heat / Energy Balance — placeholder (coming soon)
+  - Inline sub-controls (days, harvest mode, harvest parameter sliders) in each accordion trigger
+- `DataStrip.tsx` - Live data cards (PAR, pond temp, density, growth rate, productivity, wind)
+- `PondControls.tsx` - Legacy controls (may be removed)
+- `WeatherPanel.tsx` - Legacy weather display (may be removed)
 - `WindIndicator.tsx` - Wind direction compass
 
 **Additional components (planned for all simulator types):**
-- `LiveOutputs/` (Recharts time-series)
-- `InternalFactors/` (response curves with current position markers)
-- `ResultsExport.tsx`
+- `ResultsExport.tsx` (CSV/PDF export)
 
 ---
 

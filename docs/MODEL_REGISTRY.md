@@ -112,34 +112,54 @@ export { monod, steele, banerjee }
 Implemented models are marked with a checkmark. Others are planned.
 
 ### Light Models
-- ✅ `steele` - Exponential inhibition (Steele photoinhibition)
-- `monod` - Simple hyperbolic
-- `banerjee` - Power inhibition
-- `pfaffinger` - Power-law inhibition
-- `eilers-peeters` - Alternative formulation
-- `haldane` - Substrate inhibition adapted
 
-Also implemented in `lib/models/light/`: `beer-lambert.ts` (attenuation), `pigment-absorption.ts`, `solar-spectrum.ts`.
+**Calculation functions** (`lib/models/light/`):
+- ✅ `steele` - Exponential inhibition (Steele photoinhibition) — used by the simulation engine
+- Also: `beer-lambert.ts` (attenuation), `pigment-absorption.ts`, `solar-spectrum.ts`
+
+**Equation metadata** (`lib/equations/light.ts`) — LaTeX, parameters, interactive curves on the Equations page:
+- ✅ `monod` - Simple hyperbolic (Monod)
+- ✅ `haldane` - Substrate inhibition (Haldane)
+- ✅ `webb` - Webb model
+- ✅ `steele` - Steele photoinhibition
+- ✅ `beta-function` - Flexible beta function
 
 ### Temperature Models
-- ✅ `gaussian` - Gaussian response curve
-- `marsullo` - Lethal-based exponential
-- `arrhenius` - Basic activation energy
-- `modified-arrhenius` - With optimum
-- `cardinal` - Three-point cardinal
-- `beta-function` - Flexible shape
+
+**Calculation functions** (`lib/models/temperature/`):
+- ✅ `gaussian` - Gaussian response curve — used by the simulation engine
+
+**Equation metadata** (`lib/equations/temperature.ts`) — LaTeX, parameters, interactive curves on the Equations page:
+- ✅ `gaussian-symmetric` - Symmetric Gaussian
+- ✅ `gaussian-asymmetric` - Asymmetric Gaussian (separate widths above/below Topt)
+- ✅ `quadratic-exponential` - Piecewise exponential with α/β shape parameters
+- ✅ `beta-function` - Flexible beta function (Cardinal temperature model)
 
 ### Nutrient Models
-- ✅ `monod` - Hyperbolic limitation (modified Monod)
-- `droop` - Internal quota
-- `morel` - Multi-nutrient
+
+**Calculation functions** (`lib/models/nutrient/`):
+- ✅ `monod` - Hyperbolic limitation (modified Monod) — returns 1.0 in v1 (nutrients not limiting)
+
+**Equation metadata** (`lib/equations/nutrient.ts`):
+- ✅ `monod` - Monod hyperbolic
+- ✅ `haldane` - Haldane substrate inhibition
+- ✅ `hill` - Hill equation
 
 ### pH Models
-- `cardinal` - Three-point
-- `gaussian` - Normal distribution
+
+**Equation metadata** (`lib/equations/pH.ts`):
+- ✅ `gaussian-symmetric` - Symmetric Gaussian
+- ✅ `gaussian-asymmetric` - Asymmetric Gaussian
+- ✅ `cardinal` - Cardinal pH model
+
+### Light Attenuation Models
+
+**Equation metadata** (`lib/equations/attenuation.ts`):
+- ✅ `beer-lambert` - Standard Beer-Lambert (single extinction)
+- ✅ `two-component` - Two-component extinction (biomass + background)
 
 ### Combined Models
-- ✅ `multiplicative` - µ_eff = µ_max × f(I) × f(T) × f(S)
+- ✅ `multiplicative` - µ_eff = µ_max × f(I) × f(T) × f(N) × f(pH)
 
 ## Usage Examples
 
