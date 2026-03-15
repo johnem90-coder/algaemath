@@ -7,27 +7,31 @@ import { DEFAULT_CONFIG } from "@/lib/simulation/simple-outdoor/types";
 
 /* ═══════════════════════ PALETTE ═══════════════════════ */
 const PAL = {
-  waterTop: new THREE.Color(0xae7f01),
-  waterBottom: new THREE.Color(0x4a7a3a),
+  waterBottom: new THREE.Color(0x5a9a4a),
   gold: 0xf9b501,
+  goldPale: 0xf9d46b,
   pulse: 0xd49a00,
-  bg: 0x070710,
 };
 
 /* ═══════════════════════ GEOMETRY CONSTANTS ═══════════════════════ */
 const POND_L = 3.2;
 const POND_W = 1.3;
+const WATER_H = 0.22; // total visual water height (divided among layers)
+const GAP_H = 0.07; // visual gap between layers
 const SPHERE_R = 0.15;
 
 const R_A = POND_W / 2;
 const HL = POND_L / 2 - R_A;
+const SUN_X = -(HL + R_A + 0.7);
 
-const SUN_X = -(HL + R_A + 0.9);
-const SURFACE_Y = 0.28;
-const SPHERE_Y = 1.35;
+const ANCHOR_Y = WATER_H; // top of first water layer, always fixed
+const VIS_MAX_LAYERS = 10;
+const MAX_STACK = WATER_H + (VIS_MAX_LAYERS - 1) * GAP_H;
+const SPHERE_Y = MAX_STACK + 0.35;
 
-const DEPTH_SCALE = 0.0008;
-const depthToU = (mm: number) => mm * DEPTH_SCALE;
+const NUM_WAVES = 5;
+const CYCLE_PERIOD = 4.0;
+const END_PAD = 0.3;
 
 /* ═══════════════════════ STANDARD HELPERS ═══════════════════════ */
 
@@ -60,6 +64,16 @@ function stadiumOutlinePts(length: number, width: number, n: number) {
   return pts;
 }
 
+function isInsideStadium(x: number, z: number) {
+  if (Math.abs(x) <= HL) return Math.abs(z) <= R_A;
+  if (x > HL) {
+    const dx = x - HL;
+    return dx * dx + z * z <= R_A * R_A;
+  }
+  const dx = x + HL;
+  return dx * dx + z * z <= R_A * R_A;
+}
+
 function extrudeY(shape: THREE.Shape, height: number, yOff: number) {
   const g = new THREE.ExtrudeGeometry(shape, { depth: height, bevelEnabled: false, curveSegments: 48 });
   g.rotateX(-Math.PI / 2);
@@ -80,10 +94,13 @@ function extrudeYWithGradient(shape: THREE.Shape, height: number, yOff: number, 
     let c: THREE.Color;
     const ny = nor.getY(i);
     if (ny > 0.5) {
+      // Top face — dark algae green (close to bottom color)
       c = colorBottom.clone().lerp(colorTop, 0.15);
     } else if (ny < -0.5) {
+      // Bottom face — solid dark green
       c = colorBottom.clone();
     } else {
+      // Side wall — gold-to-green gradient by Y
       const y = pos.getY(i);
       const t = range > 0.001 ? Math.max(0, Math.min(1, (y - yMin) / range)) : 0.5;
       c = colorBottom.clone().lerp(colorTop, t);
@@ -131,35 +148,34 @@ function pulseLineMat() {
   return new THREE.LineBasicMaterial({ color: PAL.pulse, transparent: true, opacity: 0.9, depthWrite: false });
 }
 
-/* ═══════════════════════ INSIDE STADIUM CHECK ═══════════════════════ */
-
-function isInsideStadium(x: number, z: number) {
-  if (Math.abs(x) <= HL) return Math.abs(z) <= R_A;
-  if (x > HL) {
-    const dx = x - HL, dz = z;
-    return dx * dx + dz * dz <= R_A * R_A;
-  }
-  const dx = x + HL, dz = z;
-  return dx * dx + dz * dz <= R_A * R_A;
+function makeStadiumRing(l: number, w: number) {
+  const pts = stadiumOutlinePts(l, w, 48);
+  return new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), pulseLineMat());
 }
 
 /* ═══════════════════════ BUILD POND ═══════════════════════ */
 
-function buildPond(group: THREE.Group, depthMm: number) {
+function buildPond(group: THREE.Group, layers: number) {
   disposeGroup(group);
-  const depth = depthToU(depthMm);
-  const waterBottom = SURFACE_Y - depth;
+  const waterPerLayer = WATER_H / layers;
+  const baseOffset = ANCHOR_Y - waterPerLayer;
 
-  const waterGeo = extrudeYWithGradient(
-    stadiumShape(POND_L, POND_W), depth, waterBottom, PAL.waterTop, PAL.waterBottom
-  );
-  group.add(new THREE.Mesh(waterGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.4, metalness: 0.05 })));
+  const t = (layers - 1) / (VIS_MAX_LAYERS - 1);
+  const slabColor = new THREE.Color(PAL.gold).lerp(new THREE.Color(PAL.goldPale), t);
 
+  let cursor = baseOffset;
+  for (let i = 0; i < layers; i++) {
+    const waterGeo = extrudeYWithGradient(stadiumShape(POND_L, POND_W), waterPerLayer, cursor, slabColor.clone(), PAL.waterBottom);
+    group.add(new THREE.Mesh(waterGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.4, metalness: 0.05 })));
+    cursor += waterPerLayer;
+    if (i < layers - 1) cursor += GAP_H;
+  }
+
+  // Sun sphere — match DepthDiagram style
   const sphereMat = new THREE.MeshStandardMaterial({ color: 0xfcd34d, roughness: 0.85, metalness: 0.0, emissive: 0xf59e0b, emissiveIntensity: 0.4 });
   const sp = new THREE.Mesh(new THREE.SphereGeometry(SPHERE_R, 32, 32), sphereMat);
   sp.position.set(SUN_X, SPHERE_Y, 0);
   group.add(sp);
-
 }
 
 /* ═══════════════════════ BUILD RAYS ═══════════════════════ */
@@ -167,7 +183,7 @@ function buildPond(group: THREE.Group, depthMm: number) {
 interface RayData {
   mesh: THREE.Line;
   startPt: THREE.Vector3;
-  endPt: THREE.Vector3;
+  landPt: THREE.Vector3;
   pathLen: number;
   segLen: number;
   cycleDur: number;
@@ -175,159 +191,179 @@ interface RayData {
   peakOpacity: number;
 }
 
-function buildRays(rayGroup: THREE.Group, rayState: React.MutableRefObject<RayData[]>) {
+function buildRays(rayGroup: THREE.Group, layers: number, rayState: React.MutableRefObject<RayData[]>) {
   disposeGroup(rayGroup);
   rayState.current = [];
 
+  // Compute topmost water surface Y
+  const waterPerLayer = WATER_H / layers;
+  const baseOffset = ANCHOR_Y - waterPerLayer;
+  const topSurfaceY = baseOffset + layers * waterPerLayer + (layers - 1) * GAP_H;
+
   const sunCenter = new THREE.Vector3(SUN_X, SPHERE_Y, 0);
-  const landingY = SURFACE_Y;
 
-  const landings: THREE.Vector3[] = [];
-  const stepsX = 9, stepsZ = 7;
-  for (let ix = 0; ix <= stepsX; ix++) {
-    for (let iz = 0; iz <= stepsZ; iz++) {
-      const x = -HL - R_A + POND_L * (ix / stepsX);
-      const z = -R_A + POND_W * (iz / stepsZ);
-      if (isInsideStadium(x, z)) {
-        const jx = x + (Math.random() - 0.5) * 0.12;
-        const jz = z + (Math.random() - 0.5) * 0.08;
-        if (isInsideStadium(jx, jz)) {
-          landings.push(new THREE.Vector3(jx, landingY, jz));
-        }
-      }
+  // Jittered grid of landing points across stadium
+  const nx = 11, nz = 9;
+  for (let ix = 0; ix < nx; ix++) {
+    for (let iz = 0; iz < nz; iz++) {
+      const bx = -POND_L / 2 + (ix + 0.2 + Math.random() * 0.6) * (POND_L / nx);
+      const bz = -POND_W / 2 + (iz + 0.2 + Math.random() * 0.6) * (POND_W / nz);
+      if (!isInsideStadium(bx, bz)) continue;
+
+      const landPt = new THREE.Vector3(bx, topSurfaceY, bz);
+      const dir = landPt.clone().sub(sunCenter).normalize();
+      const startPt = sunCenter.clone().add(dir.clone().multiplyScalar(SPHERE_R));
+      const pathLen = startPt.distanceTo(landPt);
+
+      const positions = new Float32Array(6);
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      const mat = new THREE.LineBasicMaterial({
+        color: 0xf9b501,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+      });
+      const line = new THREE.Line(geo, mat);
+      rayGroup.add(line);
+
+      rayState.current.push({
+        mesh: line,
+        startPt,
+        landPt,
+        pathLen,
+        segLen: 0.15 + Math.random() * 0.25,
+        cycleDur: 1.8 + Math.random() * 2.0,
+        phase: Math.random(),
+        peakOpacity: 0.2 + Math.random() * 0.25,
+      });
     }
-  }
-
-  for (const land of landings) {
-    const dir = new THREE.Vector3().subVectors(land, sunCenter).normalize();
-    const start = sunCenter.clone().addScaledVector(dir, SPHERE_R);
-    const pathLen = start.distanceTo(land);
-
-    const positions = new Float32Array(6);
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    const mat = new THREE.LineBasicMaterial({
-      color: 0xf9b501,
-      transparent: true,
-      opacity: 0,
-      depthWrite: false,
-    });
-    const line = new THREE.Line(geo, mat);
-    line.visible = false;
-    rayGroup.add(line);
-
-    rayState.current.push({
-      mesh: line,
-      startPt: start.clone(),
-      endPt: land.clone(),
-      pathLen,
-      segLen: 0.15 + Math.random() * 0.25,
-      cycleDur: 1.8 + Math.random() * 2.0,
-      phase: Math.random(),
-      peakOpacity: 0.2 + Math.random() * 0.25,
-    });
   }
 }
 
 /* ═══════════════════════ BUILD WATER PULSES ═══════════════════════ */
 
-const WATER_CYCLE = 4.0;
-const WATER_WAVES = 5;
-const WATER_END_PAD = 0.3;
-
-interface WaterPulseData {
-  mesh: THREE.Line;
-  offset: number;
+interface LayerPulseData {
+  vMesh: THREE.Line;
   waterYTop: number;
   waterYBottom: number;
+  startTime: number;
   duration: number;
 }
 
-function buildWaterPulses(pulseGroup: THREE.Group, depthMm: number, pulseState: React.MutableRefObject<WaterPulseData[]>) {
+interface WavePulseData {
+  offset: number;
+  layers: LayerPulseData[];
+}
+
+function buildPulses(pulseGroup: THREE.Group, layers: number, pulseState: React.MutableRefObject<WavePulseData[]>) {
   disposeGroup(pulseGroup);
   pulseState.current = [];
 
-  const depth = depthToU(depthMm);
-  const waterYTop = SURFACE_Y;
-  const waterYBottom = SURFACE_Y - depth;
-  const endTime = WATER_CYCLE - WATER_END_PAD;
+  const waterPerLayer = WATER_H / layers;
+  const baseOffset = ANCHOR_Y - waterPerLayer;
 
-  for (let w = 0; w < WATER_WAVES; w++) {
-    const wPts = stadiumOutlinePts(POND_L + 0.02, POND_W + 0.02, 48);
-    const wRing = new THREE.Line(new THREE.BufferGeometry().setFromPoints(wPts), pulseLineMat());
-    wRing.visible = false;
-    pulseGroup.add(wRing);
+  // Layer positions
+  const layerInfo: { waterY: number; waterH: number }[] = [];
+  let cursor = baseOffset;
+  for (let i = 0; i < layers; i++) {
+    const waterY = cursor;
+    cursor += waterPerLayer;
+    if (i < layers - 1) cursor += GAP_H;
+    layerInfo.push({ waterY, waterH: waterPerLayer });
+  }
 
-    pulseState.current.push({
-      mesh: wRing,
-      offset: (w / WATER_WAVES) * WATER_CYCLE,
-      waterYTop,
-      waterYBottom,
-      duration: endTime,
-    });
+  // Build NUM_WAVES staggered copies
+  for (let w = 0; w < NUM_WAVES; w++) {
+    const wave: WavePulseData = { offset: (w / NUM_WAVES) * CYCLE_PERIOD, layers: [] };
+
+    for (let li = 0; li < layers; li++) {
+      const vRing = makeStadiumRing(POND_L + 0.02, POND_W + 0.02);
+      pulseGroup.add(vRing);
+
+      // Each layer's pulse starts staggered within the cycle
+      const layerDelay = (li / Math.max(1, layers)) * 0.6;
+
+      wave.layers.push({
+        vMesh: vRing,
+        waterYTop: layerInfo[li].waterY + layerInfo[li].waterH,
+        waterYBottom: layerInfo[li].waterY,
+        startTime: layerDelay,
+        duration: CYCLE_PERIOD - END_PAD - layerDelay,
+      });
+    }
+
+    pulseState.current.push(wave);
   }
 }
 
 /* ═══════════════════════ UPDATE ANIMATIONS ═══════════════════════ */
 
 function updateRays(rayState: React.MutableRefObject<RayData[]>, time: number) {
-  for (const ray of rayState.current) {
-    const t = ((time / ray.cycleDur + ray.phase) % 1 + 1) % 1;
-    const headT = -ray.segLen + t * (1 + ray.segLen * 2);
-    const tailT = headT - ray.segLen;
-    const visHead = Math.min(1, Math.max(0, headT));
-    const visTail = Math.min(1, Math.max(0, tailT));
+  for (const r of rayState.current) {
+    const t = ((time / r.cycleDur + r.phase) % 1 + 1) % 1;
+    const headT = -r.segLen + t * (1 + r.segLen * 2);
+    const tailT = headT - r.segLen;
+    const visHead = Math.max(0, Math.min(1, headT));
+    const visTail = Math.max(0, Math.min(1, tailT));
 
     if (visHead <= visTail + 0.001) {
-      ray.mesh.visible = false;
+      r.mesh.visible = false;
       continue;
     }
+    r.mesh.visible = true;
 
-    const posArr = (ray.mesh.geometry.attributes.position as THREE.Float32BufferAttribute).array as Float32Array;
-    posArr[0] = ray.startPt.x + (ray.endPt.x - ray.startPt.x) * visTail;
-    posArr[1] = ray.startPt.y + (ray.endPt.y - ray.startPt.y) * visTail;
-    posArr[2] = ray.startPt.z + (ray.endPt.z - ray.startPt.z) * visTail;
-    posArr[3] = ray.startPt.x + (ray.endPt.x - ray.startPt.x) * visHead;
-    posArr[4] = ray.startPt.y + (ray.endPt.y - ray.startPt.y) * visHead;
-    posArr[5] = ray.startPt.z + (ray.endPt.z - ray.startPt.z) * visHead;
-    ray.mesh.geometry.attributes.position.needsUpdate = true;
+    const posArr = (r.mesh.geometry.attributes.position as THREE.Float32BufferAttribute).array as Float32Array;
+    // Tail vertex
+    posArr[0] = r.startPt.x + (r.landPt.x - r.startPt.x) * visTail;
+    posArr[1] = r.startPt.y + (r.landPt.y - r.startPt.y) * visTail;
+    posArr[2] = r.startPt.z + (r.landPt.z - r.startPt.z) * visTail;
+    // Head vertex
+    posArr[3] = r.startPt.x + (r.landPt.x - r.startPt.x) * visHead;
+    posArr[4] = r.startPt.y + (r.landPt.y - r.startPt.y) * visHead;
+    posArr[5] = r.startPt.z + (r.landPt.z - r.startPt.z) * visHead;
+    r.mesh.geometry.attributes.position.needsUpdate = true;
 
+    // Fade: full brightness mid-path, fade in/out at ends
     const midT = (visHead + visTail) / 2;
-    let op = ray.peakOpacity;
+    let op = r.peakOpacity;
     if (midT < 0.15) op *= midT / 0.15;
-    if (midT > 0.85) op *= (1 - midT) / 0.15;
-    ray.mesh.material.opacity = op;
-    ray.mesh.visible = true;
+    else if (midT > 0.85) op *= (1 - midT) / 0.15;
+    (r.mesh.material as THREE.LineBasicMaterial).opacity = op;
   }
 }
 
-function updateWaterPulses(pulseState: React.MutableRefObject<WaterPulseData[]>, time: number) {
-  for (const p of pulseState.current) {
-    const ct = ((time + p.offset) % WATER_CYCLE + WATER_CYCLE) % WATER_CYCLE;
-    if (ct <= p.duration && p.duration > 0) {
-      const vf = ct / p.duration;
-      p.mesh.position.set(0, p.waterYTop + (p.waterYBottom - p.waterYTop) * vf, 0);
-      let op = Math.max(0.03, 1 - vf * 0.95);
-      if (vf < 0.08) op *= vf / 0.08;
-      if (vf > 0.90) op *= (1 - vf) / 0.10;
-      p.mesh.material.opacity = op;
-      p.mesh.visible = true;
-    } else {
-      p.mesh.visible = false;
+function updatePulses(pulseState: React.MutableRefObject<WavePulseData[]>, time: number) {
+  for (const wave of pulseState.current) {
+    const cycleTime = ((time + wave.offset) % CYCLE_PERIOD + CYCLE_PERIOD) % CYCLE_PERIOD;
+
+    for (const L of wave.layers) {
+      if (cycleTime >= L.startTime && cycleTime <= L.startTime + L.duration && L.duration > 0) {
+        const vFrac = (cycleTime - L.startTime) / L.duration;
+        const y = L.waterYTop + (L.waterYBottom - L.waterYTop) * vFrac;
+        L.vMesh.position.set(0, y, 0);
+        let op = Math.max(0.1, 1 - vFrac * 0.85);
+        if (vFrac < 0.08) op *= vFrac / 0.08;
+        if (vFrac > 0.92) op *= (1 - vFrac) / 0.08;
+        (L.vMesh.material as THREE.LineBasicMaterial).opacity = op;
+        L.vMesh.visible = true;
+      } else {
+        L.vMesh.visible = false;
+      }
     }
   }
 }
 
 /* ═══════════════════════ COMPONENT ═══════════════════════ */
 
-export default function DepthDiagram({ depthMm }: { depthMm: number }) {
+export default function LayeredDiagram({ layers }: { layers: number }) {
   const mountRef = useRef<HTMLDivElement>(null);
   const frameId = useRef<number>(0);
   const pondGroup = useRef<THREE.Group | null>(null);
   const rayGroup = useRef<THREE.Group | null>(null);
   const rayState = useRef<RayData[]>([]);
   const pulseGroup = useRef<THREE.Group | null>(null);
-  const pulseState = useRef<WaterPulseData[]>([]);
+  const pulseState = useRef<WavePulseData[]>([]);
   const rendRef = useRef<THREE.WebGLRenderer | null>(null);
   const clockRef = useRef(new THREE.Clock());
 
@@ -375,12 +411,12 @@ export default function DepthDiagram({ depthMm }: { depthMm: number }) {
     scene.add(plg);
     pulseGroup.current = plg;
 
-    buildPond(pg, depthMm);
-    buildRays(rg, rayState);
-    buildWaterPulses(plg, depthMm, pulseState);
+    buildPond(pg, layers);
+    buildRays(rg, layers, rayState);
+    buildPulses(plg, layers, pulseState);
     clockRef.current.start();
 
-    const target = new THREE.Vector3(-0.2, 0.45, 0);
+    const target = new THREE.Vector3(-0.2, 0.55, 0);
     const sp = new THREE.Spherical(5.5, 1.0, 0.65);
     cam.position.setFromSpherical(sp).add(target);
     cam.lookAt(target);
@@ -393,9 +429,9 @@ export default function DepthDiagram({ depthMm }: { depthMm: number }) {
     window.addEventListener("resize", onResize);
 
     function tick() {
-      const t = clockRef.current.getElapsedTime();
-      updateRays(rayState, t);
-      updateWaterPulses(pulseState, t);
+      const elapsed = clockRef.current.getElapsedTime();
+      updateRays(rayState, elapsed);
+      updatePulses(pulseState, elapsed);
       rend.render(scene, cam);
       frameId.current = requestAnimationFrame(tick);
     }
@@ -411,18 +447,21 @@ export default function DepthDiagram({ depthMm }: { depthMm: number }) {
   }, []);
 
   useEffect(() => {
-    if (pondGroup.current && pulseGroup.current) {
-      buildPond(pondGroup.current, depthMm);
-      buildWaterPulses(pulseGroup.current, depthMm, pulseState);
+    if (pondGroup.current && pulseGroup.current && rayGroup.current) {
+      buildPond(pondGroup.current, layers);
+      buildPulses(pulseGroup.current, layers, pulseState);
+      buildRays(rayGroup.current, layers, rayState);
     }
-  }, [depthMm]);
+  }, [layers]);
 
+  const LAYERED_DEPTH_MM = 300;
   const geo = useMemo(
-    () => computeGeometry(DEFAULT_CONFIG.area_ha, DEFAULT_CONFIG.aspect_ratio, depthMm / 1000, DEFAULT_CONFIG.berm_width),
-    [depthMm],
+    () => computeGeometry(DEFAULT_CONFIG.area_ha, DEFAULT_CONFIG.aspect_ratio, LAYERED_DEPTH_MM / 1000, DEFAULT_CONFIG.berm_width),
+    [],
   );
 
   const volumeKL = Math.round(geo.V_liters / 1000);
+  const perLayerMm = Math.round(LAYERED_DEPTH_MM / layers);
 
   return (
     <div
@@ -452,14 +491,14 @@ export default function DepthDiagram({ depthMm }: { depthMm: number }) {
         <svg
           viewBox="0 0 206 76"
           className="w-[200px]"
-          aria-label={`Pond: ${Math.round(geo.W)}m × ${Math.round(geo.Ltotal)}m, ${depthMm}mm deep`}
+          aria-label={`Pond: ${Math.round(geo.W)}m × ${Math.round(geo.Ltotal)}m, ${layers} layers × ${perLayerMm}mm`}
         >
           <text x="4" y="10" fill="#555" fontSize="10" fontFamily="monospace" fontWeight="600">
-            1 acre | {depthMm}mm deep
+            1 acre | {layers} × {perLayerMm}mm layers
           </text>
           <rect x="4" y="29" width="168" height="22" rx="11" fill="none" stroke="#888" strokeWidth="1.2" />
           <text x="88" y="44" textAnchor="middle" fill="#666" fontSize="8.5" fontFamily="monospace">
-            {depthMm}mm deep
+            {LAYERED_DEPTH_MM}mm total depth
           </text>
           <line x1="180" y1="29" x2="180" y2="51" stroke="#888" strokeWidth="0.7" />
           <line x1="177" y1="29" x2="183" y2="29" stroke="#888" strokeWidth="0.7" />

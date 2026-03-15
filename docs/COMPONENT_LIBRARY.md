@@ -74,6 +74,34 @@ SVG time-series charts for simulation results:
 
 Each panel shows live simulation values and KaTeX equations.
 
+### Design Explorations Components (`app/explorations/components/`)
+
+#### DesignExplorer
+Main client component for the Explorations page. Contains:
+- **Variable Depth section** — vertical depth slider (50–500mm), DepthDiagram, biomass density + total biomass charts with envelope bands, Under the Hood (light response, temperature response, productivity)
+- **Layered Light Distribution section** — vertical layer slider (1–10), LayeredDiagram, same chart structure
+- **Model selection** — pill-button selectors in Under the Hood for light model (Steele/Monod/Haldane/Webb) and temperature model (Gaussian/Asym. Gaussian/Quad. Exp./Beta Function). Shared state between both sections. Changing model re-runs the full simulation via `lightFactorFn`/`tempFactorFn` on config.
+- Pre-computed envelope bands via `useMemo` sweeping all parameter values
+- Dynamic y-axis scaling via `niceAxis()` with intuitive step sizes (5–10 ticks)
+- Minimal dot+text hover tooltips (no box/cursor)
+
+#### DepthDiagram
+Three.js 3D pond visualization accepting `depthMm` prop. Features:
+- Stadium-shaped (racetrack) pond with gold→green gradient
+- Emissive sun sphere with animated golden rays (jittered grid, randomized speed/phase/opacity)
+- Water pulse rings descending through pond depth
+- Transparent background, responsive resize
+- Bottom-left SVG overlay (pond dimensions), top-right volume display
+
+#### LayeredDiagram
+Three.js 3D layered pond visualization accepting `layers` prop (1–10). Features:
+- N stadium-shaped water layers stacked vertically with gaps between
+- Layer color transitions from gold to pale gold as layer count increases
+- Top faces dark (algae green), side walls show gradient (matching DepthDiagram style)
+- Sun rays land on topmost layer surface, rebuilt when layer count changes
+- Per-layer water pulse rings with staggered timing
+- Same overlay structure as DepthDiagram (dimensions + volume)
+
 ---
 
 ## Shared UI Components (`components/ui/`)

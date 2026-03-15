@@ -47,11 +47,12 @@ algaemathdotcom/
 │   │   ├── flat-panel/                     # Placeholder (.gitkeep)
 │   │   └── pbr-tubular/                    # Placeholder (.gitkeep)
 │   │
-│   ├── models/                             # Design Explorations page
+│   ├── explorations/                       # Design Explorations page
 │   │   ├── page.tsx                        # Server component (metadata + layout)
 │   │   ├── components/
-│   │   │   ├── DesignExplorer.tsx           # Main client component (slider, charts, sections)
-│   │   │   └── DepthDiagram.tsx             # Three.js pond depth visualization
+│   │   │   ├── DesignExplorer.tsx           # Main client component (Variable Depth + Layered Light, model selection, charts)
+│   │   │   ├── DepthDiagram.tsx             # Three.js pond depth visualization (sun rays, water pulses)
+│   │   │   └── LayeredDiagram.tsx           # Three.js layered pond visualization (N layers, sun rays, per-layer pulses)
 │   │   ├── open-pond/                      # Placeholder (.gitkeep)
 │   │   ├── flat-panel/                     # Placeholder (.gitkeep)
 │   │   ├── pbr-tubular/                    # Placeholder (.gitkeep)

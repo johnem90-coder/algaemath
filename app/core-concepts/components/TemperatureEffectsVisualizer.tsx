@@ -24,7 +24,7 @@ import {
 } from '@/lib/simulation/cell-animation';
 
 const TemperatureEffectsVisualizer = () => {
-    const [temperature, setTemperature] = useState([25]);
+    const [temperature, setTemperature] = useState([30]);
     const [renderCells, setRenderCells] = useState<Cell[]>([]);
     const [timeLabel, setTimeLabel] = useState('0:00');
     const [animPhase, setAnimPhase] = useState<'pause-start' | 'running' | 'pause-end'>('pause-start');

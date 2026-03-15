@@ -43,7 +43,7 @@ const BEAKER_BOTTOM = 210;
 const themeColor = 'rgb(140, 80, 200)';
 
 const NutrientEffectsVisualizer = () => {
-    const [nutrientConc, setNutrientConc] = useState([2]);
+    const [nutrientConc, setNutrientConc] = useState([10]);
     const [renderCells, setRenderCells] = useState<Cell[]>([]);
     const [timeLabel, setTimeLabel] = useState('0:00');
     const [animPhase, setAnimPhase] = useState<'pause-start' | 'running' | 'pause-end'>('pause-start');

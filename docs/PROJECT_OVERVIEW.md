@@ -12,7 +12,7 @@
 1. **Landing Page** - Overview with clickable page previews
 2. **Core Concepts** - Single scrollable page with 7 interactive sections (accordion-based)
 3. **Equations** - Single scrollable page comparing all equation variants
-4. **Design Explorations** (`/models`) — collapsible exploration sections (Variable Depth implemented, Layered Light Distribution planned)
+4. **Design Explorations** (`/explorations`) — collapsible exploration sections (Variable Depth + Layered Light Distribution implemented, with model selection)
 5. **Technoeconomics** (3 sub-pages)
    - Open Pond
    - Flat Panel PBR
@@ -110,10 +110,17 @@ Weather data is fetched from Open-Meteo Historical Weather API via `scripts/gene
 - Simulation design document (engineering equations, heat balance, optics)
 - Global footer with copyright line (left) and LinkedIn link (right, LinkedIn blue with grey hover)
 - Site header with navigation
+- **Design Explorations page** (`/explorations`) with two collapsible sections:
+  - **Variable Depth** — depth slider (50–500mm), 3D pond visualization (DepthDiagram), biomass density + total biomass charts with envelope bands, Under the Hood (light response, temperature response, productivity)
+  - **Layered Light Distribution** — layer slider (1–10), 3D layered pond visualization (LayeredDiagram) with animated sun rays and per-layer water pulses, same chart structure as Variable Depth
+  - Both sections support **model selection** (Steele/Monod/Haldane/Webb for light, Gaussian/Asym. Gaussian/Quad. Exp./Beta Function for temperature) — changing the model re-runs the full simulation and updates all charts + envelopes
+  - Custom model functions passed to the simulation engine via optional `lightFactorFn`/`tempFactorFn` on `OpenPondConfig`
+  - Dynamic y-axis scaling with intuitive tick increments (`niceAxis` helper)
+  - Minimal hover tooltips: colored dot + value text anchored to the data point (no box)
 
 **Next:**
 - Heat / Energy Balance accordion panel (planned for open pond simulator)
 - Flat Panel PBR and Tubular PBR simulators
-- Models pages, Technoeconomics pages
+- Technoeconomics pages
 - Dynamic PBR Simulator
 - Experiments & Model Fitting pages

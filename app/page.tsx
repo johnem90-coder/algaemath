@@ -23,7 +23,7 @@ const sections = [
     badge: 'Simulate',
   },
   {
-    href: '/models',
+    href: '/explorations',
     title: 'Design Explorations',
     description:
       'Explore how pond geometry affects growth dynamics with auto-running simulations over repeating weather profiles.',

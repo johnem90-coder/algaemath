@@ -28,6 +28,10 @@ export interface OpenPondConfig {
   harvest_mode: "none" | "semi-continuous" | "batch"; // Harvest strategy
   harvest_threshold: number; // Semi-continuous: min density to maintain (g/L); Batch: trigger density (g/L)
   harvest_target: number; // Batch: restart density after harvest (g/L)
+
+  // Optional custom model overrides (default: Steele light, Gaussian temperature)
+  lightFactorFn?: (par: number) => number; // Custom light response f(PAR) → 0–1
+  tempFactorFn?: (T: number) => number; // Custom temperature response f(T) → 0–1
 }
 
 /** Computed pond geometry from config */
