@@ -24,11 +24,10 @@ const sections = [
   },
   {
     href: '/models',
-    title: 'Reactor Models',
+    title: 'Design Explorations',
     description:
-      'Detailed reactor models with full parameter sweeps and design exploration tools.',
-    badge: 'Models',
-    soon: true,
+      'Explore how pond geometry affects growth dynamics with auto-running simulations over repeating weather profiles.',
+    badge: 'Design',
   },
   {
     href: '/experiments',

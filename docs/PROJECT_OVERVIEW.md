@@ -12,11 +12,7 @@
 1. **Landing Page** - Overview with clickable page previews
 2. **Core Concepts** - Single scrollable page with 7 interactive sections (accordion-based)
 3. **Equations** - Single scrollable page comparing all equation variants
-4. **Models** (4 sub-pages)
-   - Open Pond
-   - Flat Panel PBR
-   - Tubular PBR
-   - Design Exploration
+4. **Design Explorations** (`/models`) — collapsible exploration sections (Variable Depth implemented, Layered Light Distribution planned)
 5. **Technoeconomics** (3 sub-pages)
    - Open Pond
    - Flat Panel PBR

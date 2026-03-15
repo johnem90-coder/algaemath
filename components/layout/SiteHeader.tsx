@@ -7,7 +7,7 @@ const navItems = [
     { href: "/core-concepts", title: "Core Concepts" },
     { href: "/equations", title: "Equations" },
     { href: "/simple-simulators", title: "Simulators" },
-    { href: "/models", title: "Models", soon: true },
+    { href: "/models", title: "Design" },
     { href: "/experiments", title: "Experiments", soon: true },
     { href: "/technoeconomics", title: "TEA", soon: true },
 ];

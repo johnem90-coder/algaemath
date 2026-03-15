@@ -2377,25 +2377,23 @@ function SectionHeader({
   const others = models.filter((m) => m.id !== activeId);
 
   return (
-    <span className="flex items-center gap-2 group/selector">
+    <span className="flex items-center gap-2">
       {title}
-      {active && (
-        <span className="flex items-center gap-1 relative">
-          <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-normal text-muted-foreground group-hover/selector:bg-foreground/10 transition-colors">
-            {active.name}
+      <span className="flex items-center gap-1">
+        {models.map((m) => (
+          <span
+            key={m.id}
+            onClick={(e) => { e.stopPropagation(); onSelect(m.id); }}
+            className={`rounded px-1.5 py-0.5 text-[10px] font-normal cursor-pointer transition-colors ${
+              m.id === activeId
+                ? "bg-foreground/15 text-foreground font-medium"
+                : "bg-muted text-muted-foreground hover:bg-foreground/10 hover:text-foreground"
+            }`}
+          >
+            {m.name}
           </span>
-          {others.map((m, i) => (
-            <span
-              key={m.id}
-              onClick={(e) => { e.stopPropagation(); onSelect(m.id); }}
-              className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-normal text-muted-foreground cursor-pointer hover:bg-foreground/15 hover:text-foreground transition-all duration-200 max-w-0 opacity-0 overflow-hidden group-hover/selector:max-w-[150px] group-hover/selector:opacity-100 whitespace-nowrap"
-              style={{ transitionDelay: `${(i + 1) * 50}ms` }}
-            >
-              {m.name}
-            </span>
-          ))}
-        </span>
-      )}
+        ))}
+      </span>
     </span>
   );
 }

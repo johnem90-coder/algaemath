@@ -47,11 +47,15 @@ algaemathdotcom/
 │   │   ├── flat-panel/                     # Placeholder (.gitkeep)
 │   │   └── pbr-tubular/                    # Placeholder (.gitkeep)
 │   │
-│   ├── models/                             # Placeholder directories (.gitkeep)
-│   │   ├── open-pond/
-│   │   ├── flat-panel/
-│   │   ├── pbr-tubular/
-│   │   └── design-exploration/
+│   ├── models/                             # Design Explorations page
+│   │   ├── page.tsx                        # Server component (metadata + layout)
+│   │   ├── components/
+│   │   │   ├── DesignExplorer.tsx           # Main client component (slider, charts, sections)
+│   │   │   └── DepthDiagram.tsx             # Three.js pond depth visualization
+│   │   ├── open-pond/                      # Placeholder (.gitkeep)
+│   │   ├── flat-panel/                     # Placeholder (.gitkeep)
+│   │   ├── pbr-tubular/                    # Placeholder (.gitkeep)
+│   │   └── design-exploration/             # Placeholder (.gitkeep)
 │   │
 │   ├── technoeconomics/                    # Placeholder directories (.gitkeep)
 │   │   ├── open-pond/

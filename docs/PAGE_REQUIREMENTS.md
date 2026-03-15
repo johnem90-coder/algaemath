@@ -16,7 +16,7 @@ Detailed specifications for each page.
    - **Core Concepts** — "Interactive visualizations of key algae growth metrics. Designed for conceptual understanding."
    - **Equations** — "Various mathematical models behind algae growth metrics. Designed to show differences between models and their potential ranges."
    - **Simple Simulators** — "Quick, single-reactor simulators for open pond, flat panel, and tubular photobioreactor systems. Designed for flexibility & scenario comparisons."
-   - **Reactor Models** — coming soon (opacity-30)
+   - **Design Explorations** — "Explore how pond geometry affects growth dynamics with auto-running simulations over repeating weather profiles."
    - **Experiments** — coming soon (opacity-30)
    - **Techno-Economics** — coming soon (opacity-30)
 3. Global footer (from layout.tsx) — copyright left, LinkedIn right
@@ -104,14 +104,25 @@ Detailed specifications for each page.
 
 ---
 
-## 4. Models Pages
+## 4. Design Explorations (`/models`)
 
-**Status:** 📋 Planned (placeholder directories only)
+**Status:** 🔨 In Progress
 
-### Open Pond (`/models/open-pond`)
-### Flat Panel (`/models/flat-panel`)
-### Tubular PBR (`/models/pbr-tubular`)
-### Design Exploration (`/models/design-exploration`)
+Main page with collapsible exploration sections. Each section auto-runs the simulation engine on slider change — no "Run" button needed. Uses averaged weather profile (Dallas Summer) cycled across 7 days.
+
+### Variable Depth (implemented)
+- Depth slider (50–500mm) controls pond depth
+- 3D Three.js pond visual (DepthDiagram) with sun rays and water pulse animations
+- Pond dimensions overlay (bottom-left) and dynamic volume display (top-right)
+- Two main charts: Biomass Density (g/L) and Total Biomass (kg) with envelope bands
+- Under the Hood dropdown: Light Response (fL + PAR avg), Temperature Response (fT + pond temp), Productivity (g/m²/day + daily avg)
+
+### Layered Light Distribution (placeholder)
+
+### Sub-page placeholders
+- Open Pond (`/models/open-pond`) — .gitkeep
+- Flat Panel (`/models/flat-panel`) — .gitkeep
+- Tubular PBR (`/models/pbr-tubular`) — .gitkeep
 
 ---
 
