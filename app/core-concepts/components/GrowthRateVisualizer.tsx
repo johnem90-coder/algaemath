@@ -24,7 +24,7 @@ import {
 } from '@/lib/simulation/cell-animation';
 
 const GrowthRateVisualizer = () => {
-  const [growthRate, setGrowthRate] = useState([0.7]);
+  const [growthRate, setGrowthRate] = useState([3.0]);
   const [renderCells, setRenderCells] = useState<Cell[]>([]);
   const [timeLabel, setTimeLabel] = useState('0:00');
   const [animPhase, setAnimPhase] = useState<'pause-start' | 'running' | 'pause-end'>('pause-start');

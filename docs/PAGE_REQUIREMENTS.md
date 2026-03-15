@@ -16,7 +16,7 @@ Detailed specifications for each page.
    - **Core Concepts** — "Interactive visualizations of key algae growth metrics. Designed for conceptual understanding."
    - **Equations** — "Various mathematical models behind algae growth metrics. Designed to show differences between models and their potential ranges."
    - **Simple Simulators** — "Quick, single-reactor simulators for open pond, flat panel, and tubular photobioreactor systems. Designed for flexibility & scenario comparisons."
-   - **Reactor Models** — coming soon (opacity-30)
+   - **Design Explorations** — "Explore how pond geometry affects growth dynamics with auto-running simulations over repeating weather profiles."
    - **Experiments** — coming soon (opacity-30)
    - **Techno-Economics** — coming soon (opacity-30)
 3. Global footer (from layout.tsx) — copyright left, LinkedIn right
@@ -93,7 +93,7 @@ Detailed specifications for each page.
 - Use cases
 - Limitations
 - Reference citation
-- Interactive curve (some sections)
+- Interactive curve with parameter envelope bands and minimal hover tooltip (dot + value text, no box)
 
 **Components (in `app/equations/components/`):**
 - `LightResponseSection.tsx`
@@ -104,14 +104,40 @@ Detailed specifications for each page.
 
 ---
 
-## 4. Models Pages
+## 4. Design Explorations (`/explorations`)
 
-**Status:** 📋 Planned (placeholder directories only)
+**Status:** ✅ Implemented (2 sections)
 
-### Open Pond (`/models/open-pond`)
-### Flat Panel (`/models/flat-panel`)
-### Tubular PBR (`/models/pbr-tubular`)
-### Design Exploration (`/models/design-exploration`)
+Main page with collapsible exploration sections. Each section auto-runs the simulation engine on slider change — no "Run" button needed. Uses averaged weather profile (Dallas Summer) cycled across 7 days.
+
+### Variable Depth (implemented)
+- Vertical depth slider (50–500mm) controls pond depth
+- 3D Three.js pond visual (DepthDiagram) with sun rays and water pulse animations
+- Pond dimensions overlay (bottom-left) and dynamic volume display (top-right)
+- Two main charts: Biomass Density (g/L) and Total Biomass (kg) with envelope bands (sweep 50–500mm depths)
+- Under the Hood dropdown: Light Response (fL + PAR avg), Temperature Response (fT + pond temp), Productivity (g/m²/day + daily avg)
+
+### Layered Light Distribution (implemented)
+- Vertical layer slider (1–10 layers), default 2
+- Conceptual model: split 300mm pond into N identical layers, each receiving 1/N of surface light at depth 300/N mm
+- 3D Three.js layered visualization (LayeredDiagram) with animated sun rays landing on top layer, per-layer water pulse rings, layers grow upward with gaps between
+- Same chart structure as Variable Depth: Biomass Density + Total Biomass with envelope bands (sweep 1–10 layers)
+- Same Under the Hood structure with light response, temperature response, productivity charts
+- Total biomass = per-layer concentration × total volume (all layers identical, only one simulation needed per N)
+
+### Shared Features (both sections)
+- **Model selection** in Under the Hood: pill-button selectors for light model (Steele, Monod, Haldane, Webb) and temperature model (Gaussian, Asym. Gaussian, Quad. Exp., Beta Function)
+- Changing the model re-runs the full simulation — main charts, envelope bands, and Under the Hood charts all update
+- Custom model functions injected via `lightFactorFn`/`tempFactorFn` on `OpenPondConfig`
+- Dynamic y-axis scaling with `niceAxis()` helper: picks human-friendly step sizes (1, 2, 2.5, 5 × 10^n), guarantees 5–10 ticks
+- Consistent tick formatting: density (1 decimal), mass (0 decimals), fL/fT (1 decimal), intensity/temp/productivity (0 decimals)
+- Minimal hover tooltips: colored dot on main line + dark grey value text anchored to dot, no box/cursor
+- Under the Hood charts show dual hover values: primary (dark grey) + secondary dashed line value (light grey)
+
+### Sub-page placeholders
+- Open Pond (`/explorations/open-pond`) — .gitkeep
+- Flat Panel (`/explorations/flat-panel`) — .gitkeep
+- Tubular PBR (`/explorations/pbr-tubular`) — .gitkeep
 
 ---
 

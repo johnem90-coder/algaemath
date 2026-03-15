@@ -64,8 +64,12 @@ export function runSimulation(
     const par = computePAR(weather, X, config.depth, config.epsilon, config.kb);
 
     // ── Growth factors ───────────────────────────────────────
-    const mu_L = steeleLightFactor(par.par_avg_culture, config.Iopt);
-    const mu_T = gaussianTempFactor(T_pond, config.Topt, config.alpha);
+    const mu_L = config.lightFactorFn
+      ? config.lightFactorFn(par.par_avg_culture)
+      : steeleLightFactor(par.par_avg_culture, config.Iopt);
+    const mu_T = config.tempFactorFn
+      ? config.tempFactorFn(T_pond)
+      : gaussianTempFactor(T_pond, config.Topt, config.alpha);
     const mu_N = 1.0; // Nutrients not limiting in v1
     const mu_pH = 1.0; // pH not modeled in v1
 

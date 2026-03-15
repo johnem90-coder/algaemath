@@ -189,6 +189,7 @@ function EquationCard({ equation }: { equation: PHEquation }) {
                             fill="rgb(20, 150, 140)"
                             fillOpacity={0.2}
                             stroke="none"
+                            activeDot={false}
                             isAnimationActive={false}
                         />
                         <Area
@@ -197,6 +198,7 @@ function EquationCard({ equation }: { equation: PHEquation }) {
                             fill="#ffffff"
                             fillOpacity={1}
                             stroke="none"
+                            activeDot={false}
                             isAnimationActive={false}
                         />
                         <XAxis
@@ -224,19 +226,24 @@ function EquationCard({ equation }: { equation: PHEquation }) {
                             }}
                             tick={{ fontSize: 11 }}
                         />
-                        <Tooltip
-                            formatter={(value) => [
-                                Number(value).toFixed(4),
-                                "f_pH",
-                            ]}
-                            labelFormatter={(label) => `pH = ${label}`}
-                        />
+                        <Tooltip cursor={false} content={() => null} />
                         <Line
                             type="monotone"
                             dataKey="fPH"
                             stroke="rgb(20, 150, 140)"
                             strokeWidth={2}
                             dot={false}
+                            activeDot={(props: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+                                const { cx, cy, payload } = props as { cx: number; cy: number; payload: { fPH: number } };
+                                return (
+                                    <g>
+                                        <circle cx={cx} cy={cy} r={3} fill="rgb(20, 150, 140)" stroke="none" />
+                                        <text x={cx + 8} y={cy + 4} fontSize={11} fontFamily="monospace" fill="#444">
+                                            {payload.fPH.toFixed(4)}
+                                        </text>
+                                    </g>
+                                );
+                            }}
                             isAnimationActive={false}
                         />
                     </ComposedChart>

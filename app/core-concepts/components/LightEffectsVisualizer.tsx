@@ -24,7 +24,7 @@ import {
 } from '@/lib/simulation/cell-animation';
 
 const LightEffectsVisualizer = () => {
-    const [lightIntensity, setLightIntensity] = useState([200]);
+    const [lightIntensity, setLightIntensity] = useState([300]);
     const [renderCells, setRenderCells] = useState<Cell[]>([]);
     const [timeLabel, setTimeLabel] = useState('0:00');
     const [animPhase, setAnimPhase] = useState<'pause-start' | 'running' | 'pause-end'>('pause-start');

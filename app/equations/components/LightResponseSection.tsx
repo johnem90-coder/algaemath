@@ -207,6 +207,7 @@ function EquationCard({ equation }: { equation: LightEquation }) {
                             fill="rgb(210, 150, 20)"
                             fillOpacity={0.2}
                             stroke="none"
+                            activeDot={false}
                             isAnimationActive={false}
                         />
                         <Area
@@ -215,6 +216,7 @@ function EquationCard({ equation }: { equation: LightEquation }) {
                             fill="#ffffff"
                             fillOpacity={1}
                             stroke="none"
+                            activeDot={false}
                             isAnimationActive={false}
                         />
                         <XAxis
@@ -242,21 +244,24 @@ function EquationCard({ equation }: { equation: LightEquation }) {
                             }}
                             tick={{ fontSize: 11 }}
                         />
-                        <Tooltip
-                            formatter={(value) => [
-                                Number(value).toFixed(4),
-                                "f_L",
-                            ]}
-                            labelFormatter={(label) =>
-                                `I = ${label} µE/m²/s`
-                            }
-                        />
+                        <Tooltip cursor={false} content={() => null} />
                         <Line
                             type="monotone"
                             dataKey="fL"
                             stroke="rgb(210, 150, 20)"
                             strokeWidth={2}
                             dot={false}
+                            activeDot={(props: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+                                const { cx, cy, payload } = props as { cx: number; cy: number; payload: { fL: number } };
+                                return (
+                                    <g>
+                                        <circle cx={cx} cy={cy} r={3} fill="rgb(210, 150, 20)" stroke="none" />
+                                        <text x={cx + 8} y={cy + 4} fontSize={11} fontFamily="monospace" fill="#444">
+                                            {payload.fL.toFixed(4)}
+                                        </text>
+                                    </g>
+                                );
+                            }}
                             isAnimationActive={false}
                         />
                     </ComposedChart>
