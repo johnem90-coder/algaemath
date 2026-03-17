@@ -1,0 +1,84 @@
+{
+  "_meta": {
+    "description": "Default TEA configuration for Open Raceway Pond / Spirulina baseline",
+    "reactor_type": "open-pond",
+    "species": "Spirulina",
+    "source": "TEA_AlgaeBiomass_RacewayPond_Spirulina_230908.xlsx",
+    "extracted": "2026-03-16"
+  },
+
+  "system_inputs": {
+    "desired_output_tons_yr": { "value": 800, "min": 10, "max": 5000, "units": "tons BM/yr", "notes": "Controls overall system size" },
+    "active_days_yr": { "value": 330, "min": 200, "max": 365, "units": "days/yr", "notes": "Operating days per year" },
+    "pond_size_acres": { "value": 1.0, "min": 0.5, "max": 10, "units": "acres", "notes": "Individual pond area" },
+    "pond_depth_m": { "value": 0.12, "min": 0.10, "max": 0.35, "units": "m", "notes": "Culture depth" },
+    "pond_lw_ratio": { "value": 10, "min": 5, "max": 20, "units": "-", "notes": "Length-to-width ratio" },
+    "pond_spacing_col_m": { "value": 2.6, "min": 1.5, "max": 5.0, "units": "m", "notes": "Between pond columns" },
+    "pond_spacing_row_m": { "value": 1.85, "min": 1.5, "max": 5.0, "units": "m", "notes": "Between pond rows" },
+    "unit_lifetime_yrs": { "value": 30, "min": 10, "max": 40, "units": "years", "notes": "Facility operating lifetime" }
+  },
+
+  "growth_inputs": {
+    "effective_growth_rate_per_day": { "value": 0.207, "min": 0.05, "max": 0.50, "units": "/day", "notes": "From simulation or literature" },
+    "density_at_harvest_g_L": { "value": 0.362, "min": 0.1, "max": 1.0, "units": "g/L", "notes": "Steady-state concentration" }
+  },
+
+  "unit_costs": {
+    "electricity_per_kWh": { "value": 0.4024, "units": "$/kWh", "notes": "Hawaii 2022 commercial rate" },
+    "natural_gas_per_cuft": { "value": 0.03367, "units": "$/cuft", "notes": "Hawaii 2022/2023 industrial" },
+    "diesel_per_L": { "value": 1.60, "units": "$/L", "notes": "May 2022" },
+    "co2_per_ton": { "value": 375, "units": "$/ton", "notes": "DAC-sourced estimate" },
+    "kno3_per_ton": { "value": 600, "units": "$/ton", "notes": "Volatile commodity, rough estimate" },
+    "dap_per_ton": { "value": 600, "units": "$/ton", "notes": "Volatile commodity, rough estimate" },
+    "micronutrient_per_ton": { "value": 600, "units": "$/ton", "notes": "Estimate, same as other nutrients" },
+    "water_per_m3": { "value": 0.1329, "units": "$/m³", "notes": "Municipal supply" },
+    "labor_rate_per_hr": { "value": 36.50, "units": "$/hr", "notes": "~$70k/yr salary equivalent" }
+  },
+
+  "algae_composition": {
+    "carbon_frac": { "value": 0.54, "source_compound": "CO2", "notes": "Needs better sourcing" },
+    "nitrogen_frac": { "value": 0.018, "source_compound": "KNO3", "notes": "Needs better sourcing" },
+    "phosphorus_frac": { "value": 0.0022, "source_compound": "(NH4)2HPO4", "notes": "Needs better sourcing" },
+    "micronutrient_frac": { "value": 0.000269, "source_compound": "various", "notes": "Derived: P_frac^2 / N_frac — rough estimate" }
+  },
+
+  "financial_inputs": {
+    "federal_tax_rate": { "value": 0.25, "notes": "US 2023" },
+    "state_tax_rate": { "value": 0.064, "notes": "Hawaii 2023" },
+    "discount_rate": { "value": 0.10, "min": 0.05, "max": 0.20, "notes": "For NPV/DCF" },
+    "depreciation_method": { "value": "MACRS-7", "options": ["MACRS-7", "straight-line"], "notes": "7-year MACRS default" },
+    "working_capital_fraction": { "value": 0.05, "min": 0.03, "max": 0.10, "notes": "Fraction of CAPEX" },
+    "salvage_value_fraction": { "value": 0.0, "min": 0.0, "max": 0.10, "notes": "End-of-life value as fraction of CAPEX" }
+  },
+
+  "overhead_costs": {
+    "quality_per_ton": { "value": 100, "units": "$/ton BM" },
+    "regulatory_per_ton": { "value": 50, "units": "$/ton BM" },
+    "marketing_per_ton": { "value": 100, "units": "$/ton BM" },
+    "sales_per_ton": { "value": 50, "units": "$/ton BM" },
+    "total_per_ton": { "value": 300, "units": "$/ton BM" }
+  },
+
+  "process_parameters": {
+    "evaporation_rate_mm_day": { "value": 10, "notes": "Location-dependent" },
+    "harvest_efficiency": { "value": 0.70, "notes": "Fraction of water removed in primary dewatering" },
+    "harvest_hours_per_day": { "value": 6, "notes": "Daily harvest window" },
+    "dryer_inlet_water_content": { "value": 0.75, "notes": "Post-harvest slurry" },
+    "dryer_outlet_water_content": { "value": 0.05, "notes": "Final dry product" },
+    "silo_buffer_days": { "value": 14, "notes": "Finished product storage" }
+  },
+
+  "inoculum": {
+    "target_months": { "value": 6, "min": 1, "max": 24, "units": "months", "notes": "Time to inoculate all production ponds" },
+    "tiers": [
+      { "name": "Pond As", "size_fraction": 0.1, "cycle_days": 7 },
+      { "name": "Pond Bs", "size_fraction": 0.01, "cycle_days": 7 },
+      { "name": "Pond Cs", "size_fraction": 0.001, "cycle_days": 7 }
+    ]
+  },
+
+  "currency": {
+    "aud_to_usd": 0.70827,
+    "analysis_year": 2022
+  }
+}

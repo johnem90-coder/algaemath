@@ -1,0 +1,104 @@
+{
+  "_meta": {
+    "description": "Labor roles, headcounts, and annual salaries for each TEA section",
+    "source": "TEA_AlgaeBiomass_RacewayPond_Spirulina_230908.xlsx",
+    "extracted": "2026-03-16",
+    "notes": "Labor estimates are flagged as 'currently best guess - not based on references' in the source model. Operator counts may scale with system size."
+  },
+
+  "sections": {
+    "inputs": {
+      "section_id": "inputs",
+      "roles": [
+        { "title": "Operators", "headcount": 7, "annual_salary": 73000, "annual_cost": 511000, "notes": "Low estimate; calculated at ~$20/hr equivalent" }
+      ],
+      "total_headcount": 7,
+      "total_annual_cost": 839500,
+      "high_estimate": {
+        "roles": [
+          { "title": "Operators", "headcount": 10, "annual_salary": 73000, "annual_cost": 730000 }
+        ],
+        "total_headcount": 10,
+        "total_annual_cost": 1058500
+      },
+      "notes": "The Excel shows a single 'operators' line for this section with low=7, high=10"
+    },
+
+    "biomass": {
+      "section_id": "biomass",
+      "roles": [
+        { "title": "Pond Ops Managers", "headcount": 1, "annual_salary": 219000, "annual_cost": 219000 },
+        { "title": "Pond Equipment Engineers", "headcount": 2, "annual_salary": 182500, "annual_cost": 365000 },
+        { "title": "Pond Maintenance Supervisors", "headcount": 1, "annual_salary": 146000, "annual_cost": 146000 },
+        { "title": "Administrators", "headcount": 1, "annual_salary": 73000, "annual_cost": 73000, "notes": "Rough guess" },
+        { "title": "Operators", "headcount": 8, "annual_salary": 73000, "annual_cost": 584000 }
+      ],
+      "total_headcount": 13,
+      "total_annual_cost": 1387000,
+      "high_estimate": {
+        "operator_headcount": 21,
+        "total_annual_cost": 1971000
+      }
+    },
+
+    "inoculum": {
+      "section_id": "inoculum",
+      "roles": [
+        { "title": "Inoculum Ops Managers", "headcount": 1, "annual_salary": 219000, "annual_cost": 219000 },
+        { "title": "Inoculum Equipment Engineers", "headcount": 2, "annual_salary": 182500, "annual_cost": 365000 },
+        { "title": "Inoculum Maintenance Supervisors", "headcount": 1, "annual_salary": 146000, "annual_cost": 146000 },
+        { "title": "Administrators", "headcount": 1, "annual_salary": 73000, "annual_cost": 73000, "notes": "Rough guess" },
+        { "title": "Operators", "headcount": 1, "annual_salary": 73000, "annual_cost": 73000 }
+      ],
+      "total_headcount": 6,
+      "total_annual_cost": 876000,
+      "high_estimate": {
+        "total_annual_cost": 949000
+      }
+    },
+
+    "harvesting": {
+      "section_id": "harvesting",
+      "roles": [
+        { "title": "Harvesting Equipment Engineers", "headcount": 1, "annual_salary": 182500, "annual_cost": 182500 },
+        { "title": "Harvesting Maintenance Supervisors", "headcount": 1, "annual_salary": 146000, "annual_cost": 146000 },
+        { "title": "Administrators", "headcount": 1, "annual_salary": 73000, "annual_cost": 73000, "notes": "Rough guess" },
+        { "title": "Operators", "headcount": 4, "annual_salary": 73000, "annual_cost": 292000 }
+      ],
+      "total_headcount": 7,
+      "total_annual_cost": 693500,
+      "high_estimate": {
+        "total_annual_cost": 693500,
+        "notes": "No high estimate difference in original model"
+      }
+    },
+
+    "drying": {
+      "section_id": "drying",
+      "roles": [
+        { "title": "Drying Equipment Engineers", "headcount": 1, "annual_salary": 182500, "annual_cost": 182500 },
+        { "title": "Drying Maintenance Supervisors", "headcount": 1, "annual_salary": 146000, "annual_cost": 146000 },
+        { "title": "Administrators", "headcount": 1, "annual_salary": 73000, "annual_cost": 73000, "notes": "Rough guess" },
+        { "title": "Operators", "headcount": 4, "annual_salary": 73000, "annual_cost": 292000 }
+      ],
+      "total_headcount": 7,
+      "total_annual_cost": 693500,
+      "high_estimate": {
+        "total_annual_cost": 766500
+      }
+    }
+  },
+
+  "system_wide_roles": {
+    "description": "System-level staff listed in the main outputs sheet (may overlap with section roles)",
+    "roles": [
+      { "title": "Operations Managers", "headcount": 5, "annual_salary": 219000, "annual_cost": 1095000 },
+      { "title": "Equipment Engineers", "headcount": 7, "annual_salary": 182500, "annual_cost": 1277500 },
+      { "title": "Maintenance Supervisors", "headcount": 5, "annual_salary": 146000, "annual_cost": 730000 },
+      { "title": "Administrators", "headcount": 5, "annual_salary": 73000, "annual_cost": 365000 },
+      { "title": "Operators (low)", "headcount": 14, "annual_salary": 73000, "annual_cost": 1022000 },
+      { "title": "Operators (high)", "headcount": 28, "annual_salary": 73000, "annual_cost": 2044000 }
+    ],
+    "notes": "These are the rolled-up totals across all sections. The section-level details above should be the primary data source."
+  }
+}

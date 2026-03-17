@@ -1,0 +1,62 @@
+{
+  "_meta": {
+    "description": "NREL 2011 Algae Farm Model reference data for open raceway ponds",
+    "source_citation": "NREL 2011 Algae Farm Model_Open Ponds_TEA Tool_v1",
+    "notes": "Costs are fully installed (includes liner, earthwork, paddlewheel, baffles). No additional installation factors needed."
+  },
+
+  "pond_costs": {
+    "description": "Capital cost per pond at various sizes and liner options. Costs are per 5000-acre facility.",
+    "cost_year": 2011,
+    "escalation_to_2022": 1.24,
+    "data": [
+      { "pond_size_acres": 2, "liner": "Minimal", "cost_per_5000_acres": 246531755, "cost_per_acre": 49306.35, "n_ponds_per_5000_acres": 2500, "cost_per_pond": 98612.70 },
+      { "pond_size_acres": 10, "liner": "Minimal", "cost_per_5000_acres": 158506910, "cost_per_acre": 31701.38, "n_ponds_per_5000_acres": 500, "cost_per_pond": 317013.82 },
+      { "pond_size_acres": 50, "liner": "Minimal", "cost_per_5000_acres": 98673256, "cost_per_acre": 19734.65, "n_ponds_per_5000_acres": 100, "cost_per_pond": 986732.56 },
+      { "pond_size_acres": 2, "liner": "Full", "cost_per_5000_acres": 365691872, "cost_per_acre": 73138.37, "n_ponds_per_5000_acres": 2500, "cost_per_pond": 146276.75 },
+      { "pond_size_acres": 10, "liner": "Full", "cost_per_5000_acres": 276539009, "cost_per_acre": 55307.80, "n_ponds_per_5000_acres": 500, "cost_per_pond": 553078.02 },
+      { "pond_size_acres": 50, "liner": "Full", "cost_per_5000_acres": 250468668, "cost_per_acre": 50093.73, "n_ponds_per_5000_acres": 100, "cost_per_pond": 2504686.68 }
+    ],
+    "cost_correlation": {
+      "description": "Linear cost model fit to 'Full' liner data for arbitrary pond sizes",
+      "formula": "pond_cost_2011 = 60788 × pond_size_acres + 68046",
+      "units": "USD (2011)",
+      "valid_range_acres": [0.001, 50],
+      "notes": "Used for both biomass and inoculum ponds. Escalate by 1.24 for 2022 dollars."
+    },
+    "computed_costs_2022": [
+      { "pond_size_acres": 1.0, "liner": "Full", "cost_per_pond_2022": 128834, "use": "Default biomass pond" },
+      { "pond_size_acres": 2.5, "liner": "Full", "cost_per_pond_2022": 220016, "use": "Alternative biomass pond" },
+      { "pond_size_acres": 5.0, "liner": "Full", "cost_per_pond_2022": 371986, "use": "Alternative biomass pond" },
+      { "pond_size_acres": 10.0, "liner": "Full", "cost_per_pond_2022": 675926, "use": "Alternative biomass pond" },
+      { "pond_size_acres": 0.1, "liner": "Full", "cost_per_pond_2022": 74124.80, "use": "Inoculum Pond As" },
+      { "pond_size_acres": 0.01, "liner": "Full", "cost_per_pond_2022": 68653.88, "use": "Inoculum Pond Bs" },
+      { "pond_size_acres": 0.001, "liner": "Full", "cost_per_pond_2022": 68106.79, "use": "Inoculum Pond Cs" }
+    ]
+  },
+
+  "paddlewheel_energy": {
+    "description": "Paddlewheel energy consumption as a function of pond size",
+    "source_data": [
+      { "pond_size_acres": 2, "energy_kWh_ha_day": 75.5, "energy_kWh_acre_day": 30.55 },
+      { "pond_size_acres": 10, "energy_kWh_ha_day": 55.1, "energy_kWh_acre_day": 22.30 },
+      { "pond_size_acres": 50, "energy_kWh_ha_day": 42.8, "energy_kWh_acre_day": 17.32 }
+    ],
+    "energy_correlation": {
+      "description": "Power-law fit for paddlewheel energy at arbitrary pond sizes",
+      "formula": "energy_kWh_per_acre_per_day = 34.2 × pond_size_acres^(-0.176)",
+      "units": "kWh/acre/day",
+      "valid_range_acres": [0.001, 50],
+      "notes": "To get annual energy per pond: result × pond_size_acres × active_days"
+    },
+    "computed_values": [
+      { "pond_size_acres": 0.001, "kWh_acre_day": 115.35, "kWh_pond_yr_330d": 0.81 },
+      { "pond_size_acres": 0.01, "kWh_acre_day": 76.92, "kWh_pond_yr_330d": 5.38 },
+      { "pond_size_acres": 0.1, "kWh_acre_day": 51.29, "kWh_pond_yr_330d": 35.90 },
+      { "pond_size_acres": 1.0, "kWh_acre_day": 34.20, "kWh_pond_yr_330d": 11286.00 },
+      { "pond_size_acres": 2.5, "kWh_acre_day": 29.11, "kWh_pond_yr_330d": 24012.79 },
+      { "pond_size_acres": 5.0, "kWh_acre_day": 25.76, "kWh_pond_yr_330d": 42510.02 },
+      { "pond_size_acres": 10.0, "kWh_acre_day": 22.80, "kWh_pond_yr_330d": 75255.81 }
+    ]
+  }
+}

@@ -9,7 +9,7 @@ const navItems = [
     { href: "/simple-simulators", title: "Simulators" },
     { href: "/explorations", title: "Explorations" },
     { href: "/experiments", title: "Experiments", soon: true },
-    { href: "/technoeconomics", title: "TEA", soon: true },
+    { href: "/technoeconomics", title: "TEA" },
 ];
 
 export default function SiteHeader() {

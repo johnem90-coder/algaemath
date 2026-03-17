@@ -58,10 +58,20 @@ algaemathdotcom/
 │   │   ├── pbr-tubular/                    # Placeholder (.gitkeep)
 │   │   └── design-exploration/             # Placeholder (.gitkeep)
 │   │
-│   ├── technoeconomics/                    # Placeholder directories (.gitkeep)
+│   ├── technoeconomics/
+│   │   ├── page.tsx                          # TEA index page (3 reactor type cards)
 │   │   ├── open-pond/
-│   │   ├── flat-panel/
-│   │   └── pbr-tubular/
+│   │   │   ├── page.tsx                      # Open pond TEA page (server component)
+│   │   │   └── components/
+│   │   │       ├── OpenPondTEA.tsx            # Main client orchestrator (useMemo → runTEA)
+│   │   │       ├── SystemSummaryCards.tsx     # 8 KPI cards (ponds, production, CAPEX, MBSP, etc.)
+│   │   │       ├── InputVariablesTable.tsx    # Unit cost input parameters display
+│   │   │       ├── SectionsOverviewTable.tsx  # CAPEX + OPEX breakdown by section
+│   │   │       ├── CashFlowTable.tsx          # 30-year DCF schedule (expandable)
+│   │   │       ├── SensitivityTable.tsx       # Revenue sensitivity at various sale prices
+│   │   │       └── formatters.ts             # Number formatting (fmtDollars, fmtPercent, etc.)
+│   │   ├── flat-panel/                       # Placeholder (.gitkeep)
+│   │   └── pbr-tubular/                      # Placeholder (.gitkeep)
 │   │
 │   ├── dynamic-pbr/
 │   │   └── controlled-environment/         # Placeholder (.gitkeep)
@@ -142,7 +152,36 @@ algaemathdotcom/
 │   │   │   └── index.ts                    # Re-exports
 │   │   └── dynamic-pbr/                    # Placeholder (.gitkeep)
 │   │
-│   ├── technoeconomics/                    # Placeholder (.gitkeep)
+│   ├── technoeconomics/                    # TEA calculation engines
+│   │   ├── types.ts                        # Shared interfaces (TEAConfig, TEAResult, SectionCost, etc.)
+│   │   ├── common/
+│   │   │   ├── constants.ts                # Physical constants, MACRS schedule, molecular weights
+│   │   │   ├── geometry.ts                 # Racetrack pond geometry & system sizing
+│   │   │   ├── nutrient-balance.ts         # Stoichiometric CO₂, nutrient, water demand
+│   │   │   ├── cost-escalation.ts          # Cost correlations (tank, pond, dryer, paddlewheel)
+│   │   │   ├── installation.ts             # Three-tier installation cost cascade
+│   │   │   ├── energy.ts                   # Electricity, diesel, natural gas cost functions
+│   │   │   └── equipment-options.ts        # Shared catalogs (pumps, tanks, filters, hoppers) & sizing functions
+│   │   └── open-pond/
+│   │       ├── index.ts                    # Re-exports
+│   │       ├── config.ts                   # Default config from JSON → typed TEAConfig
+│   │       ├── engine.ts                   # Main entry: runTEA(config) → TEAResult
+│   │       ├── outputs.ts                  # Cost rollup, resource aggregation
+│   │       ├── sections/
+│   │       │   ├── inputs.ts               # Water treatment & delivery (10 equipment items)
+│   │       │   ├── inoculum.ts             # Scaling ponds (3 tiers, count from timeline)
+│   │       │   ├── biomass.ts              # Growth ponds (NREL cost correlation)
+│   │       │   ├── harvesting.ts           # Dewatering (6 equipment items)
+│   │       │   └── drying.ts               # Spray drying (3 equipment items)
+│   │       └── data/                       # Reference data (JSON, compiled into client bundle)
+│   │           ├── default-config.json     # All input parameters with defaults and ranges
+│   │           ├── equipment-catalog.json  # Equipment specs, costs, energy, provenance
+│   │           ├── cost-correlations.json  # Parametric cost formulas
+│   │           ├── installation-factors.json # Three-tier installation cost factors per section
+│   │           ├── labor-roles.json        # Per-section staffing and salaries
+│   │           ├── land-prices.json        # US state land pricing reference
+│   │           ├── nrel-pond-reference.json # NREL 2011 pond cost and energy data
+│   │           └── nutrient-chemistry.json # Stoichiometric data for nutrient demand
 │   ├── curve-fitting/                      # Placeholder (.gitkeep)
 │   ├── export/                             # Placeholder (.gitkeep)
 │   ├── data/                               # Placeholder (.gitkeep)
