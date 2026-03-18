@@ -26,7 +26,7 @@ import {
   sizeHopper,
   sizeMixTank,
 } from "../../common/equipment-options";
-import laborData from "../data/labor-roles.json";
+import type { LaborRole } from "../../types";
 
 export function computeInputsSection(
   config: TEAConfig,
@@ -36,6 +36,7 @@ export function computeInputsSection(
   const equipment: EquipmentItem[] = [];
   const n_ponds = geometry.n_ponds;
   const active_days = config.active_days_yr;
+  const eta_chain = config.eta_pump * config.eta_drive * config.eta_motor;
 
   // ── INP-01: Tank 1 — Raw water storage ─────────────────────
   {
@@ -46,11 +47,12 @@ export function computeInputsSection(
       id: "INP-01", name: "Tank 1", type: "Cone Roof", function: "Raw water storage",
       unit_cost: option.unit_cost, units_required: units, total_purchase_cost: total_cost,
       energy_type: "none", annual_energy_units: 0, annual_energy_cost: 0,
-      maintenance_rate: 0.03, annual_maintenance_cost: total_cost * 0.03,
+      maintenance_rate: config.maintenance_rate_passive, annual_maintenance_cost: total_cost * config.maintenance_rate_passive,
     });
   }
 
   // ── INP-02: Pump 1 — Raw water transfer (diesel) ──────────
+  let pump1_run_hrs_day: number;
   {
     const evap_flow_Ls = (nutrients.evap_m3_day * 1000) / (24 * 3600);
     const min_flow_Ls = 2 * evap_flow_Ls;
@@ -58,10 +60,11 @@ export function computeInputsSection(
     const { option, units, run_hrs_day } = sizePumpByFlow(
       daily_volume_L, [4, 6, 8, 12], PUMP_CATALOG, 20, min_flow_Ls
     );
+    pump1_run_hrs_day = run_hrs_day;
     const total_cost = option.unit_cost * units;
     const run_hrs_yr = run_hrs_day * active_days;
     const energy = option.energy_type === "diesel"
-      ? dieselCost(option.power_kW, run_hrs_yr * units, config.diesel_per_L)
+      ? dieselCost(option.power_kW, run_hrs_yr * units, config.diesel_per_L, eta_chain)
       : { liters: 0, cost: electricityCost(option.power_kW, run_hrs_yr * units, config.electricity_per_kWh).cost };
     equipment.push({
       id: "INP-02", name: "Pump 1", type: "Vortex Impeller", function: "Raw water transfer",
@@ -69,22 +72,23 @@ export function computeInputsSection(
       energy_type: option.energy_type,
       annual_energy_units: option.energy_type === "diesel" ? energy.liters : 0,
       annual_energy_cost: energy.cost,
-      maintenance_rate: 0.05, annual_maintenance_cost: total_cost * 0.05,
+      maintenance_rate: config.maintenance_rate_mechanical, annual_maintenance_cost: total_cost * config.maintenance_rate_mechanical,
     });
   }
 
   // ── INP-03: Filter 1 — Ultrafiltration (electric) ─────────
+  // Runs same hours as Pump 1 (connected in series)
   {
     const daily_water_gal = (nutrients.water_m3_day * 1000) / GAL_TO_L;
     const { option, units } = sizeFilter(daily_water_gal, FILTER_CATALOG);
     const total_cost = option.unit_cost * units;
-    const run_hrs_yr = option.run_hrs_day * active_days;
+    const run_hrs_yr = pump1_run_hrs_day * active_days;
     const e = electricityCost(option.power_kW, run_hrs_yr * units, config.electricity_per_kWh);
     equipment.push({
       id: "INP-03", name: "Filter 1", type: "Ultrafiltration", function: "Water purification",
       unit_cost: option.unit_cost, units_required: units, total_purchase_cost: total_cost,
       energy_type: "electricity", annual_energy_units: e.kWh, annual_energy_cost: e.cost,
-      maintenance_rate: 0.07, annual_maintenance_cost: total_cost * 0.07,
+      maintenance_rate: config.maintenance_rate_membrane, annual_maintenance_cost: total_cost * config.maintenance_rate_membrane,
     });
   }
 
@@ -97,7 +101,7 @@ export function computeInputsSection(
       id: "INP-04", name: "Tank 2s", type: "Cone Roof", function: "Filtered water buffer",
       unit_cost: option.unit_cost, units_required: units, total_purchase_cost: total_cost,
       energy_type: "none", annual_energy_units: 0, annual_energy_cost: 0,
-      maintenance_rate: 0.03, annual_maintenance_cost: total_cost * 0.03,
+      maintenance_rate: config.maintenance_rate_passive, annual_maintenance_cost: total_cost * config.maintenance_rate_passive,
     });
   }
 
@@ -111,12 +115,12 @@ export function computeInputsSection(
     );
     const total_cost = option.unit_cost * units;
     const run_hrs_yr = run_hrs_day * active_days;
-    const d = dieselCost(option.power_kW, run_hrs_yr * units, config.diesel_per_L);
+    const d = dieselCost(option.power_kW, run_hrs_yr * units, config.diesel_per_L, eta_chain);
     equipment.push({
       id: "INP-05", name: "Pump 2s", type: "Diesel Pump", function: "Tank 2 → pond transfer",
       unit_cost: option.unit_cost, units_required: units, total_purchase_cost: total_cost,
       energy_type: option.energy_type, annual_energy_units: d.liters, annual_energy_cost: d.cost,
-      maintenance_rate: 0.05, annual_maintenance_cost: total_cost * 0.05,
+      maintenance_rate: config.maintenance_rate_mechanical, annual_maintenance_cost: total_cost * config.maintenance_rate_mechanical,
     });
   }
 
@@ -128,7 +132,7 @@ export function computeInputsSection(
       id: "INP-06", name: "Hopper 1s", type: "Dry Storage", function: "KNO₃ storage",
       unit_cost: option.unit_cost, units_required: units, total_purchase_cost: total_cost,
       energy_type: "none", annual_energy_units: 0, annual_energy_cost: 0,
-      maintenance_rate: 0.03, annual_maintenance_cost: total_cost * 0.03,
+      maintenance_rate: config.maintenance_rate_passive, annual_maintenance_cost: total_cost * config.maintenance_rate_passive,
     });
   }
 
@@ -140,7 +144,7 @@ export function computeInputsSection(
       id: "INP-07", name: "Hopper 2s", type: "Dry Storage", function: "DAP storage",
       unit_cost: option.unit_cost, units_required: units, total_purchase_cost: total_cost,
       energy_type: "none", annual_energy_units: 0, annual_energy_cost: 0,
-      maintenance_rate: 0.03, annual_maintenance_cost: total_cost * 0.03,
+      maintenance_rate: config.maintenance_rate_passive, annual_maintenance_cost: total_cost * config.maintenance_rate_passive,
     });
   }
 
@@ -152,7 +156,7 @@ export function computeInputsSection(
       id: "INP-08", name: "Hopper 3s", type: "Dry Storage", function: "Micronutrient storage",
       unit_cost: option.unit_cost, units_required: units, total_purchase_cost: total_cost,
       energy_type: "none", annual_energy_units: 0, annual_energy_cost: 0,
-      maintenance_rate: 0.03, annual_maintenance_cost: total_cost * 0.03,
+      maintenance_rate: config.maintenance_rate_passive, annual_maintenance_cost: total_cost * config.maintenance_rate_passive,
     });
   }
 
@@ -162,12 +166,12 @@ export function computeInputsSection(
     const unit_cost = option.tank_cost + option.propeller_cost;
     const total_cost = unit_cost * units;
     const run_hrs_yr = active_days * 1;
-    const e = electricityCost(option.power_kW, run_hrs_yr * units, config.electricity_per_kWh);
+    const e = electricityCost(option.propeller_power_kW, run_hrs_yr * units, config.electricity_per_kWh);
     equipment.push({
       id: "INP-09", name: "Mix Tank 1s", type: "Cone + Propeller", function: "Nutrient dissolving",
       unit_cost, units_required: units, total_purchase_cost: total_cost,
       energy_type: "electricity", annual_energy_units: e.kWh, annual_energy_cost: e.cost,
-      maintenance_rate: 0.05, annual_maintenance_cost: total_cost * 0.05,
+      maintenance_rate: config.maintenance_rate_mechanical, annual_maintenance_cost: total_cost * config.maintenance_rate_mechanical,
     });
   }
 
@@ -179,13 +183,13 @@ export function computeInputsSection(
     const unit_cost = 50000;
     const total_cost = unit_cost * units;
     const power_kW = 0.37285;
-    const run_hrs_yr = active_days * 30;
+    const run_hrs_yr = active_days * 24; // continuous refrigeration
     const e = electricityCost(power_kW, run_hrs_yr * units, config.electricity_per_kWh);
     equipment.push({
       id: "INP-10", name: "CO₂ Tanks", type: "Pressure Vessel", function: "Liquid CO₂ storage",
       unit_cost, units_required: units, total_purchase_cost: total_cost,
       energy_type: "electricity", annual_energy_units: e.kWh, annual_energy_cost: e.cost,
-      maintenance_rate: 0.03, annual_maintenance_cost: total_cost * 0.03,
+      maintenance_rate: config.maintenance_rate_passive, annual_maintenance_cost: total_cost * config.maintenance_rate_passive,
     });
   }
 
@@ -202,7 +206,7 @@ export function computeInputsSection(
 
   const energy_cost = equipment.reduce((s, e) => s + e.annual_energy_cost, 0);
   const maintenance_cost = equipment.reduce((s, e) => s + e.annual_maintenance_cost, 0);
-  const labor_cost = laborData.sections.inputs.total_annual_cost;
+  const labor_cost = config.labor.inputs.reduce((s: number, r: LaborRole) => s + r.headcount * r.annual_salary, 0);
   const operating_cost = materials_cost + energy_cost + maintenance_cost + labor_cost;
 
   return {

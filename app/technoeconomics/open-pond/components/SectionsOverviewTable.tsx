@@ -16,7 +16,8 @@ export function SectionsOverviewTable({ result }: Props) {
   const totals = {
     equipment_purchase: 0,
     install_engr_other: 0,
-    capital_cost: 0,
+    land: result.land_cost,
+    capital_cost: result.land_cost,
     materials_cost: 0,
     energy_cost: 0,
     maintenance_cost: 0,
@@ -116,6 +117,22 @@ export function SectionsOverviewTable({ result }: Props) {
               </td>
             </tr>
           ))}
+          {/* Land row */}
+          <tr className="border-b border-dashed">
+            <td className="py-1.5 pr-4 font-sans text-sm">
+              Land ({result.land_total_acres} acres)
+            </td>
+            <td className="py-1.5 px-2 text-right text-muted-foreground border-l">—</td>
+            <td className="py-1.5 px-2 text-right text-muted-foreground">—</td>
+            <td className="py-1.5 px-2 text-right font-semibold">
+              {fmtDollarsLong(result.land_cost)}
+            </td>
+            <td className="py-1.5 px-2 text-right text-muted-foreground border-l">—</td>
+            <td className="py-1.5 px-2 text-right text-muted-foreground">—</td>
+            <td className="py-1.5 px-2 text-right text-muted-foreground">—</td>
+            <td className="py-1.5 px-2 text-right text-muted-foreground">—</td>
+            <td className="py-1.5 px-2 text-right text-muted-foreground">—</td>
+          </tr>
           {/* Totals row */}
           <tr className="border-t-2 font-semibold">
             <td className="py-2 pr-4 font-sans text-sm">Total</td>

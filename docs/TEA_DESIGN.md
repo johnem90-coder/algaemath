@@ -935,8 +935,13 @@ These are tracked in `equipment-catalog.json` via the `source_confidence` field.
 - **n_ponds rounded to grid:** `n_ponds = n_rows × n_cols` (always even), may exceed `ceil(V_required / V_pond)` by 1.
 - **Installation costs:** Three-tier cascade (installation factors × equipment → indirect factors × installation → other factors × (installation + indirect)), not a single multiplier. Per-factor tracking for future user adjustability.
 - **Inoculum sizing:** Pond counts calculated from inoculation timeline (default 6 months), not hardcoded. `ponds_per_tier = ceil(n_ponds / (target_weeks - n_tiers))`.
-- **Equipment sizing:** Constraint-based selection from shared catalogs (water pumps, sludge pumps, tanks, filters, hoppers) rather than fixed unit counts from Excel. Unit counts may differ from Excel when flow volumes differ.
-- **Land costs:** Removed from section CAPEX; to be added as a separate facility-level cost in a future update.
+- **Equipment sizing:** Constraint-based selection from shared catalogs (water pumps, sludge pumps, tanks, filters, hoppers, mix tanks) rather than fixed unit counts from Excel. Unit counts may differ from Excel when flow volumes differ.
+- **Land costs:** Calculated as a facility-level cost (not per-section). Pond footprint from geometry (rounded up to integer acres) + 20% buffer (rounded up again). Land price selected from a catalog of US locations.
+- **Filter 1 linked to Pump 1:** UF filter run hours match the raw water pump run hours (connected in series), not the filter's standalone capacity.
+- **CO₂ tank refrigeration:** 24 hrs/day continuous operation (corrected from Excel's 30 hrs/day).
+- **Labor:** Configurable per-section role arrays (title, headcount, salary). Inputs section corrected to 1 admin + 3 operators (was inflated in original extraction).
+- **Nearly all parameters in TEAConfig:** Uptake efficiencies, buffer days, diesel drivetrain efficiency (η_pump, η_drive, η_motor), dryer efficiency/operating factor, maintenance rates (passive 3%, mechanical 5%, membrane 7%), silo buffer days, filter3 efficiency — all user-adjustable via config overrides.
+- **Silo sizing:** DRY-03 silo units calculated from daily production × silo_buffer_days / silo_capacity (was previously hardcoded to n_drying_systems).
 
 ---
 

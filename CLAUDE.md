@@ -23,7 +23,8 @@ AlgaeMath is a Next.js (App Router) site with interactive tools for algae cultiv
 - `/equations` — 5 equation sections with model cards (light, temp, nutrient, pH, attenuation)
 - `/simple-simulators/open-pond` — Open pond simulator with 3D canvas, world map, growth model panels
 - `/explorations` — Design explorer with variable depth + layered light sections
-- `/technoeconomics` — TEA page (not yet public, `soon: true` in nav)
+- `/technoeconomics` — TEA index page with reactor type cards
+- `/technoeconomics/open-pond` — Open pond TEA with full calculation engine, sections overview, MBSP breakdown, cash flow schedule, sensitivity analysis
 
 ## Commands
 - `npm run dev` — Start dev server

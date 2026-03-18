@@ -34,7 +34,7 @@ export interface MixTankSizeOption {
   capacity_gal: number;
   tank_cost: number;
   propeller_cost: number;
-  power_kW: number;
+  propeller_power_kW: number;
 }
 
 export interface SludgePumpSizeOption {
@@ -96,7 +96,7 @@ export const MICRO_HOPPER_CATALOG: HopperSizeOption[] = [
 // ── Mix Tank Catalog ───────────────────────────────────────────
 
 export const MIX_TANK_CATALOG: MixTankSizeOption[] = [
-  { capacity_gal: 510, tank_cost: 890, propeller_cost: 577.19, power_kW: 0.37285 },
+  { capacity_gal: 510, tank_cost: 890, propeller_cost: 577.19, propeller_power_kW: 0.37285 },
 ];
 
 // ── Sizing Functions ───────────────────────────────────────────

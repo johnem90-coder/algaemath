@@ -1,18 +1,15 @@
 // Section: Drying (Final Processing) — 3 equipment items
 // Reference: docs/TEA_DESIGN.md Section 2.5
 
-import type { TEAConfig, PondGeometryTEA, SectionCost, EquipmentItem } from "../../types";
+import type { TEAConfig, PondGeometryTEA, SectionCost, EquipmentItem, LaborRole } from "../../types";
 import { sprayDryerCost2022 } from "../../common/cost-escalation";
 import { electricityCost, naturalGasCost } from "../../common/energy";
 import { computeInstallationCost } from "../../common/installation";
 import {
   HEAT_REQUIRED_MJ_PER_TON_WATER,
-  DRYER_EFFICIENCY,
-  DRYER_OPERATING_FACTOR,
   MJ_PER_CUFT_NATURAL_GAS,
 } from "../../common/constants";
 import { SLUDGE_PUMP_CATALOG, sizeSludgePump } from "../../common/equipment-options";
-import laborData from "../data/labor-roles.json";
 
 export function computeDryingSection(
   config: TEAConfig,
@@ -61,8 +58,8 @@ export function computeDryingSection(
       energy_type: "electricity",
       annual_energy_units: e.kWh,
       annual_energy_cost: e.cost,
-      maintenance_rate: 0.05,
-      annual_maintenance_cost: total_cost * 0.05,
+      maintenance_rate: config.maintenance_rate_mechanical,
+      annual_maintenance_cost: total_cost * config.maintenance_rate_mechanical,
     });
   }
 
@@ -78,7 +75,7 @@ export function computeDryingSection(
     // Annual water evaporated = daily_water_evap_tons * active_days
     const annual_water_evap_tons = daily_water_evap_tons * active_days;
     const heat_required_MJ = annual_water_evap_tons * HEAT_REQUIRED_MJ_PER_TON_WATER;
-    const heat_input_MJ = (heat_required_MJ / DRYER_EFFICIENCY) * DRYER_OPERATING_FACTOR;
+    const heat_input_MJ = (heat_required_MJ / config.dryer_efficiency) * config.dryer_operating_factor;
     const annual_gas_cuft = heat_input_MJ / MJ_PER_CUFT_NATURAL_GAS;
     const gas_cost = naturalGasCost(annual_gas_cuft, config.natural_gas_per_cuft);
 
@@ -93,14 +90,17 @@ export function computeDryingSection(
       energy_type: "natural_gas",
       annual_energy_units: annual_gas_cuft,
       annual_energy_cost: gas_cost,
-      maintenance_rate: 0.07,
-      annual_maintenance_cost: total_cost * 0.07,
+      maintenance_rate: config.maintenance_rate_membrane,
+      annual_maintenance_cost: total_cost * config.maintenance_rate_membrane,
     });
   }
 
   // ── DRY-03: Silo 1 — Dry bulk storage ─────────────────────
+  // Sized to hold silo_buffer_days of dry product output
   {
-    const units = n_drying_systems;
+    const silo_capacity_tons = 10; // tons per silo unit
+    const required_tons = daily_production_tons * config.silo_buffer_days;
+    const units = Math.max(1, Math.ceil(required_tons / silo_capacity_tons));
     const unit_cost = 10000;
     const total_cost = unit_cost * units;
     equipment.push({
@@ -114,8 +114,8 @@ export function computeDryingSection(
       energy_type: "none",
       annual_energy_units: 0,
       annual_energy_cost: 0,
-      maintenance_rate: 0.03,
-      annual_maintenance_cost: total_cost * 0.03,
+      maintenance_rate: config.maintenance_rate_passive,
+      annual_maintenance_cost: total_cost * config.maintenance_rate_passive,
     });
   }
 
@@ -125,7 +125,7 @@ export function computeDryingSection(
 
   const energy_cost = equipment.reduce((s, e) => s + e.annual_energy_cost, 0);
   const maintenance_cost = equipment.reduce((s, e) => s + e.annual_maintenance_cost, 0);
-  const labor_cost = laborData.sections.drying.total_annual_cost;
+  const labor_cost = config.labor.drying.reduce((s: number, r: LaborRole) => s + r.headcount * r.annual_salary, 0);
   const materials_cost = 0;
   const operating_cost = materials_cost + energy_cost + maintenance_cost + labor_cost;
 

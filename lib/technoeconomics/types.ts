@@ -52,14 +52,26 @@ export interface TEAConfig {
   n_uptake_efficiency: number; // fraction absorbed (default 1.0)
   p_uptake_efficiency: number; // fraction absorbed (default 1.0)
 
+  // Diesel drivetrain efficiency
+  eta_pump: number; // pump mechanical efficiency (default 0.70)
+  eta_drive: number; // drivetrain efficiency (default 0.95)
+  eta_motor: number; // diesel engine thermal efficiency (default 0.35)
+
   // Process parameters
   evaporation_rate_mm_day: number;
   harvest_efficiency: number;
   harvest_hours_per_day: number;
   dryer_inlet_water_content: number;
   dryer_outlet_water_content: number;
+  dryer_efficiency: number; // thermal efficiency of spray dryer (default 0.25)
+  dryer_operating_factor: number; // operating overhead factor (default 1.06)
   silo_buffer_days: number;
   filter3_efficiency: number; // fraction of water removed in primary dewatering (Filter 3)
+
+  // Maintenance rates (fraction of purchase cost per year)
+  maintenance_rate_passive: number; // tanks, hoppers, storage (default 0.03)
+  maintenance_rate_mechanical: number; // pumps, mixers, moving parts (default 0.05)
+  maintenance_rate_membrane: number; // UF/MF filters, membrane replacement (default 0.07)
 
   // Buffer days (equipment sizing)
   tank1_buffer_days: number; // raw water storage
@@ -72,8 +84,31 @@ export interface TEAConfig {
   inoculum_tiers: InoculumTier[];
   inoculation_target_months: number; // months to inoculate all production ponds
 
-  // Currency
+  // Labor
+  labor: {
+    inputs: LaborRole[];
+    inoculum: LaborRole[];
+    biomass: LaborRole[];
+    harvesting: LaborRole[];
+    drying: LaborRole[];
+  };
+
+  // Land
   land_price_per_acre: number;
+  land_buffer_fraction: number; // extra land beyond pond footprint (default 0.20)
+  land_catalog: LandOption[];
+}
+
+export interface LandOption {
+  location: string;
+  land_type: string;
+  cost_per_acre: number;
+}
+
+export interface LaborRole {
+  title: string;
+  headcount: number;
+  annual_salary: number;
 }
 
 export interface InoculumTier {
@@ -275,8 +310,13 @@ export interface TEAResult {
   system_volume_m3: number;
   system_productivity_g_m2_day: number;
 
+  // Land
+  land_pond_footprint_acres: number; // raw pond layout area
+  land_total_acres: number; // with buffer, rounded up
+  land_cost: number; // $
+
   // Cost totals
-  total_capex: number; // $
+  total_capex: number; // $ (sections + land)
   total_annual_opex: number; // $/yr
   total_annual_overhead: number; // $/yr
   total_annual_cost: number; // $/yr (OPEX + overhead)

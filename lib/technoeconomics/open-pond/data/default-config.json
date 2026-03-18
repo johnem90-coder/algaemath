@@ -59,10 +59,22 @@
     "total_per_ton": { "value": 300, "units": "$/ton BM" }
   },
 
+  "diesel_drivetrain": {
+    "eta_pump": { "value": 0.70, "notes": "Pump mechanical efficiency" },
+    "eta_drive": { "value": 0.95, "notes": "Drivetrain efficiency" },
+    "eta_motor": { "value": 0.35, "notes": "Diesel engine thermal efficiency" }
+  },
+
   "uptake_efficiencies": {
     "co2": { "value": 0.30, "notes": "Open pond — significant CO₂ degassing. PBRs use 0.80-0.95." },
     "nitrogen": { "value": 1.0, "notes": "100% uptake assumed" },
     "phosphorus": { "value": 1.0, "notes": "100% uptake assumed" }
+  },
+
+  "maintenance_rates": {
+    "passive": { "value": 0.03, "notes": "Tanks, hoppers, storage — low wear" },
+    "mechanical": { "value": 0.05, "notes": "Pumps, mixers — moving parts" },
+    "membrane": { "value": 0.07, "notes": "UF/MF filters — membrane replacement" }
   },
 
   "process_parameters": {
@@ -71,6 +83,8 @@
     "harvest_hours_per_day": { "value": 6, "notes": "Daily harvest window" },
     "dryer_inlet_water_content": { "value": 0.75, "notes": "Post-harvest slurry" },
     "dryer_outlet_water_content": { "value": 0.05, "notes": "Final dry product" },
+    "dryer_efficiency": { "value": 0.25, "notes": "Spray dryer thermal efficiency" },
+    "dryer_operating_factor": { "value": 1.06, "notes": "Operating overhead factor for spray dryer" },
     "silo_buffer_days": { "value": 14, "notes": "Finished product storage" },
     "filter3_efficiency": { "value": 0.70, "notes": "Fraction of water removed by shaker screen (Filter 3)" }
   },
@@ -83,12 +97,58 @@
     "filtrate_tank": { "value": 1, "notes": "Harvesting filtrate holding buffer" }
   },
 
+  "labor": {
+    "inputs": [
+      { "title": "Administrators", "headcount": 1, "annual_salary": 73000 },
+      { "title": "Operators", "headcount": 3, "annual_salary": 73000 }
+    ],
+    "inoculum": [
+      { "title": "Inoculum Ops Managers", "headcount": 1, "annual_salary": 219000 },
+      { "title": "Inoculum Equipment Engineers", "headcount": 2, "annual_salary": 182500 },
+      { "title": "Inoculum Maintenance Supervisors", "headcount": 1, "annual_salary": 146000 },
+      { "title": "Administrators", "headcount": 1, "annual_salary": 73000 },
+      { "title": "Operators", "headcount": 1, "annual_salary": 73000 }
+    ],
+    "biomass": [
+      { "title": "Pond Ops Managers", "headcount": 1, "annual_salary": 219000 },
+      { "title": "Pond Equipment Engineers", "headcount": 2, "annual_salary": 182500 },
+      { "title": "Pond Maintenance Supervisors", "headcount": 1, "annual_salary": 146000 },
+      { "title": "Administrators", "headcount": 1, "annual_salary": 73000 },
+      { "title": "Operators", "headcount": 8, "annual_salary": 73000 }
+    ],
+    "harvesting": [
+      { "title": "Harvesting Equipment Engineers", "headcount": 1, "annual_salary": 182500 },
+      { "title": "Harvesting Maintenance Supervisors", "headcount": 1, "annual_salary": 146000 },
+      { "title": "Administrators", "headcount": 1, "annual_salary": 73000 },
+      { "title": "Operators", "headcount": 4, "annual_salary": 73000 }
+    ],
+    "drying": [
+      { "title": "Drying Equipment Engineers", "headcount": 1, "annual_salary": 182500 },
+      { "title": "Drying Maintenance Supervisors", "headcount": 1, "annual_salary": 146000 },
+      { "title": "Administrators", "headcount": 1, "annual_salary": 73000 },
+      { "title": "Operators", "headcount": 4, "annual_salary": 73000 }
+    ]
+  },
+
   "inoculum": {
     "target_months": { "value": 6, "min": 1, "max": 24, "units": "months", "notes": "Time to inoculate all production ponds" },
     "tiers": [
       { "name": "Pond As", "size_fraction": 0.1, "cycle_days": 7 },
       { "name": "Pond Bs", "size_fraction": 0.01, "cycle_days": 7 },
       { "name": "Pond Cs", "size_fraction": 0.001, "cycle_days": 7 }
+    ]
+  },
+
+  "land": {
+    "selected_location": "California",
+    "buffer_fraction": 0.20,
+    "catalog": [
+      { "location": "California", "land_type": "Pasture", "cost_per_acre": 3010 },
+      { "location": "Arizona", "land_type": "Farm", "cost_per_acre": 3800 },
+      { "location": "New Mexico", "land_type": "Pasture", "cost_per_acre": 417 },
+      { "location": "Texas", "land_type": "Pasture", "cost_per_acre": 1660 },
+      { "location": "Florida", "land_type": "Pasture", "cost_per_acre": 5500 },
+      { "location": "Hawaii", "land_type": "Pasture", "cost_per_acre": 8900 }
     ]
   },
 

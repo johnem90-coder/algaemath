@@ -7,9 +7,8 @@
 //   - Available production weeks = target_weeks - startup_weeks
 //   - Ponds per tier = ceil(n_production_ponds / production_weeks)
 
-import type { TEAConfig, PondGeometryTEA, SectionCost, EquipmentItem, InstallationBreakdown } from "../../types";
+import type { TEAConfig, PondGeometryTEA, SectionCost, EquipmentItem, InstallationBreakdown, LaborRole } from "../../types";
 import { pondCost2022, paddlewheelEnergyPerAcreDay } from "../../common/cost-escalation";
-import laborData from "../data/labor-roles.json";
 
 export function computeInoculumSection(
   config: TEAConfig,
@@ -51,8 +50,8 @@ export function computeInoculumSection(
       energy_type: "electricity",
       annual_energy_units: total_energy_kWh,
       annual_energy_cost: energy_cost,
-      maintenance_rate: 0.05,
-      annual_maintenance_cost: total_cost * 0.05,
+      maintenance_rate: config.maintenance_rate_mechanical,
+      annual_maintenance_cost: total_cost * config.maintenance_rate_mechanical,
     });
   });
 
@@ -67,7 +66,7 @@ export function computeInoculumSection(
 
   const energy_cost = equipment.reduce((s, e) => s + e.annual_energy_cost, 0);
   const maintenance_cost = equipment.reduce((s, e) => s + e.annual_maintenance_cost, 0);
-  const labor_cost = laborData.sections.inoculum.total_annual_cost;
+  const labor_cost = config.labor.inoculum.reduce((s: number, r: LaborRole) => s + r.headcount * r.annual_salary, 0);
   const materials_cost = 0;
   const operating_cost = materials_cost + energy_cost + maintenance_cost + labor_cost;
 

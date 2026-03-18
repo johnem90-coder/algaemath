@@ -276,7 +276,8 @@ export function computeMBSPCategoryBreakdown(
   lifetime: number
 ): MBSPCategoryBreakdown {
   const annualized_capex = totalCapex / (q_actual * lifetime);
-  const opex = aoc / q_actual;
+  // aoc already includes overhead, so subtract it to get pure section OPEX
+  const opex = (aoc - overheadPerTon * q_actual) / q_actual;
   const overhead = overheadPerTon;
   return {
     annualized_capex,

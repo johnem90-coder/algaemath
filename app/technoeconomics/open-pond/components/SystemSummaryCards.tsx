@@ -22,8 +22,8 @@ export function SystemSummaryCards({ result }: Props) {
     },
     {
       label: "Land Area",
-      value: `${fmtNumber(result.land_area_acres, 1)} acres`,
-      sublabel: `${fmtNumber(result.land_area_hectares, 1)} hectares`,
+      value: `${fmtNumber(result.land_total_acres, 0)} acres`,
+      sublabel: `${fmtNumber(result.land_pond_footprint_acres, 0)} pond footprint + 20% buffer · ${fmtDollars(result.land_cost)}`,
     },
     {
       label: "Total CAPEX",

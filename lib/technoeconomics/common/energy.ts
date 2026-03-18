@@ -1,7 +1,7 @@
 // Energy cost calculations
 // Reference: docs/TEA_DESIGN.md Section 1.7
 
-import { MJ_PER_KWH, MJ_PER_L_DIESEL, ETA_DIESEL_CHAIN } from "./constants";
+import { MJ_PER_KWH, MJ_PER_L_DIESEL } from "./constants";
 
 /** Electricity cost for an equipment item */
 export function electricityCost(
@@ -14,13 +14,14 @@ export function electricityCost(
 }
 
 /** Diesel fuel cost for pump with diesel drivetrain.
- *  Uses efficiency chain: η_pump × η_drive × η_motor = 0.23275 */
+ *  eta_diesel_chain = η_pump × η_drive × η_motor (typically ~0.23275) */
 export function dieselCost(
   power_kW: number,
   run_hrs_yr: number,
-  price_per_L: number
+  price_per_L: number,
+  eta_diesel_chain: number
 ): { liters: number; cost: number } {
-  const energy_MJ = power_kW * run_hrs_yr * (MJ_PER_KWH / ETA_DIESEL_CHAIN);
+  const energy_MJ = power_kW * run_hrs_yr * (MJ_PER_KWH / eta_diesel_chain);
   const liters = energy_MJ / MJ_PER_L_DIESEL;
   return { liters, cost: liters * price_per_L };
 }
