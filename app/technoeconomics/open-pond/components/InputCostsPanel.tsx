@@ -34,14 +34,14 @@ export function InputCostsPanel({ isOpen, result, onToggle }: Props) {
         className={`fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-[calc(-100%+2rem)]"
         }`}
-        style={{ width: "min(20vw, 360px)" }}
+        style={{ width: "min(30vw, 420px)" }}
       >
         {/* Tab — attached to right edge of panel */}
         <button
           onClick={onToggle}
           className="absolute right-0 top-1/2 translate-x-[calc(100%-1px)] -translate-y-1/2 z-[51] flex items-center justify-center bg-background border border-l-0 rounded-r-md shadow-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           style={{ writingMode: "vertical-rl", padding: "12px 4px" }}
-          aria-label={isOpen ? "Close unit costs" : "Open unit costs"}
+          aria-label={isOpen ? "Close system inputs" : "Open system inputs"}
         >
           <svg
             width="10"
@@ -57,7 +57,7 @@ export function InputCostsPanel({ isOpen, result, onToggle }: Props) {
             <polyline points="15 18 9 12 15 6" />
           </svg>
           <span className="text-xs font-medium tracking-wide whitespace-nowrap">
-            Unit Costs
+            System Inputs
           </span>
         </button>
 
@@ -65,7 +65,7 @@ export function InputCostsPanel({ isOpen, result, onToggle }: Props) {
         <div className="h-full w-full bg-background border-r shadow-xl overflow-y-auto">
           {/* Header */}
           <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-background px-4 py-4">
-            <h3 className="text-sm font-medium tracking-tight">Unit Cost Inputs</h3>
+            <h3 className="text-sm font-medium tracking-tight">System Inputs</h3>
             <button
               onClick={onToggle}
               className="shrink-0 rounded-md p-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"

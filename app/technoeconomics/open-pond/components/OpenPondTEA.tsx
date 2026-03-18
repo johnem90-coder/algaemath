@@ -5,7 +5,6 @@ import { runTEA, DEFAULT_TEA_CONFIG } from "@/lib/technoeconomics/open-pond";
 import { ACRES_TO_M2 } from "@/lib/technoeconomics/common/constants";
 import { Slider } from "@/components/ui/slider";
 import { SystemSummaryCards } from "./SystemSummaryCards";
-import { InputVariablesTable } from "./InputVariablesTable";
 import { SectionsOverviewTable } from "./SectionsOverviewTable";
 import { CashFlowTable } from "./CashFlowTable";
 import { SensitivityTable } from "./SensitivityTable";
