@@ -59,13 +59,28 @@
     "total_per_ton": { "value": 300, "units": "$/ton BM" }
   },
 
+  "uptake_efficiencies": {
+    "co2": { "value": 0.30, "notes": "Open pond — significant CO₂ degassing. PBRs use 0.80-0.95." },
+    "nitrogen": { "value": 1.0, "notes": "100% uptake assumed" },
+    "phosphorus": { "value": 1.0, "notes": "100% uptake assumed" }
+  },
+
   "process_parameters": {
     "evaporation_rate_mm_day": { "value": 10, "notes": "Location-dependent" },
     "harvest_efficiency": { "value": 0.70, "notes": "Fraction of water removed in primary dewatering" },
     "harvest_hours_per_day": { "value": 6, "notes": "Daily harvest window" },
     "dryer_inlet_water_content": { "value": 0.75, "notes": "Post-harvest slurry" },
     "dryer_outlet_water_content": { "value": 0.05, "notes": "Final dry product" },
-    "silo_buffer_days": { "value": 14, "notes": "Finished product storage" }
+    "silo_buffer_days": { "value": 14, "notes": "Finished product storage" },
+    "filter3_efficiency": { "value": 0.70, "notes": "Fraction of water removed by shaker screen (Filter 3)" }
+  },
+
+  "buffer_days": {
+    "tank1_raw_water": { "value": 3, "notes": "Raw water storage buffer" },
+    "tank2_filtered_water": { "value": 2, "notes": "Filtered water buffer" },
+    "co2_tanks": { "value": 30, "notes": "Liquid CO₂ storage buffer" },
+    "hoppers": { "value": 30, "notes": "Nutrient dry storage buffer" },
+    "filtrate_tank": { "value": 1, "notes": "Harvesting filtrate holding buffer" }
   },
 
   "inoculum": {

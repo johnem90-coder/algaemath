@@ -9,9 +9,6 @@ import {
   AW_P,
   MW_KNO3,
   MW_DAP,
-  CO2_UPTAKE_EFFICIENCY,
-  N_UPTAKE_EFFICIENCY,
-  P_UPTAKE_EFFICIENCY,
   ACRES_TO_M2,
 } from "./constants";
 
@@ -29,17 +26,17 @@ export function computeNutrientBalance(
   const Q_per_day = Q_actual / config.active_days_yr; // tons/day
 
   // ── CO₂ demand ─────────────────────────────────────────────
-  const co2_demand_g_per_g = (config.carbon_frac * (MW_CO2 / AW_C)) / CO2_UPTAKE_EFFICIENCY;
+  const co2_demand_g_per_g = (config.carbon_frac * (MW_CO2 / AW_C)) / config.co2_uptake_efficiency;
   const co2_daily = Q_per_day * co2_demand_g_per_g; // tons/day
   const co2_annual = co2_daily * config.active_days_yr;
 
   // ── KNO₃ demand ────────────────────────────────────────────
-  const kno3_demand_g_per_g = (config.nitrogen_frac * (MW_KNO3 / AW_N)) / N_UPTAKE_EFFICIENCY;
+  const kno3_demand_g_per_g = (config.nitrogen_frac * (MW_KNO3 / AW_N)) / config.n_uptake_efficiency;
   const kno3_daily = Q_per_day * kno3_demand_g_per_g;
   const kno3_annual = kno3_daily * config.active_days_yr;
 
   // ── DAP demand ─────────────────────────────────────────────
-  const dap_demand_g_per_g = (config.phosphorus_frac * (MW_DAP / AW_P)) / P_UPTAKE_EFFICIENCY;
+  const dap_demand_g_per_g = (config.phosphorus_frac * (MW_DAP / AW_P)) / config.p_uptake_efficiency;
   const dap_daily = Q_per_day * dap_demand_g_per_g;
   const dap_annual = dap_daily * config.active_days_yr;
 

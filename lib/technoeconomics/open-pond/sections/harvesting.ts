@@ -91,8 +91,7 @@ export function computeHarvestingSection(
 
   // ── HAR-04: Filter 4s — Vacuum Belt (electric) ────────────
   {
-    const filter3_efficiency = 0.70;
-    const post_filter3_flow = inlet_flow_m3_hr * (1 - filter3_efficiency);
+    const post_filter3_flow = inlet_flow_m3_hr * (1 - config.filter3_efficiency);
     const available_m3_hr = 30;
     const units_per_system = Math.ceil(post_filter3_flow / available_m3_hr);
     const units = Math.max(1, units_per_system) * n_harvest_systems;
@@ -112,8 +111,7 @@ export function computeHarvestingSection(
   // ── HAR-05: Tank 3s — Filtrate holding (sized with tank catalog) ──
   {
     const filtrate_daily = V_transfer_daily * config.harvest_efficiency; // m³/day
-    const buffer_days = 1;
-    const required_m3 = (filtrate_daily * buffer_days) / n_harvest_systems;
+    const required_m3 = (filtrate_daily * config.filtrate_tank_buffer_days) / n_harvest_systems;
     const { option: tank_opt, units: units_per_sys } = sizeTank(required_m3, TANK_CATALOG);
     const units = units_per_sys * n_harvest_systems;
     const total_cost = tank_opt.unit_cost * units;

@@ -52,6 +52,11 @@ export function getDefaultTEAConfig(): TEAConfig {
     // Overhead
     overhead_per_ton: d.overhead_costs.total_per_ton.value,
 
+    // Uptake efficiencies
+    co2_uptake_efficiency: d.uptake_efficiencies.co2.value,
+    n_uptake_efficiency: d.uptake_efficiencies.nitrogen.value,
+    p_uptake_efficiency: d.uptake_efficiencies.phosphorus.value,
+
     // Process parameters
     evaporation_rate_mm_day: d.process_parameters.evaporation_rate_mm_day.value,
     harvest_efficiency: d.process_parameters.harvest_efficiency.value,
@@ -59,6 +64,14 @@ export function getDefaultTEAConfig(): TEAConfig {
     dryer_inlet_water_content: d.process_parameters.dryer_inlet_water_content.value,
     dryer_outlet_water_content: d.process_parameters.dryer_outlet_water_content.value,
     silo_buffer_days: d.process_parameters.silo_buffer_days.value,
+    filter3_efficiency: d.process_parameters.filter3_efficiency.value,
+
+    // Buffer days
+    tank1_buffer_days: d.buffer_days.tank1_raw_water.value,
+    tank2_buffer_days: d.buffer_days.tank2_filtered_water.value,
+    co2_tank_buffer_days: d.buffer_days.co2_tanks.value,
+    hopper_buffer_days: d.buffer_days.hoppers.value,
+    filtrate_tank_buffer_days: d.buffer_days.filtrate_tank.value,
 
     // Inoculum
     inoculum_tiers: d.inoculum.tiers,

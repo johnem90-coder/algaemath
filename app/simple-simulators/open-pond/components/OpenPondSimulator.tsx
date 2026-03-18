@@ -191,6 +191,7 @@ export default function OpenPondSimulator() {
   const [underTheHoodOpen, setUnderTheHoodOpen] = useState(false);
   const [showSimData, setShowSimData] = useState(false);
   const [speciesOpen, setSpeciesOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [speciesResetKey, setSpeciesResetKey] = useState(0);
   const [simRunning, setSimRunning] = useState(false);
   const [simPaused, setSimPaused] = useState(false);
@@ -452,7 +453,7 @@ export default function OpenPondSimulator() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <div className="flex gap-4" style={{ aspectRatio: "21 / 8" }}>
+      <div className="flex flex-col gap-4 md:flex-row md:[aspect-ratio:21/8]">
         <WorldMap
           selectedCity={selectedCity}
           season={season}
@@ -463,14 +464,14 @@ export default function OpenPondSimulator() {
           simDays={totalDays}
           loading={loadingWeather}
         />
-        <div className="relative h-full min-w-0 flex-1">
+        <div className="relative h-[260px] md:h-full min-w-0 flex-1">
           <PondCanvas onPondReady={onPondReady} />
 
           {/* Right-side overlays */}
-          <div className="absolute bottom-4 right-4 pointer-events-none flex flex-col items-end gap-2">
+          <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 pointer-events-none flex flex-col items-end gap-2">
             {/* Weather gauges — rain, cloud, wind + compass */}
-            <div className="rounded-md bg-black/60 px-3 py-2 backdrop-blur-sm">
-              <svg viewBox="0 0 158 84" className="w-[168px]" aria-hidden="true">
+            <div className="rounded-md bg-black/60 px-2 py-1.5 md:px-3 md:py-2 backdrop-blur-sm">
+              <svg viewBox="0 0 158 84" className="w-[100px] md:w-[168px]" aria-hidden="true">
                 {weatherGauge(14, rainFill, "hsl(220, 70%, 60%)", "Rain", precip.toFixed(1), "mm")}
                 {weatherGauge(44, cloudFill, "hsl(220, 10%, 75%)", "Cloud", `${clouds}`, "%")}
                 {weatherGauge(74, windFill, "hsl(180, 50%, 50%)", "Wind", windSpeed.toFixed(1), "m/s")}
@@ -491,8 +492,8 @@ export default function OpenPondSimulator() {
                 <text x={CMP_CX} y={72} textAnchor="middle" fill="white" fontSize={9} fontFamily="monospace" fontWeight={600}>{windDirLabel}</text>
               </svg>
             </div>
-            {/* Pond dimensions */}
-            <div className="rounded-md bg-black/60 px-2 py-1.5 backdrop-blur-sm">
+            {/* Pond dimensions (desktop only) */}
+            <div className="hidden md:block rounded-md bg-black/60 px-2 py-1.5 backdrop-blur-sm">
               <svg
                 viewBox="0 0 206 76"
                 className="w-[220px]"
@@ -513,8 +514,38 @@ export default function OpenPondSimulator() {
             </div>
           </div>
 
+          {/* Mobile-only compact menu button (top-right) */}
+          <div className="absolute top-2 right-2 z-10 md:hidden">
+            <button
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              className="flex items-center justify-center w-8 h-8 rounded-md bg-white/90 backdrop-blur-sm text-foreground/70 hover:text-foreground transition-colors"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="3" r="1.5" fill="currentColor" />
+                <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+                <circle cx="8" cy="13" r="1.5" fill="currentColor" />
+              </svg>
+            </button>
+            {mobileMenuOpen && (
+              <div className="absolute top-full right-0 mt-1 rounded-md border bg-white/95 shadow-md backdrop-blur-sm overflow-hidden min-w-[160px]">
+                <button
+                  onClick={() => { setSpeciesOpen((v) => !v); setMobileMenuOpen(false); }}
+                  className="w-full px-3 py-2 text-left text-[10px] font-medium uppercase tracking-widest text-foreground/70 hover:bg-foreground/5 transition-colors border-b"
+                >
+                  Species: Spirulina
+                </button>
+                <button
+                  onClick={() => { setShowSimData((v) => !v); setMobileMenuOpen(false); }}
+                  className="w-full px-3 py-2 text-left text-[10px] font-medium uppercase tracking-widest text-foreground/70 hover:bg-foreground/5 transition-colors"
+                >
+                  Simulation Data
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Top-right overlay buttons — species + simulation data */}
-          <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+          <div className="absolute top-3 right-3 z-10 flex flex-wrap items-center gap-2 max-[767px]:!hidden">
             {/* Species selector */}
             <div className="relative">
               <button
@@ -548,8 +579,7 @@ export default function OpenPondSimulator() {
               )}
             </div>
 
-            {/* Simulation Data button — only after sim completes */}
-            {simComplete && (
+            {/* Simulation Data button — always visible */}
               <button
                 onClick={() => setShowSimData((v) => !v)}
                 className="flex items-center gap-1 rounded-md bg-white/90 px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-widest text-foreground/70 backdrop-blur-sm transition-colors hover:text-foreground"
@@ -559,10 +589,15 @@ export default function OpenPondSimulator() {
                   <path d="M1.5 3L4 5.5L6.5 3" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
-            )}
           </div>
 
           {/* Simulation data table overlay */}
+          {showSimData && !simResultsRef.current && (
+            <div className="absolute inset-x-0 top-[33px] bottom-0 z-10 flex flex-col items-center justify-center border-t bg-background/80 backdrop-blur-sm">
+              <p className="text-sm text-muted-foreground">Run simulation to create data</p>
+              <button onClick={() => setShowSimData(false)} className="mt-2 text-[10px] font-medium text-muted-foreground hover:text-foreground">Close</button>
+            </div>
+          )}
           {showSimData && simResultsRef.current && (
             <div className="absolute inset-x-0 top-[33px] bottom-0 z-10 flex flex-col border-t bg-background/80 backdrop-blur-sm">
               <div className="flex items-center justify-between px-3 py-1.5 border-b">
@@ -680,19 +715,19 @@ export default function OpenPondSimulator() {
           )}
 
           {/* Simulation controls — top-left */}
-          <div className="absolute top-3 left-3 flex items-center gap-2">
-            <span className="w-[120px] flex overflow-hidden rounded-md shadow-sm">
+          <div className="absolute top-2 left-2 md:top-3 md:left-3 flex items-center gap-1.5 md:gap-2">
+            <span className="w-[90px] md:w-[120px] flex overflow-hidden rounded-md shadow-sm">
               {simRunning ? (
                 <>
                   <button
                     onClick={pauseSimulation}
-                    className="flex-1 py-1.5 text-[11px] font-medium tracking-wide transition-colors bg-red-300/90 text-white hover:bg-red-400/90"
+                    className="flex-1 py-1 md:py-1.5 text-[9px] md:text-[11px] font-medium tracking-wide transition-colors bg-red-300/90 text-white hover:bg-red-400/90"
                   >
                     Pause
                   </button>
                   <button
                     onClick={stopSimulation}
-                    className="flex-1 py-1.5 text-[11px] font-medium tracking-wide transition-colors bg-red-500/90 text-white hover:bg-red-600/90 border-l border-red-600/40"
+                    className="flex-1 py-1 md:py-1.5 text-[9px] md:text-[11px] font-medium tracking-wide transition-colors bg-red-500/90 text-white hover:bg-red-600/90 border-l border-red-600/40"
                   >
                     Stop
                   </button>
@@ -701,13 +736,13 @@ export default function OpenPondSimulator() {
                 <>
                   <button
                     onClick={resumeSimulation}
-                    className="flex-1 py-1.5 text-[11px] font-medium tracking-wide transition-colors bg-white/90 text-foreground hover:bg-white backdrop-blur-sm"
+                    className="flex-1 py-1 md:py-1.5 text-[9px] md:text-[11px] font-medium tracking-wide transition-colors bg-white/90 text-foreground hover:bg-white backdrop-blur-sm"
                   >
                     Resume
                   </button>
                   <button
                     onClick={stopSimulation}
-                    className="flex-1 py-1.5 text-[11px] font-medium tracking-wide transition-colors bg-red-500/90 text-white hover:bg-red-600/90 border-l border-red-600/40"
+                    className="flex-1 py-1 md:py-1.5 text-[9px] md:text-[11px] font-medium tracking-wide transition-colors bg-red-500/90 text-white hover:bg-red-600/90 border-l border-red-600/40"
                   >
                     Stop
                   </button>
@@ -715,13 +750,13 @@ export default function OpenPondSimulator() {
               ) : (
                 <button
                   onClick={startSimulation}
-                  className="flex-1 py-1.5 text-[11px] font-medium tracking-wide transition-colors text-center bg-white/90 text-foreground hover:bg-white backdrop-blur-sm"
+                  className="flex-1 py-1 md:py-1.5 text-[9px] md:text-[11px] font-medium tracking-wide transition-colors text-center bg-white/90 text-foreground hover:bg-white backdrop-blur-sm"
                 >
                   Run Simulation
                 </button>
               )}
             </span>
-            <div className="flex items-center gap-1.5 rounded-md bg-black/60 px-2.5 py-1.5 font-mono text-[11px] text-white backdrop-blur-sm">
+            <div className="flex items-center gap-1 md:gap-1.5 rounded-md bg-black/60 px-1.5 py-1 md:px-2.5 md:py-1.5 font-mono text-[9px] md:text-[11px] text-white backdrop-blur-sm">
               <span className="text-white/60">Day</span>
               <span className="tabular-nums font-semibold">{simDay}</span>
               <span className="text-white/40">|</span>

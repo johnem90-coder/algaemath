@@ -239,7 +239,7 @@ function MiniChart({
   topRightTag?: { label: string; value: string; color: string; width: number };
 }) {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col touch-pan-y">
       <div className="flex items-center gap-3 mb-1 ml-1">
         <span className="text-xs font-semibold text-foreground">{title}</span>
         {secondaryLabel && secondaryColor && (

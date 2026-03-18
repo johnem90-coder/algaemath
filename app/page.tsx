@@ -52,10 +52,17 @@ export default function HomePage() {
     <div className="min-h-screen">
       {/* Header */}
       <header className="mx-auto max-w-5xl px-6 pt-12 pb-12 md:pt-24 md:pb-16 text-center">
-        <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
-          <span className="text-[hsl(var(--accent-science))]">Algae</span>Math
+        <h1 className="text-center">
+          <svg viewBox="0 0 240 68" width="360" height="102" xmlns="http://www.w3.org/2000/svg" aria-label="AlgaeMath" className="max-w-full h-auto" style={{ marginLeft: 'auto', marginRight: 'auto', paddingLeft: 20 }}>
+            <rect x="3" y="26" width="52" height="16" rx="8" fill="none" stroke="#1c2820" strokeWidth="2.2"/>
+            <path d="M 4 49 C 22 49 37 19 55 19" fill="none" stroke="#449e5a" strokeWidth="2.8" strokeLinecap="round"/>
+            <circle cx="29" cy="34" r="3.5" fill="#449e5a"/>
+            <text x="66" y="45" fontFamily="'Geist','Geist Sans',sans-serif" fontSize="30" fontWeight="600">
+              <tspan fill="#449e5a">Algae</tspan><tspan fill="#1c2820">Math</tspan>
+            </text>
+          </svg>
         </h1>
-        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+        <p className="-mt-2 text-lg text-muted-foreground max-w-2xl mx-auto">
           Interactive tools for algae cultivation engineering — from foundational
           biology to reactor design and techno-economics.
         </p>

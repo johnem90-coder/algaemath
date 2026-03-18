@@ -231,10 +231,197 @@ const CombinedEffectsVisualizer = () => {
         );
     };
 
+    const renderResponseCurves = () => (
+        <>
+            {/* Equation — left-justified with light response chart */}
+            <text x={rc1X} y={20} textAnchor="start" className="text-base font-mono" fontWeight="600" letterSpacing="-1">
+                <tspan fill="hsl(var(--accent-science))">μ</tspan>
+                <tspan fill="var(--foreground)"> = μ₀ × </tspan>
+                <tspan fill={lightColor}>f(I)</tspan>
+                <tspan fill="var(--foreground)"> × </tspan>
+                <tspan fill={tempColor}>f(T)</tspan>
+                <tspan fill="var(--foreground)"> × </tspan>
+                <tspan fill={nutrientColor}>f(S)</tspan>
+            </text>
+            <text x={rc1X} y={40} textAnchor="start" className="text-sm font-mono" fontWeight="500" letterSpacing="-1" opacity="0.5">
+                <tspan fill="hsl(var(--accent-science))">{muEff.toFixed(2)} /day</tspan>
+                <tspan fill="var(--foreground)"> = {muMax} × </tspan>
+                <tspan fill={lightColor}>{fI.toFixed(3)}</tspan>
+                <tspan fill="var(--foreground)"> × </tspan>
+                <tspan fill={tempColor}>{fT.toFixed(3)}</tspan>
+                <tspan fill="var(--foreground)"> × </tspan>
+                <tspan fill={nutrientColor}>{fS.toFixed(3)}</tspan>
+            </text>
+
+            {/* Expanded single-line equation */}
+            <text x={rc1X} y={58} textAnchor="start" className="text-sm font-mono" fontWeight="500" letterSpacing="-1" opacity="0.5">
+                <tspan fill="hsl(var(--accent-science))">{muEff.toFixed(2)}</tspan>
+                <tspan fill="var(--foreground)"> = {muMax} × (</tspan>
+                <tspan fill={lightColor}>{I}</tspan>
+                <tspan fill="var(--foreground)">/{Iopt})·e</tspan>
+                <tspan fontSize="0.8em" dy="-3"><tspan fill="var(--foreground)">1-(</tspan><tspan fill={lightColor}>{I}</tspan><tspan fill="var(--foreground)">/{Iopt})</tspan></tspan>
+                <tspan dy="3" fill="var(--foreground)"> × e</tspan>
+                <tspan fontSize="0.8em" dy="-3"><tspan fill="var(--foreground)">-0.01(</tspan><tspan fill={tempColor}>{T}</tspan><tspan fill="var(--foreground)">-{Topt})²</tspan></tspan>
+                <tspan dy="3" fill="var(--foreground)"> × ({Ks}+{Sopt})/{Sopt}·</tspan>
+                <tspan fill={nutrientColor}>{S.toFixed(1)}</tspan>
+                <tspan fill="var(--foreground)">/({Ks}+</tspan>
+                <tspan fill={nutrientColor}>{S.toFixed(1)}</tspan>
+                <tspan fill="var(--foreground)">)</tspan>
+            </text>
+
+            <g>
+                <circle cx={clockRightEdge - 118} cy={clockY} r={clockR} fill="none" stroke="var(--muted-foreground)" strokeWidth="1.2" />
+                <circle cx={clockRightEdge - 118} cy={clockY} r={0.8} fill="var(--muted-foreground)" />
+                <line x1={clockRightEdge - 118} y1={clockY} x2={clockRightEdge - 118 + Math.cos(handAngle) * (clockR * 0.6)} y2={clockY + Math.sin(handAngle) * (clockR * 0.6)} stroke="var(--muted-foreground)" strokeWidth="1.2" strokeLinecap="round" />
+                <line x1={clockRightEdge - 118} y1={clockY} x2={clockRightEdge - 118 + Math.cos(handAngle * 12) * (clockR * 0.8)} y2={clockY + Math.sin(handAngle * 12) * (clockR * 0.8)} stroke="var(--muted-foreground)" strokeWidth="0.8" strokeLinecap="round" />
+                <text x={clockRightEdge - 104} y={clockY + 4} textAnchor="start" className="text-sm font-mono" fill="var(--foreground)">
+                    t = {timeLabel} h
+                </text>
+                <rect x={clockRightEdge - 100} y={clockY + 12} width={100} height={3} rx={1.5} fill="var(--border)" />
+                <rect x={clockRightEdge - 100} y={clockY + 12} width={animPhase === 'pause-start' ? 0 : animPhase === 'pause-end' ? 100 : 100 * dayProgress} height={3} rx={1.5} fill="hsl(var(--accent-science))" />
+            </g>
+
+            {/* Three response curves */}
+            {renderMiniChart(rc1X, rcY, rcW, rcH, genLightCurve(), lightCurX, lightCurY, lightColor, 'Light Response', 'I (μE/m²/s)', fI, 'f(I)')}
+
+            {renderMiniChart(rc2X, rcY, rcW, rcH, genTempCurve(), tempCurX, tempCurY, tempColor, 'Temp Response', 'T (°C)', fT, 'f(T)')}
+
+            {renderMiniChart(rc3X, rcY, rcW, rcH, genNutrientCurve(), nutCurX, nutCurY, nutrientColor, 'Nutrient Response', 'S (mM)', fS, 'f(S)')}
+
+            {/* Labels under response curves */}
+            <text x={(rc3X + rcW + rc1X) / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">
+                Response Curves (factor 0–1)
+            </text>
+        </>
+    );
+
+    const renderBiomassChart = () => (
+        <>
+            {/* ── Biomass Growth Chart ── */}
+            <g>
+                <line x1={bChartX} y1={bChartY} x2={bChartX} y2={bChartBottom} stroke="var(--border)" strokeWidth="1" />
+                <line x1={bChartX} y1={bChartBottom} x2={bChartRight} y2={bChartBottom} stroke="var(--border)" strokeWidth="1" />
+
+                {[1, 4, 8, 12, 16].map((val) => {
+                    const py = bChartBottom - ((val - startMass) / (maxMass - startMass)) * bChartH;
+                    return (
+                        <g key={val}>
+                            <line x1={bChartX - 3} y1={py} x2={bChartX} y2={py} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                            <line x1={bChartX} y1={py} x2={bChartRight} y2={py} stroke="var(--border)" strokeWidth="0.5" strokeOpacity="0.3" />
+                            <text x={bChartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="var(--muted-foreground)">{val}</text>
+                        </g>
+                    );
+                })}
+
+                {[0, 6, 12, 18, 24].map((hr) => {
+                    const px = bChartX + (hr / 24) * bChartW;
+                    return (
+                        <g key={hr}>
+                            <line x1={px} y1={bChartBottom} x2={px} y2={bChartBottom + 3} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                            <text x={px} y={bChartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">{hr}h</text>
+                        </g>
+                    );
+                })}
+
+                <text x={bChartX - 24} y={bChartY + bChartH / 2} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${bChartX - 24}, ${bChartY + bChartH / 2})`}>
+                    Biomass (kg)
+                </text>
+
+                {/* Stacked limitation bands */}
+                {fI < 1 && <path d={lightFillPath} fill="rgba(210, 150, 20, 0.25)" stroke="none" />}
+                {fT < 1 && <path d={tempFillPath} fill="rgba(200, 80, 60, 0.25)" stroke="none" />}
+                {fS < 1 && <path d={nutrientFillPath} fill="rgba(140, 80, 200, 0.25)" stroke="none" />}
+
+                {/* Optimal dashed line */}
+                <path d={bOptimalPath} fill="none" stroke="var(--muted-foreground)" strokeWidth="1" strokeDasharray="4 3" strokeOpacity="0.3" />
+
+                {/* Border dashed lines between bands */}
+                {fI < 0.98 && (fT < 0.98 || fS < 0.98) && (
+                    <path d={bAfterLightPath} fill="none" stroke={lightColor} strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.5" />
+                )}
+                {fT < 0.98 && fS < 0.98 && (
+                    <path d={bAfterTempPath} fill="none" stroke={tempColor} strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.5" />
+                )}
+
+                {/* Limitation labels */}
+                {fI < 0.98 && (
+                    <text x={bChartX + 20} y={bChartY + bChartH * 0.18} textAnchor="start" className="text-[10px] font-mono" fill={lightColor} fontWeight="600">
+                        light limitation
+                    </text>
+                )}
+                {fT < 0.98 && (
+                    <text x={bChartX + 20} y={bChartY + bChartH * 0.33} textAnchor="start" className="text-[10px] font-mono" fill={tempColor} fontWeight="600">
+                        temp limitation
+                    </text>
+                )}
+                {fS < 0.98 && (
+                    <text x={bChartX + 20} y={bChartY + bChartH * 0.48} textAnchor="start" className="text-[10px] font-mono" fill={nutrientColor} fontWeight="600">
+                        nutrient limitation
+                    </text>
+                )}
+
+                <path d={bCurvePath} fill="none" stroke="hsl(var(--accent-science))" strokeWidth="2" strokeLinejoin="round" />
+                <circle cx={bCurrentPx} cy={bCurrentPy} r={4} fill="hsl(var(--accent-science))" stroke="var(--background)" strokeWidth="1.5" />
+
+                {/* Adaptive mass label */}
+                {(() => {
+                    const heightRatio = Math.min(1, Math.max(0, (currentMass - 1) / (maxMass - 1)));
+                    const steepness = Math.min(1, endMass / maxMass);
+                    const t = Math.min(1, Math.max(0, (dayProgress - 0.3) / 0.4));
+                    const smooth = t * t * (3 - 2 * t);
+                    const maxLeftOffset = 12 + steepness * 30;
+                    const offsetX = 10 - smooth * (10 + maxLeftOffset);
+                    const labelX = bCurrentPx + offsetX;
+                    const clampedX = Math.min(Math.max(labelX, bChartX + 30), bChartRight - 10);
+                    const yOffset = -8 + smooth * heightRatio * steepness * 12;
+                    const labelY = Math.max(bCurrentPy + yOffset, bChartY + 12);
+                    return (
+                        <text x={clampedX} y={labelY} textAnchor="middle" className="text-xs font-mono" fill="var(--foreground)" fontWeight="600">
+                            {currentMass.toFixed(1)} kg
+                        </text>
+                    );
+                })()}
+
+                <text x={bChartX + bChartW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">
+                    Biomass Growth
+                </text>
+            </g>
+        </>
+    );
+
     return (
-        <div className="flex items-end gap-6 py-4 select-none">
-            {/* Vertical sliders — all in one box */}
-            <div className="flex gap-4 shrink-0 border-2 border-dashed border-muted-foreground/30 rounded-lg px-4 py-4 relative mt-6">
+        <div className="flex flex-col py-4 select-none">
+            {/* Mobile horizontal sliders */}
+            <div className="space-y-2 mb-3 sm:hidden">
+                <div>
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-mono font-bold" style={{ color: lightColor }}>I <span className="font-normal text-muted-foreground">(μE/m²/s)</span></span>
+                        <span className="text-xs font-mono font-bold" style={{ color: lightColor }}>{I}</span>
+                    </div>
+                    <Slider min={0} max={1000} step={20} value={intensity} onValueChange={setIntensity}
+                        className="w-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[rgb(210,150,20)] [&_span[role=slider]]:!border-[rgb(210,150,20)] [&_span[role=slider]]:!bg-background" />
+                </div>
+                <div>
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-mono font-bold" style={{ color: tempColor }}>T <span className="font-normal text-muted-foreground">(°C)</span></span>
+                        <span className="text-xs font-mono font-bold" style={{ color: tempColor }}>{T}°</span>
+                    </div>
+                    <Slider min={10} max={50} step={1} value={temperature} onValueChange={setTemperature}
+                        className="w-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[rgb(200,80,60)] [&_span[role=slider]]:!border-[rgb(200,80,60)] [&_span[role=slider]]:!bg-background" />
+                </div>
+                <div>
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-mono font-bold" style={{ color: nutrientColor }}>S <span className="font-normal text-muted-foreground">(mM)</span></span>
+                        <span className="text-xs font-mono font-bold" style={{ color: nutrientColor }}>{S.toFixed(1)}</span>
+                    </div>
+                    <Slider min={0} max={20} step={0.5} value={nutrient} onValueChange={setNutrient}
+                        className="w-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[rgb(140,80,200)] [&_span[role=slider]]:!border-[rgb(140,80,200)] [&_span[role=slider]]:!bg-background" />
+                </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-end gap-6">
+            {/* Vertical sliders — desktop only */}
+            <div className="hidden sm:flex gap-4 shrink-0 border-2 border-dashed border-muted-foreground/30 rounded-lg px-4 py-4 relative mt-6">
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-background px-2 text-[11px] font-mono text-muted-foreground whitespace-nowrap">
                     ↕ drag to adjust
                 </span>
@@ -299,158 +486,20 @@ const CombinedEffectsVisualizer = () => {
                 })()}
             </div>
 
-            {/* SVG Scene */}
-            <svg viewBox="0 0 1045 320" className="w-full min-w-[900px]" aria-label="Combined effects visualization">
-                {/* Equation — left-justified with light response chart */}
-                <text x={rc1X} y={20} textAnchor="start" className="text-base font-mono" fontWeight="600" letterSpacing="-1">
-                    <tspan fill="hsl(var(--accent-science))">μ</tspan>
-                    <tspan fill="var(--foreground)"> = μ₀ × </tspan>
-                    <tspan fill={lightColor}>f(I)</tspan>
-                    <tspan fill="var(--foreground)"> × </tspan>
-                    <tspan fill={tempColor}>f(T)</tspan>
-                    <tspan fill="var(--foreground)"> × </tspan>
-                    <tspan fill={nutrientColor}>f(S)</tspan>
-                </text>
-                <text x={rc1X} y={40} textAnchor="start" className="text-sm font-mono" fontWeight="500" letterSpacing="-1" opacity="0.5">
-                    <tspan fill="hsl(var(--accent-science))">{muEff.toFixed(2)} /day</tspan>
-                    <tspan fill="var(--foreground)"> = {muMax} × </tspan>
-                    <tspan fill={lightColor}>{fI.toFixed(3)}</tspan>
-                    <tspan fill="var(--foreground)"> × </tspan>
-                    <tspan fill={tempColor}>{fT.toFixed(3)}</tspan>
-                    <tspan fill="var(--foreground)"> × </tspan>
-                    <tspan fill={nutrientColor}>{fS.toFixed(3)}</tspan>
-                </text>
-
-                {/* Expanded single-line equation */}
-                <text x={rc1X} y={58} textAnchor="start" className="text-sm font-mono" fontWeight="500" letterSpacing="-1" opacity="0.5">
-                    <tspan fill="hsl(var(--accent-science))">{muEff.toFixed(2)}</tspan>
-                    <tspan fill="var(--foreground)"> = {muMax} × (</tspan>
-                    <tspan fill={lightColor}>{I}</tspan>
-                    <tspan fill="var(--foreground)">/{Iopt})·e</tspan>
-                    <tspan fontSize="0.8em" dy="-3"><tspan fill="var(--foreground)">1-(</tspan><tspan fill={lightColor}>{I}</tspan><tspan fill="var(--foreground)">/{Iopt})</tspan></tspan>
-                    <tspan dy="3" fill="var(--foreground)"> × e</tspan>
-                    <tspan fontSize="0.8em" dy="-3"><tspan fill="var(--foreground)">-0.01(</tspan><tspan fill={tempColor}>{T}</tspan><tspan fill="var(--foreground)">-{Topt})²</tspan></tspan>
-                    <tspan dy="3" fill="var(--foreground)"> × ({Ks}+{Sopt})/{Sopt}·</tspan>
-                    <tspan fill={nutrientColor}>{S.toFixed(1)}</tspan>
-                    <tspan fill="var(--foreground)">/({Ks}+</tspan>
-                    <tspan fill={nutrientColor}>{S.toFixed(1)}</tspan>
-                    <tspan fill="var(--foreground)">)</tspan>
-                </text>
-
-                <g>
-                    <circle cx={clockRightEdge - 118} cy={clockY} r={clockR} fill="none" stroke="var(--muted-foreground)" strokeWidth="1.2" />
-                    <circle cx={clockRightEdge - 118} cy={clockY} r={0.8} fill="var(--muted-foreground)" />
-                    <line x1={clockRightEdge - 118} y1={clockY} x2={clockRightEdge - 118 + Math.cos(handAngle) * (clockR * 0.6)} y2={clockY + Math.sin(handAngle) * (clockR * 0.6)} stroke="var(--muted-foreground)" strokeWidth="1.2" strokeLinecap="round" />
-                    <line x1={clockRightEdge - 118} y1={clockY} x2={clockRightEdge - 118 + Math.cos(handAngle * 12) * (clockR * 0.8)} y2={clockY + Math.sin(handAngle * 12) * (clockR * 0.8)} stroke="var(--muted-foreground)" strokeWidth="0.8" strokeLinecap="round" />
-                    <text x={clockRightEdge - 104} y={clockY + 4} textAnchor="start" className="text-sm font-mono" fill="var(--foreground)">
-                        t = {timeLabel} h
-                    </text>
-                    <rect x={clockRightEdge - 100} y={clockY + 12} width={100} height={3} rx={1.5} fill="var(--border)" />
-                    <rect x={clockRightEdge - 100} y={clockY + 12} width={animPhase === 'pause-start' ? 0 : animPhase === 'pause-end' ? 100 : 100 * dayProgress} height={3} rx={1.5} fill="hsl(var(--accent-science))" />
-                </g>
-
-                {/* Three response curves */}
-                {renderMiniChart(rc1X, rcY, rcW, rcH, genLightCurve(), lightCurX, lightCurY, lightColor, 'Light Response', 'I (μE/m²/s)', fI, 'f(I)')}
-
-                {renderMiniChart(rc2X, rcY, rcW, rcH, genTempCurve(), tempCurX, tempCurY, tempColor, 'Temp Response', 'T (°C)', fT, 'f(T)')}
-
-                {renderMiniChart(rc3X, rcY, rcW, rcH, genNutrientCurve(), nutCurX, nutCurY, nutrientColor, 'Nutrient Response', 'S (mM)', fS, 'f(S)')}
-
-                {/* Labels under response curves */}
-                <text x={(rc3X + rcW + rc1X) / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">
-                    Response Curves (factor 0–1)
-                </text>
-
-                {/* ── Biomass Growth Chart (same size as other visualizers) ── */}
-                <g>
-                    <line x1={bChartX} y1={bChartY} x2={bChartX} y2={bChartBottom} stroke="var(--border)" strokeWidth="1" />
-                    <line x1={bChartX} y1={bChartBottom} x2={bChartRight} y2={bChartBottom} stroke="var(--border)" strokeWidth="1" />
-
-                    {[1, 4, 8, 12, 16].map((val) => {
-                        const py = bChartBottom - ((val - startMass) / (maxMass - startMass)) * bChartH;
-                        return (
-                            <g key={val}>
-                                <line x1={bChartX - 3} y1={py} x2={bChartX} y2={py} stroke="var(--muted-foreground)" strokeWidth="0.8" />
-                                <line x1={bChartX} y1={py} x2={bChartRight} y2={py} stroke="var(--border)" strokeWidth="0.5" strokeOpacity="0.3" />
-                                <text x={bChartX - 6} y={py + 3.5} textAnchor="end" className="text-xs font-mono" fill="var(--muted-foreground)">{val}</text>
-                            </g>
-                        );
-                    })}
-
-                    {[0, 6, 12, 18, 24].map((hr) => {
-                        const px = bChartX + (hr / 24) * bChartW;
-                        return (
-                            <g key={hr}>
-                                <line x1={px} y1={bChartBottom} x2={px} y2={bChartBottom + 3} stroke="var(--muted-foreground)" strokeWidth="0.8" />
-                                <text x={px} y={bChartBottom + 14} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)">{hr}h</text>
-                            </g>
-                        );
-                    })}
-
-                    <text x={bChartX - 24} y={bChartY + bChartH / 2} textAnchor="middle" className="text-xs font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${bChartX - 24}, ${bChartY + bChartH / 2})`}>
-                        Biomass (kg)
-                    </text>
-
-                    {/* Stacked limitation bands */}
-                    {fI < 1 && <path d={lightFillPath} fill="rgba(210, 150, 20, 0.25)" stroke="none" />}
-                    {fT < 1 && <path d={tempFillPath} fill="rgba(200, 80, 60, 0.25)" stroke="none" />}
-                    {fS < 1 && <path d={nutrientFillPath} fill="rgba(140, 80, 200, 0.25)" stroke="none" />}
-
-                    {/* Optimal dashed line */}
-                    <path d={bOptimalPath} fill="none" stroke="var(--muted-foreground)" strokeWidth="1" strokeDasharray="4 3" strokeOpacity="0.3" />
-
-                    {/* Border dashed lines between bands */}
-                    {fI < 0.98 && (fT < 0.98 || fS < 0.98) && (
-                        <path d={bAfterLightPath} fill="none" stroke={lightColor} strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.5" />
-                    )}
-                    {fT < 0.98 && fS < 0.98 && (
-                        <path d={bAfterTempPath} fill="none" stroke={tempColor} strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.5" />
-                    )}
-
-                    {/* Limitation labels */}
-                    {fI < 0.98 && (
-                        <text x={bChartX + 20} y={bChartY + bChartH * 0.18} textAnchor="start" className="text-[10px] font-mono" fill={lightColor} fontWeight="600">
-                            light limitation
-                        </text>
-                    )}
-                    {fT < 0.98 && (
-                        <text x={bChartX + 20} y={bChartY + bChartH * 0.33} textAnchor="start" className="text-[10px] font-mono" fill={tempColor} fontWeight="600">
-                            temp limitation
-                        </text>
-                    )}
-                    {fS < 0.98 && (
-                        <text x={bChartX + 20} y={bChartY + bChartH * 0.48} textAnchor="start" className="text-[10px] font-mono" fill={nutrientColor} fontWeight="600">
-                            nutrient limitation
-                        </text>
-                    )}
-
-                    <path d={bCurvePath} fill="none" stroke="hsl(var(--accent-science))" strokeWidth="2" strokeLinejoin="round" />
-                    <circle cx={bCurrentPx} cy={bCurrentPy} r={4} fill="hsl(var(--accent-science))" stroke="var(--background)" strokeWidth="1.5" />
-
-                    {/* Adaptive mass label */}
-                    {(() => {
-                        const heightRatio = Math.min(1, Math.max(0, (currentMass - 1) / (maxMass - 1)));
-                        const steepness = Math.min(1, endMass / maxMass);
-                        const t = Math.min(1, Math.max(0, (dayProgress - 0.3) / 0.4));
-                        const smooth = t * t * (3 - 2 * t);
-                        const maxLeftOffset = 12 + steepness * 30;
-                        const offsetX = 10 - smooth * (10 + maxLeftOffset);
-                        const labelX = bCurrentPx + offsetX;
-                        const clampedX = Math.min(Math.max(labelX, bChartX + 30), bChartRight - 10);
-                        const yOffset = -8 + smooth * heightRatio * steepness * 12;
-                        const labelY = Math.max(bCurrentPy + yOffset, bChartY + 12);
-                        return (
-                            <text x={clampedX} y={labelY} textAnchor="middle" className="text-xs font-mono" fill="var(--foreground)" fontWeight="600">
-                                {currentMass.toFixed(1)} kg
-                            </text>
-                        );
-                    })()}
-
-                    <text x={bChartX + bChartW / 2} y={305} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)" fontWeight="500">
-                        Biomass Growth
-                    </text>
-                </g>
+            {/* Mobile: response curves above, biomass below */}
+            <svg viewBox="0 10 730 305" className="w-full sm:hidden mb-2">
+                {renderResponseCurves()}
             </svg>
+            <svg viewBox="730 40 315 275" className="w-full sm:hidden">
+                {renderBiomassChart()}
+            </svg>
+
+            {/* Desktop: original single SVG */}
+            <svg viewBox="0 0 1045 320" className="hidden sm:block w-full sm:min-w-[900px]" aria-label="Combined effects visualization">
+                {renderResponseCurves()}
+                {renderBiomassChart()}
+            </svg>
+            </div>
         </div>
     );
 };

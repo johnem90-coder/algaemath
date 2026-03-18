@@ -47,6 +47,11 @@ export interface TEAConfig {
   // Overhead costs
   overhead_per_ton: number;
 
+  // Uptake efficiencies
+  co2_uptake_efficiency: number; // fraction absorbed (open pond ~0.30, PBR ~0.80-0.95)
+  n_uptake_efficiency: number; // fraction absorbed (default 1.0)
+  p_uptake_efficiency: number; // fraction absorbed (default 1.0)
+
   // Process parameters
   evaporation_rate_mm_day: number;
   harvest_efficiency: number;
@@ -54,6 +59,14 @@ export interface TEAConfig {
   dryer_inlet_water_content: number;
   dryer_outlet_water_content: number;
   silo_buffer_days: number;
+  filter3_efficiency: number; // fraction of water removed in primary dewatering (Filter 3)
+
+  // Buffer days (equipment sizing)
+  tank1_buffer_days: number; // raw water storage
+  tank2_buffer_days: number; // filtered water buffer
+  co2_tank_buffer_days: number; // liquid CO₂ storage
+  hopper_buffer_days: number; // nutrient dry storage
+  filtrate_tank_buffer_days: number; // filtrate holding (harvesting)
 
   // Inoculum
   inoculum_tiers: InoculumTier[];

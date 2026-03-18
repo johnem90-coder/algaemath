@@ -27,12 +27,6 @@ export const AW_P = 30.974; // g/mol
 export const MW_KNO3 = 101.103; // g/mol
 export const MW_DAP = 132.06; // g/mol  (NH₄)₂HPO₄
 
-// ── Nutrient Uptake Efficiencies ───────────────────────────────
-
-export const CO2_UPTAKE_EFFICIENCY = 0.30; // Open pond — significant degassing
-export const N_UPTAKE_EFFICIENCY = 1.0;
-export const P_UPTAKE_EFFICIENCY = 1.0;
-
 // ── MACRS 7-Year Depreciation Schedule ─────────────────────────
 
 export const MACRS_7 = [

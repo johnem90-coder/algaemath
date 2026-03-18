@@ -10,7 +10,8 @@ import type {
 } from "../../types";
 import { electricityCost, dieselCost } from "../../common/energy";
 import { computeInstallationCost } from "../../common/installation";
-import { CO2_LIQUID_DENSITY_TONS_M3, GAL_TO_L } from "../../common/constants";
+import { CO2_LIQUID_DENSITY_TONS_M3 } from "../../common/constants";
+import { GAL_TO_L } from "../../common/constants";
 import {
   PUMP_CATALOG,
   TANK_CATALOG,
@@ -38,8 +39,7 @@ export function computeInputsSection(
 
   // ── INP-01: Tank 1 — Raw water storage ─────────────────────
   {
-    const buffer_days = 3;
-    const required_m3 = buffer_days * nutrients.water_m3_day;
+    const required_m3 = config.tank1_buffer_days * nutrients.water_m3_day;
     const { option, units } = sizeTank(required_m3, TANK_CATALOG);
     const total_cost = option.unit_cost * units;
     equipment.push({
@@ -90,8 +90,7 @@ export function computeInputsSection(
 
   // ── INP-04: Tank 2s — Filtered water buffer ────────────────
   {
-    const buffer_days = 2;
-    const required_m3 = buffer_days * nutrients.water_m3_day;
+    const required_m3 = config.tank2_buffer_days * nutrients.water_m3_day;
     const { option, units } = sizeTank(required_m3, TANK_CATALOG);
     const total_cost = option.unit_cost * units;
     equipment.push({
@@ -123,7 +122,7 @@ export function computeInputsSection(
 
   // ── INP-06: Hopper 1s — KNO₃ storage ──────────────────────
   {
-    const { option, units } = sizeHopper(nutrients.kno3_tons_day / n_ponds, 30, 2.11, n_ponds, KNO3_HOPPER_CATALOG);
+    const { option, units } = sizeHopper(nutrients.kno3_tons_day / n_ponds, config.hopper_buffer_days, 2.11, n_ponds, KNO3_HOPPER_CATALOG);
     const total_cost = option.unit_cost * units;
     equipment.push({
       id: "INP-06", name: "Hopper 1s", type: "Dry Storage", function: "KNO₃ storage",
@@ -135,7 +134,7 @@ export function computeInputsSection(
 
   // ── INP-07: Hopper 2s — DAP storage ───────────────────────
   {
-    const { option, units } = sizeHopper(nutrients.dap_tons_day / n_ponds, 30, 1.62, n_ponds, DAP_HOPPER_CATALOG);
+    const { option, units } = sizeHopper(nutrients.dap_tons_day / n_ponds, config.hopper_buffer_days, 1.62, n_ponds, DAP_HOPPER_CATALOG);
     const total_cost = option.unit_cost * units;
     equipment.push({
       id: "INP-07", name: "Hopper 2s", type: "Dry Storage", function: "DAP storage",
@@ -147,7 +146,7 @@ export function computeInputsSection(
 
   // ── INP-08: Hopper 3s — Micronutrient storage ─────────────
   {
-    const { option, units } = sizeHopper(nutrients.micro_tons_day / n_ponds, 30, 1.865, n_ponds, MICRO_HOPPER_CATALOG);
+    const { option, units } = sizeHopper(nutrients.micro_tons_day / n_ponds, config.hopper_buffer_days, 1.865, n_ponds, MICRO_HOPPER_CATALOG);
     const total_cost = option.unit_cost * units;
     equipment.push({
       id: "INP-08", name: "Hopper 3s", type: "Dry Storage", function: "Micronutrient storage",
@@ -174,8 +173,7 @@ export function computeInputsSection(
 
   // ── INP-10: CO₂ Tanks — Liquid CO₂ storage ────────────────
   {
-    const buffer_days = 30;
-    const required_m3 = (nutrients.co2_tons_day * buffer_days) / CO2_LIQUID_DENSITY_TONS_M3;
+    const required_m3 = (nutrients.co2_tons_day * config.co2_tank_buffer_days) / CO2_LIQUID_DENSITY_TONS_M3;
     const tank_capacity = 50;
     const units = Math.ceil(required_m3 / tank_capacity);
     const unit_cost = 50000;
