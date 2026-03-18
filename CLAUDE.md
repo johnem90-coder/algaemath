@@ -24,7 +24,7 @@ AlgaeMath is a Next.js (App Router) site with interactive tools for algae cultiv
 - `/simple-simulators/open-pond` — Open pond simulator with 3D canvas, world map, growth model panels
 - `/explorations` — Design explorer with variable depth + layered light sections
 - `/technoeconomics` — TEA index page with reactor type cards
-- `/technoeconomics/open-pond` — Open pond TEA with interactive sliders (facility size, sale price), KPI cards, MBSP breakdown, quarterly lifetime value chart, clickable sections overview with right slide-in detail panel, cost contribution, sensitivity, cash flow schedule, left slide-in unit cost panel
+- `/technoeconomics/open-pond` — Open pond TEA with interactive sliders (facility size, sale price), financial overview table + lifetime value chart, clickable sections overview with right slide-in detail panel, cost contribution, sensitivity, cash flow schedule, left slide-in System Inputs panel
 
 ## Commands
 - `npm run dev` — Start dev server
@@ -44,11 +44,11 @@ AlgaeMath is a Next.js (App Router) site with interactive tools for algae cultiv
 - **Sections**: `lib/technoeconomics/open-pond/sections/` — inputs, inoculum, biomass, harvesting, drying (each independent)
 - **Common**: `lib/technoeconomics/common/` — geometry, nutrient-balance, financials (NPV/IRR/MBSP/DCF), construction (batched timeline + ramp-up), constants, energy, cost-escalation, installation
 - **Construction model**: Fully sequential batches of up to 10 ponds; each pond = 1 week build + 4 weeks batch test. CAPEX staged per batch. Production ramps up as batches complete.
-- **Frontend**: `app/technoeconomics/open-pond/components/` — OpenPondTEA (main), SystemSummaryCards, SectionsOverviewTable (clickable cells), MBSPBreakdownTable, CostContributionTable, LifetimeValueChart (Recharts, quarterly), CashFlowTable, SensitivityTable, SectionDetailPanel (right slide-in), InputCostsPanel (left slide-in), InputVariablesTable, formatters
+- **Frontend**: `app/technoeconomics/open-pond/components/` — OpenPondTEA (main), FinancialOverviewTable, SectionsOverviewTable (clickable cells, including land), CostContributionTable, LifetimeValueChart (Recharts, quarterly), CashFlowTable, SensitivityTable, SectionDetailPanel (right slide-in, two-axis navigation by section or category with highlight+scroll), InputCostsPanel (left slide-in "System Inputs"), InputVariablesTable (all ~80 config params by category), formatters
 
 ## TEA Slide-in Panel Pattern
 - Panels use `fixed` positioning with `translate-x` transitions for open/close
 - Tab attached to panel edge (overlaps border by 1px to hide seam), `writing-mode: vertical-rl`
-- Right panel (Economic Details): max `min(50vw, 640px)`, shows section cost breakdown
-- Left panel (Unit Costs): max `min(20vw, 360px)`, shows input commodity prices
+- Right panel (Economic Details): max `min(50vw, 640px)`, two-axis navigation — click section name for all categories, click column header for all sections, click specific cell for all sections with highlight+scroll to that section. Renders detailed tables per category (equipment, installation with multipliers, materials, energy, maintenance, labor). Land included in capital_cost views.
+- Left panel (System Inputs): max `min(30vw, 420px)`, shows all ~80 TEA config parameters organized into 15 categories including labor breakdowns by section with individual roles
 - Backdrop (`bg-black/30`) closes panel on click; Escape key also closes

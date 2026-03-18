@@ -1,4 +1,4 @@
-// Section: Inputs (Water Treatment & Delivery) — 10 equipment items
+// Section: Inputs (Water & Nutrients) — 10 equipment items
 // Reference: docs/TEA_DESIGN.md Section 2.1
 
 import type {
@@ -211,7 +211,7 @@ export function computeInputsSection(
 
   return {
     section_id: "inputs",
-    section_name: "Inputs (Water Treatment & Delivery)",
+    section_name: "Inputs (Water & Nutrients)",
     capital_cost: equipment_purchase + installation_breakdown.grand_total,
     equipment_purchase,
     install_engr_other: installation_breakdown.grand_total,

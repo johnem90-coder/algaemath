@@ -164,12 +164,18 @@ export function SectionsOverviewTable({ result, onCellClick }: Props) {
           ))}
           {/* Land row */}
           <tr className="border-b border-dashed">
-            <td className="py-1.5 pr-4 font-sans text-sm">
+            <td
+              className={`py-1.5 pr-4 font-sans text-sm ${clickable}`}
+              onClick={() => handleClick("land", "capital_cost")}
+            >
               Land ({result.land_total_acres} acres)
             </td>
             <td className="py-1.5 px-2 text-right text-muted-foreground border-l">—</td>
             <td className="py-1.5 px-2 text-right text-muted-foreground">—</td>
-            <td className="py-1.5 px-2 text-right font-semibold">
+            <td
+              className={`py-1.5 px-2 text-right font-semibold ${clickable}`}
+              onClick={() => handleClick("land", "capital_cost")}
+            >
               {fmtDollarsLong(result.land_cost)}
             </td>
             <td className="py-1.5 px-2 text-right text-muted-foreground border-l">—</td>

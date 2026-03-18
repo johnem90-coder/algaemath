@@ -108,8 +108,8 @@ export function LifetimeValueChart({ result, salePricePerKg }: Props) {
   };
 
   return (
-    <div className="touch-pan-y">
-      <ResponsiveContainer width="100%" height={280}>
+    <div className="touch-pan-y h-full">
+      <ResponsiveContainer width="100%" height="100%" minHeight={280}>
         <LineChart
           data={data}
           margin={{ top: 8, right: 16, bottom: 24, left: 8 }}

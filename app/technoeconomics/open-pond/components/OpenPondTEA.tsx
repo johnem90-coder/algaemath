@@ -4,11 +4,10 @@ import { useState, useMemo, useCallback } from "react";
 import { runTEA, DEFAULT_TEA_CONFIG } from "@/lib/technoeconomics/open-pond";
 import { ACRES_TO_M2 } from "@/lib/technoeconomics/common/constants";
 import { Slider } from "@/components/ui/slider";
-import { SystemSummaryCards } from "./SystemSummaryCards";
 import { SectionsOverviewTable } from "./SectionsOverviewTable";
 import { CashFlowTable } from "./CashFlowTable";
 import { SensitivityTable } from "./SensitivityTable";
-import { MBSPBreakdownTable } from "./MBSPBreakdownTable";
+import { FinancialOverviewTable } from "./FinancialOverviewTable";
 import { CostContributionTable } from "./CostContributionTable";
 import { LifetimeValueChart } from "./LifetimeValueChart";
 import { SectionDetailPanel, type PanelSelection } from "./SectionDetailPanel";
@@ -170,26 +169,22 @@ export default function OpenPondTEA() {
         </div>
       </section>
 
-      {/* ── System Summary KPI Cards ── */}
-      <SystemSummaryCards result={result} />
-
-      {/* ── Financial Overview: MBSP Breakdown + Lifetime Value Chart ── */}
+      {/* ── Financial Overview + Lifetime Value Chart ── */}
       <section>
         <h2 className="text-xl font-medium tracking-tight mb-4">
           Financial Overview
         </h2>
-        <div className="grid gap-8 lg:grid-cols-2">
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">
-              MBSP Breakdown by Category
-            </h3>
-            <MBSPBreakdownTable result={result} />
+        <div className="flex flex-col lg:flex-row gap-8 items-stretch">
+          <div className="lg:w-[35%] shrink-0">
+            <FinancialOverviewTable result={result} />
           </div>
-          <div>
+          <div className="lg:w-[65%] min-h-[280px] relative">
             <h3 className="text-sm font-medium text-muted-foreground mb-3">
               10-Year Lifetime Value (at ${effectiveSalePrice}/kg)
             </h3>
-            <LifetimeValueChart result={result} salePricePerKg={effectiveSalePrice} />
+            <div className="absolute left-0 right-0 bottom-0" style={{ top: "1.75rem" }}>
+              <LifetimeValueChart result={result} salePricePerKg={effectiveSalePrice} />
+            </div>
           </div>
         </div>
       </section>
