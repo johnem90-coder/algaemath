@@ -5,9 +5,9 @@
 //        const result = runTEA({ ... });    // with overrides
 
 import type { TEAConfig, TEAResult, SectionCost } from "../types";
-import { ACRES_TO_M2 } from "../common/constants";
 import { computeTEAPondGeometry } from "../common/geometry";
 import { computeNutrientBalance } from "../common/nutrient-balance";
+import { computeConstructionTimeline } from "../common/construction";
 import {
   computeTaxRate,
   computeCashFlows,
@@ -64,6 +64,9 @@ export function runTEA(configOverrides?: Partial<TEAConfig>): TEAResult {
   const land_cost = land_total_acres * config.land_price_per_acre;
   const total_capex_with_land = rollup.total_capex + land_cost;
 
+  // 5c. Construction timeline — staged batches with build + test
+  const construction = computeConstructionTimeline(geometry.n_ponds, config);
+
   // 6. Financial analysis
   const tax_rate = computeTaxRate(config.federal_tax_rate, config.state_tax_rate);
   const overhead_annual = config.overhead_per_ton * geometry.Q_actual_tons_yr;
@@ -79,6 +82,8 @@ export function runTEA(configOverrides?: Partial<TEAConfig>): TEAResult {
     depreciation_method: config.depreciation_method,
     working_capital_fraction: config.working_capital_fraction,
     salvage_value_fraction: config.salvage_value_fraction,
+    construction,
+    n_ponds: geometry.n_ponds,
   };
 
   // MBSP — sale price where NPV = 0
@@ -93,9 +98,13 @@ export function runTEA(configOverrides?: Partial<TEAConfig>): TEAResult {
 
   // Payback
   const tci = total_capex_with_land * (1 + config.working_capital_fraction);
-  // For simple payback, use average annual FCF (years 1+)
-  const annual_fcfs = cash_flows.filter((cf) => cf.year > 0).map((cf) => cf.free_cash_flow);
-  const avg_annual_fcf = annual_fcfs.reduce((s, v) => s + v, 0) / annual_fcfs.length;
+  // For simple payback, use average annual FCF from steady-state years (full production)
+  const steady_state_fcfs = cash_flows
+    .filter((cf) => cf.year > 0 && cf.production_fraction >= 1)
+    .map((cf) => cf.free_cash_flow);
+  const avg_annual_fcf = steady_state_fcfs.length > 0
+    ? steady_state_fcfs.reduce((s, v) => s + v, 0) / steady_state_fcfs.length
+    : cash_flows.filter((cf) => cf.year > 0).map((cf) => cf.free_cash_flow).reduce((s, v) => s + v, 0) / (cash_flows.length - 1);
   const payback_simple = computePaybackSimple(tci, avg_annual_fcf);
   const payback_discounted = computePaybackDiscounted(cash_flows);
 
@@ -151,6 +160,9 @@ export function runTEA(configOverrides?: Partial<TEAConfig>): TEAResult {
     geometry,
     nutrients,
     config,
+
+    // Construction
+    construction,
 
     // Financials
     financials: {

@@ -7,8 +7,13 @@ import type {
   MBSPBreakdown,
   MBSPCategoryBreakdown,
   SectionCost,
+  ConstructionTimeline,
 } from "../types";
 import { MACRS_7 } from "./constants";
+import {
+  productionFractionForYear,
+  capexFractionForYear,
+} from "./construction";
 
 // ── Tax Rate ───────────────────────────────────────────────────
 
@@ -46,6 +51,8 @@ export interface CashFlowParams {
   depreciation_method: "MACRS-7" | "straight-line";
   working_capital_fraction: number;
   salvage_value_fraction: number;
+  construction?: ConstructionTimeline; // optional — if omitted, all CAPEX in year 0, full production from year 1
+  n_ponds?: number; // needed when construction is provided
 }
 
 export function computeCashFlows(params: CashFlowParams): AnnualCashFlow[] {
@@ -60,6 +67,8 @@ export function computeCashFlows(params: CashFlowParams): AnnualCashFlow[] {
     depreciation_method,
     working_capital_fraction,
     salvage_value_fraction,
+    construction,
+    n_ponds,
   } = params;
 
   const tci = total_capex * (1 + working_capital_fraction);
@@ -67,9 +76,21 @@ export function computeCashFlows(params: CashFlowParams): AnnualCashFlow[] {
   const flows: AnnualCashFlow[] = [];
   let cumulative_dcf = 0;
 
-  // Year 0 — initial investment
-  const dcf0 = -tci; // discount factor = 1 for year 0
-  cumulative_dcf += dcf0;
+  // Determine how many years to model.
+  // With construction, year 0 may span initial construction, and the lifetime
+  // counts from year 1 (first possible revenue year).
+  const total_years = lifetime;
+
+  // ── Year 0 — construction investment ──
+  const capex_frac_y0 = construction
+    ? capexFractionForYear(0, construction)
+    : 1; // all CAPEX in year 0 if no construction timeline
+  const capex_y0 = total_capex * capex_frac_y0;
+  const wc_y0 = capex_y0 * working_capital_fraction;
+  const fcf_y0 = -(capex_y0 + wc_y0);
+
+  cumulative_dcf += fcf_y0; // year 0 discount factor = 1
+
   flows.push({
     year: 0,
     revenue: 0,
@@ -79,16 +100,37 @@ export function computeCashFlows(params: CashFlowParams): AnnualCashFlow[] {
     taxable_income: 0,
     taxes: 0,
     net_income: 0,
-    free_cash_flow: -tci,
+    free_cash_flow: fcf_y0,
     cumulative_dcf,
+    production_fraction: 0,
+    capex_spent: capex_y0,
   });
 
-  // Years 1 through lifetime
-  for (let t = 1; t <= lifetime; t++) {
-    const revenue = sale_price * q_actual;
-    const cogs = annual_opex;
+  // Track cumulative CAPEX spent for depreciation basis
+  let cumulative_capex = capex_y0;
+
+  // ── Years 1 through lifetime ──
+  for (let t = 1; t <= total_years; t++) {
+    // Staged CAPEX: additional investment in later years
+    const capex_frac_t = construction
+      ? capexFractionForYear(t, construction)
+      : 0;
+    const capex_t = total_capex * capex_frac_t;
+    const wc_t = capex_t * working_capital_fraction;
+    cumulative_capex += capex_t;
+
+    // Production fraction for this year (ramp-up)
+    const prod_frac = construction && n_ponds
+      ? productionFractionForYear(t, construction, n_ponds)
+      : 1; // full production if no construction timeline
+
+    const revenue = sale_price * q_actual * prod_frac;
+    const cogs = annual_opex * prod_frac;
     const gross_profit = revenue - cogs;
 
+    // Depreciation is based on cumulative CAPEX placed in service
+    // For simplicity, depreciate the total CAPEX on the same schedule
+    // (conservative: some batches are placed later but we use the full basis)
     const depreciation =
       depreciation_method === "MACRS-7"
         ? macrsDepreciation(total_capex, t)
@@ -97,10 +139,10 @@ export function computeCashFlows(params: CashFlowParams): AnnualCashFlow[] {
     const taxable_income = gross_profit - depreciation;
     const taxes = Math.max(0, taxable_income * tax_rate);
     const net_income = taxable_income - taxes;
-    let free_cash_flow = net_income + depreciation; // Add back non-cash depreciation
+    let free_cash_flow = net_income + depreciation - capex_t - wc_t;
 
     // Final year — add salvage value + recover working capital
-    if (t === lifetime) {
+    if (t === total_years) {
       free_cash_flow += salvage + total_capex * working_capital_fraction;
     }
 
@@ -118,6 +160,8 @@ export function computeCashFlows(params: CashFlowParams): AnnualCashFlow[] {
       net_income,
       free_cash_flow,
       cumulative_dcf,
+      production_fraction: prod_frac,
+      capex_spent: capex_t,
     });
   }
 

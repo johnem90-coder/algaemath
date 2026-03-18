@@ -152,6 +152,12 @@
     ]
   },
 
+  "construction": {
+    "max_ponds_per_batch": { "value": 10, "units": "ponds", "notes": "Maximum ponds built per construction batch" },
+    "pond_build_weeks": { "value": 1, "units": "weeks", "notes": "Weeks to build one pond" },
+    "batch_test_weeks": { "value": 4, "units": "weeks", "notes": "Test run duration after batch is built (≈1 month)" }
+  },
+
   "currency": {
     "aud_to_usd": 0.70827,
     "analysis_year": 2022

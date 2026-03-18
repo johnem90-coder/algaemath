@@ -97,6 +97,11 @@ export interface TEAConfig {
   land_price_per_acre: number;
   land_buffer_fraction: number; // extra land beyond pond footprint (default 0.20)
   land_catalog: LandOption[];
+
+  // Construction & ramp-up
+  max_ponds_per_batch: number; // max ponds built per construction batch (default 10)
+  pond_build_weeks: number; // weeks to build one pond (default 1)
+  batch_test_weeks: number; // weeks of test run after batch is built (default 4)
 }
 
 export interface LandOption {
@@ -221,6 +226,24 @@ export interface SectionCost {
   equipment: EquipmentItem[];
 }
 
+// ── Construction Timeline ─────────────────────────────────────
+
+export interface ConstructionBatch {
+  batch_index: number;
+  n_ponds: number;
+  build_start_week: number; // week construction begins (0-based)
+  build_end_week: number; // week construction ends
+  test_end_week: number; // week test run completes = production start
+  capex_fraction: number; // fraction of total CAPEX allocated to this batch
+}
+
+export interface ConstructionTimeline {
+  batches: ConstructionBatch[];
+  total_construction_weeks: number; // weeks until all batches are done
+  first_revenue_week: number; // when first batch starts producing
+  full_production_week: number; // when all batches are producing
+}
+
 // ── Resource Consumption ───────────────────────────────────────
 
 export interface ResourceConsumption {
@@ -247,6 +270,8 @@ export interface AnnualCashFlow {
   net_income: number;
   free_cash_flow: number;
   cumulative_dcf: number; // Running NPV
+  production_fraction: number; // 0–1, fraction of full capacity producing this year
+  capex_spent: number; // $ of CAPEX spent this year (staged construction)
 }
 
 export interface SensitivityRow {
@@ -335,6 +360,9 @@ export interface TEAResult {
 
   // Config used (for displaying input parameters)
   config: TEAConfig;
+
+  // Construction timeline
+  construction: ConstructionTimeline;
 
   // Financial analysis
   financials: FinancialAnalysis;

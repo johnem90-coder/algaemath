@@ -102,6 +102,11 @@ export function getDefaultTEAConfig(): TEAConfig {
     land_price_per_acre: (d.land.catalog.find((l: { location: string }) => l.location === d.land.selected_location) ?? d.land.catalog[0]).cost_per_acre,
     land_buffer_fraction: d.land.buffer_fraction,
     land_catalog: d.land.catalog,
+
+    // Construction & ramp-up
+    max_ponds_per_batch: d.construction.max_ponds_per_batch.value,
+    pond_build_weeks: d.construction.pond_build_weeks.value,
+    batch_test_weeks: d.construction.batch_test_weeks.value,
   };
 }
 

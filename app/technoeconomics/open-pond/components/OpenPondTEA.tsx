@@ -1,163 +1,220 @@
 "use client";
 
-import { useMemo } from "react";
-import { runTEA } from "@/lib/technoeconomics/open-pond";
+import { useState, useMemo, useCallback } from "react";
+import { runTEA, DEFAULT_TEA_CONFIG } from "@/lib/technoeconomics/open-pond";
+import { ACRES_TO_M2 } from "@/lib/technoeconomics/common/constants";
+import { Slider } from "@/components/ui/slider";
 import { SystemSummaryCards } from "./SystemSummaryCards";
 import { InputVariablesTable } from "./InputVariablesTable";
 import { SectionsOverviewTable } from "./SectionsOverviewTable";
 import { CashFlowTable } from "./CashFlowTable";
 import { SensitivityTable } from "./SensitivityTable";
+import { MBSPBreakdownTable } from "./MBSPBreakdownTable";
+import { CostContributionTable } from "./CostContributionTable";
+import { LifetimeValueChart } from "./LifetimeValueChart";
+import { SectionDetailPanel, type PanelSelection } from "./SectionDetailPanel";
+import { InputCostsPanel } from "./InputCostsPanel";
+
+// ── Back-calculate desired_output_tons_yr from a target n_ponds ────
+// Inverts geometry.ts: n_ponds = ceil(V_required / V_pond), grid = n_rows × 2
+function backCalcDesiredOutput(targetPonds: number): number {
+  const cfg = DEFAULT_TEA_CONFIG;
+  const A_pond_m2 = cfg.pond_size_acres * ACRES_TO_M2;
+  const AR = cfg.pond_lw_ratio;
+  const W = Math.sqrt(A_pond_m2 / AR);
+  const L_total = W * AR;
+  const SA = W * (L_total - W) + Math.PI * (W / 2) ** 2;
+  const V_pond_m3 = SA * cfg.pond_depth_m;
+
+  const BM_rate = cfg.density_at_harvest_g_L * cfg.effective_growth_rate_per_day;
+  const BM_annual = BM_rate * cfg.active_days_yr; // g/L/yr
+
+  // Q = n_ponds × V_pond_m3 × 1000 × BM_annual / 1e6
+  return (targetPonds * V_pond_m3 * 1000 * BM_annual) / 1e6;
+}
+
+// Compute initial default pond count from default config
+function getDefaultPondCount(): number {
+  const initial = runTEA();
+  return initial.n_ponds;
+}
+
+const DEFAULT_N_PONDS = getDefaultPondCount();
 
 export default function OpenPondTEA() {
-  const result = useMemo(() => runTEA(), []);
+  const [nPonds, setNPonds] = useState(DEFAULT_N_PONDS);
+  const [salePricePerKg, setSalePricePerKg] = useState(20);
+  const [panelSelection, setPanelSelection] = useState<PanelSelection | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [inputsPanelOpen, setInputsPanelOpen] = useState(false);
+
+  // Reactive TEA computation — only re-runs when pond count changes
+  const result = useMemo(() => {
+    if (nPonds === DEFAULT_N_PONDS) return runTEA();
+    const desired = backCalcDesiredOutput(nPonds);
+    return runTEA({ desired_output_tons_yr: desired });
+  }, [nPonds]);
+
+  // Initialize sale price to MBSP/1000 on first result
+  const initialMbspPerKg = useMemo(() => Math.round(result.financials.mbsp / 1000), []);
+
+  // Use initialMbspPerKg as default if salePricePerKg is still at placeholder
+  const effectiveSalePrice = salePricePerKg;
+
+  const handleCellClick = useCallback((sectionId: string, costCategory: string) => {
+    setPanelSelection({ sectionId, costCategory });
+    setPanelOpen(true);
+  }, []);
+
+  const togglePanel = useCallback(() => {
+    setPanelOpen((prev) => !prev);
+  }, []);
+
+  const toggleInputsPanel = useCallback(() => {
+    setInputsPanelOpen((prev) => !prev);
+  }, []);
+
+  // Clamp slider value to valid range and ensure step of 2
+  const handlePondChange = useCallback((value: number[]) => {
+    const v = Math.round(value[0] / 2) * 2;
+    setNPonds(Math.max(10, Math.min(100, v)));
+  }, []);
 
   return (
     <div className="space-y-12">
-      {/* System summary KPI cards */}
-      <SystemSummaryCards result={result} />
-
-      {/* Unit cost input variables */}
+      {/* ── Top Section: Sliders + Facility Animation Placeholder ── */}
       <section>
-        <h2 className="text-xl font-medium tracking-tight mb-4">
-          Unit Cost Inputs
-        </h2>
-        <InputVariablesTable result={result} />
-      </section>
+        {/* Mobile horizontal sliders */}
+        <div className="md:hidden space-y-4 mb-4">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-muted-foreground">Facility Size</span>
+              <span className="text-xs font-mono font-semibold">{nPonds} ponds</span>
+            </div>
+            <Slider
+              value={[nPonds]}
+              onValueChange={handlePondChange}
+              min={10}
+              max={100}
+              step={2}
+            />
+          </div>
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-muted-foreground">Sale Price</span>
+              <span className="text-xs font-mono font-semibold">${effectiveSalePrice}/kg</span>
+            </div>
+            <Slider
+              value={[effectiveSalePrice]}
+              onValueChange={(v) => setSalePricePerKg(v[0])}
+              min={1}
+              max={100}
+              step={1}
+            />
+          </div>
+        </div>
 
-      {/* Sections overview — matches Excel layout */}
-      <section>
-        <h2 className="text-xl font-medium tracking-tight mb-4">
-          Sections Overview
-        </h2>
-        <SectionsOverviewTable result={result} />
-      </section>
+        {/* Desktop: vertical sliders + animation placeholder */}
+        <div className="hidden md:flex gap-6" style={{ minHeight: 320 }}>
+          {/* Vertical sliders column */}
+          <div className="flex gap-6 shrink-0">
+            {/* Facility size slider */}
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-[11px] font-medium text-muted-foreground whitespace-nowrap">
+                Facility Size
+              </span>
+              <Slider
+                orientation="vertical"
+                value={[nPonds]}
+                onValueChange={handlePondChange}
+                min={10}
+                max={100}
+                step={2}
+                className="h-52"
+              />
+              <span className="text-xs font-mono font-semibold">{nPonds} ponds</span>
+            </div>
 
-      {/* MBSP breakdown by category */}
-      <section>
-        <h2 className="text-xl font-medium tracking-tight mb-4">
-          MBSP Breakdown
-        </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="border-b text-left text-muted-foreground">
-                <th className="py-2 pr-4 font-medium">Category</th>
-                <th className="py-2 pr-4 font-medium text-right">$/ton</th>
-                <th className="py-2 font-medium text-right">% of Total</th>
-              </tr>
-            </thead>
-            <tbody className="font-mono text-xs">
-              <tr className="border-b border-dashed">
-                <td className="py-1.5 pr-4">Annualized CAPEX</td>
-                <td className="py-1.5 pr-4 text-right">
-                  ${result.financials.mbsp_by_category.annualized_capex.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                <td className="py-1.5 text-right">
-                  {((result.financials.mbsp_by_category.annualized_capex / result.financials.mbsp_by_category.total) * 100).toFixed(1)}%
-                </td>
-              </tr>
-              <tr className="border-b border-dashed">
-                <td className="py-1.5 pr-4">Operating Cost (OPEX)</td>
-                <td className="py-1.5 pr-4 text-right">
-                  ${result.financials.mbsp_by_category.opex.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                <td className="py-1.5 text-right">
-                  {((result.financials.mbsp_by_category.opex / result.financials.mbsp_by_category.total) * 100).toFixed(1)}%
-                </td>
-              </tr>
-              <tr className="border-b border-dashed">
-                <td className="py-1.5 pr-4">Overhead</td>
-                <td className="py-1.5 pr-4 text-right">
-                  ${result.financials.mbsp_by_category.overhead.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                <td className="py-1.5 text-right">
-                  {((result.financials.mbsp_by_category.overhead / result.financials.mbsp_by_category.total) * 100).toFixed(1)}%
-                </td>
-              </tr>
-              <tr className="font-semibold">
-                <td className="py-1.5 pr-4">Simplified MBSP</td>
-                <td className="py-1.5 pr-4 text-right">
-                  ${result.financials.mbsp_by_category.total.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                <td className="py-1.5 text-right">100%</td>
-              </tr>
-            </tbody>
-          </table>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Simplified MBSP (CAPEX/lifetime + OPEX) differs from DCF-derived MBSP (${result.financials.mbsp.toLocaleString("en-US", { maximumFractionDigits: 0 })}/ton) because it does not account for time-value of money or depreciation tax shields.
-          </p>
+            {/* Sale price slider */}
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-[11px] font-medium text-muted-foreground whitespace-nowrap">
+                Sale Price
+              </span>
+              <Slider
+                orientation="vertical"
+                value={[effectiveSalePrice]}
+                onValueChange={(v) => setSalePricePerKg(v[0])}
+                min={1}
+                max={100}
+                step={1}
+                className="h-52"
+              />
+              <span className="text-xs font-mono font-semibold">${effectiveSalePrice}/kg</span>
+            </div>
+          </div>
+
+          {/* Facility animation placeholder */}
+          <div className="flex-1 rounded-xl border border-dashed flex items-center justify-center text-muted-foreground">
+            <div className="text-center">
+              <p className="text-sm font-medium">Facility Animation</p>
+              <p className="text-xs mt-1">Coming Soon</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile animation placeholder */}
+        <div className="md:hidden rounded-xl border border-dashed flex items-center justify-center text-muted-foreground" style={{ height: 200 }}>
+          <div className="text-center">
+            <p className="text-sm font-medium">Facility Animation</p>
+            <p className="text-xs mt-1">Coming Soon</p>
+          </div>
         </div>
       </section>
 
-      {/* MBSP by section */}
+      {/* ── System Summary KPI Cards ── */}
+      <SystemSummaryCards result={result} />
+
+      {/* ── Financial Overview: MBSP Breakdown + Lifetime Value Chart ── */}
+      <section>
+        <h2 className="text-xl font-medium tracking-tight mb-4">
+          Financial Overview
+        </h2>
+        <div className="grid gap-8 lg:grid-cols-2">
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">
+              MBSP Breakdown by Category
+            </h3>
+            <MBSPBreakdownTable result={result} />
+          </div>
+          <div>
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">
+              10-Year Lifetime Value (at ${effectiveSalePrice}/kg)
+            </h3>
+            <LifetimeValueChart result={result} salePricePerKg={effectiveSalePrice} />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Sections Overview (interactive) ── */}
+      <section>
+        <h2 className="text-xl font-medium tracking-tight mb-1">
+          Sections Overview
+        </h2>
+        <p className="text-xs text-muted-foreground mb-4">
+          Click any cell to view detailed breakdown
+        </p>
+        <SectionsOverviewTable result={result} onCellClick={handleCellClick} />
+      </section>
+
+      {/* ── Cost Contribution by Section ── */}
       <section>
         <h2 className="text-xl font-medium tracking-tight mb-4">
           Cost Contribution by Section
         </h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="border-b text-left text-muted-foreground">
-                <th className="py-2 pr-4 font-medium">Section</th>
-                <th className="py-2 pr-4 font-medium text-right">CAPEX $/ton</th>
-                <th className="py-2 pr-4 font-medium text-right">OPEX $/ton</th>
-                <th className="py-2 pr-4 font-medium text-right">Total $/ton</th>
-                <th className="py-2 font-medium text-right">% of MBSP</th>
-              </tr>
-            </thead>
-            <tbody className="font-mono text-xs">
-              {result.financials.mbsp_by_section.map((row) => (
-                <tr key={row.section_id} className="border-b border-dashed">
-                  <td className="py-1.5 pr-4 font-sans text-sm">{row.section_name}</td>
-                  <td className="py-1.5 pr-4 text-right">
-                    ${row.capex_per_ton.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                  <td className="py-1.5 pr-4 text-right">
-                    ${row.opex_per_ton.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                  <td className="py-1.5 pr-4 text-right">
-                    ${row.total_per_ton.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                  <td className="py-1.5 text-right">
-                    {row.percent_of_mbsp.toFixed(1)}%
-                  </td>
-                </tr>
-              ))}
-              {/* Totals row */}
-              {(() => {
-                const totals = result.financials.mbsp_by_section.reduce(
-                  (acc, row) => ({
-                    capex: acc.capex + row.capex_per_ton,
-                    opex: acc.opex + row.opex_per_ton,
-                    total: acc.total + row.total_per_ton,
-                    pct: acc.pct + row.percent_of_mbsp,
-                  }),
-                  { capex: 0, opex: 0, total: 0, pct: 0 }
-                );
-                return (
-                  <tr className="border-t-2 font-semibold">
-                    <td className="py-2 pr-4 font-sans text-sm">Total</td>
-                    <td className="py-2 pr-4 text-right">
-                      ${totals.capex.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                    </td>
-                    <td className="py-2 pr-4 text-right">
-                      ${totals.opex.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                    </td>
-                    <td className="py-2 pr-4 text-right">
-                      ${totals.total.toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                    </td>
-                    <td className="py-2 text-right">
-                      {totals.pct.toFixed(1)}%
-                    </td>
-                  </tr>
-                );
-              })()}
-            </tbody>
-          </table>
-        </div>
+        <CostContributionTable result={result} />
       </section>
 
-      {/* Revenue sensitivity */}
+      {/* ── Revenue Sensitivity ── */}
       <section>
         <h2 className="text-xl font-medium tracking-tight mb-4">
           Revenue Sensitivity
@@ -165,13 +222,26 @@ export default function OpenPondTEA() {
         <SensitivityTable result={result} />
       </section>
 
-      {/* Cash flow schedule */}
+      {/* ── Cash Flow Schedule ── */}
       <section>
         <h2 className="text-xl font-medium tracking-tight mb-4">
           Annual Cash Flow Schedule
         </h2>
         <CashFlowTable result={result} />
       </section>
+
+      {/* ── Slide-in panels ── */}
+      <InputCostsPanel
+        isOpen={inputsPanelOpen}
+        result={result}
+        onToggle={toggleInputsPanel}
+      />
+      <SectionDetailPanel
+        selection={panelSelection}
+        isOpen={panelOpen}
+        result={result}
+        onToggle={togglePanel}
+      />
     </div>
   );
 }

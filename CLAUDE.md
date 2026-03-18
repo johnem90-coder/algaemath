@@ -24,7 +24,7 @@ AlgaeMath is a Next.js (App Router) site with interactive tools for algae cultiv
 - `/simple-simulators/open-pond` — Open pond simulator with 3D canvas, world map, growth model panels
 - `/explorations` — Design explorer with variable depth + layered light sections
 - `/technoeconomics` — TEA index page with reactor type cards
-- `/technoeconomics/open-pond` — Open pond TEA with full calculation engine, sections overview, MBSP breakdown, cash flow schedule, sensitivity analysis
+- `/technoeconomics/open-pond` — Open pond TEA with interactive sliders (facility size, sale price), KPI cards, MBSP breakdown, quarterly lifetime value chart, clickable sections overview with right slide-in detail panel, cost contribution, sensitivity, cash flow schedule, left slide-in unit cost panel
 
 ## Commands
 - `npm run dev` — Start dev server
@@ -36,3 +36,19 @@ AlgaeMath is a Next.js (App Router) site with interactive tools for algae cultiv
 - `app/layout.tsx` — Root layout with `overflow-x-hidden` on body
 - `app/globals.css` — Tailwind v4 config with custom CSS variables
 - `lib/simulation/cell-animation.ts` — Shared cell animation constants (MX=260, MY=195, MR=70)
+
+## TEA Engine Architecture
+- **Engine**: `lib/technoeconomics/open-pond/engine.ts` — `runTEA(configOverrides?)` pure function, config → TEAResult
+- **Types**: `lib/technoeconomics/types.ts` — TEAConfig (80+ params), TEAResult, SectionCost, ConstructionTimeline, AnnualCashFlow, etc.
+- **Config**: `lib/technoeconomics/open-pond/config.ts` + `data/default-config.json` — default config with JSON → flat TEAConfig parsing
+- **Sections**: `lib/technoeconomics/open-pond/sections/` — inputs, inoculum, biomass, harvesting, drying (each independent)
+- **Common**: `lib/technoeconomics/common/` — geometry, nutrient-balance, financials (NPV/IRR/MBSP/DCF), construction (batched timeline + ramp-up), constants, energy, cost-escalation, installation
+- **Construction model**: Fully sequential batches of up to 10 ponds; each pond = 1 week build + 4 weeks batch test. CAPEX staged per batch. Production ramps up as batches complete.
+- **Frontend**: `app/technoeconomics/open-pond/components/` — OpenPondTEA (main), SystemSummaryCards, SectionsOverviewTable (clickable cells), MBSPBreakdownTable, CostContributionTable, LifetimeValueChart (Recharts, quarterly), CashFlowTable, SensitivityTable, SectionDetailPanel (right slide-in), InputCostsPanel (left slide-in), InputVariablesTable, formatters
+
+## TEA Slide-in Panel Pattern
+- Panels use `fixed` positioning with `translate-x` transitions for open/close
+- Tab attached to panel edge (overlaps border by 1px to hide seam), `writing-mode: vertical-rl`
+- Right panel (Economic Details): max `min(50vw, 640px)`, shows section cost breakdown
+- Left panel (Unit Costs): max `min(20vw, 360px)`, shows input commodity prices
+- Backdrop (`bg-black/30`) closes panel on click; Escape key also closes

@@ -5,11 +5,25 @@ import { fmtDollarsLong } from "./formatters";
 
 interface Props {
   result: TEAResult;
+  onCellClick?: (sectionId: string, costCategory: string) => void;
 }
 
 const SECTION_ORDER = ["inputs", "inoculum", "biomass", "harvesting", "drying"];
 
-export function SectionsOverviewTable({ result }: Props) {
+const COST_CATEGORIES = [
+  "equipment_purchase",
+  "install_engr_other",
+  "capital_cost",
+  "materials_cost",
+  "energy_cost",
+  "maintenance_cost",
+  "labor_cost",
+  "operating_cost",
+] as const;
+
+type CostCategory = (typeof COST_CATEGORIES)[number];
+
+export function SectionsOverviewTable({ result, onCellClick }: Props) {
   const sections = SECTION_ORDER.map((id) => result.sections[id]);
 
   // Compute totals
@@ -35,6 +49,26 @@ export function SectionsOverviewTable({ result }: Props) {
     totals.operating_cost += s.operating_cost;
   }
 
+  const clickable = onCellClick ? "cursor-pointer hover:bg-accent/10 transition-colors" : "";
+
+  const handleClick = (sectionId: string, category: string) => {
+    if (onCellClick) onCellClick(sectionId, category);
+  };
+
+  const renderCell = (
+    sectionId: string,
+    category: CostCategory,
+    value: number,
+    extraClass: string = ""
+  ) => (
+    <td
+      className={`py-1.5 px-2 text-right ${extraClass} ${clickable}`}
+      onClick={() => handleClick(sectionId, category)}
+    >
+      {fmtDollarsLong(value)}
+    </td>
+  );
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm border-collapse">
@@ -57,30 +91,54 @@ export function SectionsOverviewTable({ result }: Props) {
               Operating Costs ($/yr)
             </th>
           </tr>
-          {/* Sub-headers */}
+          {/* Sub-headers — clickable for column-wide drill-down */}
           <tr className="border-b text-muted-foreground">
-            <th className="py-1.5 px-2 font-medium text-right text-xs border-l">
+            <th
+              className={`py-1.5 px-2 font-medium text-right text-xs border-l ${clickable}`}
+              onClick={() => handleClick("all", "equipment_purchase")}
+            >
               Equipment Purchase
             </th>
-            <th className="py-1.5 px-2 font-medium text-right text-xs">
+            <th
+              className={`py-1.5 px-2 font-medium text-right text-xs ${clickable}`}
+              onClick={() => handleClick("all", "install_engr_other")}
+            >
               Install, Engr &amp; Other
             </th>
-            <th className="py-1.5 px-2 font-medium text-right text-xs font-semibold text-foreground">
+            <th
+              className={`py-1.5 px-2 font-medium text-right text-xs font-semibold text-foreground ${clickable}`}
+              onClick={() => handleClick("all", "capital_cost")}
+            >
               Total CAPEX
             </th>
-            <th className="py-1.5 px-2 font-medium text-right text-xs border-l">
+            <th
+              className={`py-1.5 px-2 font-medium text-right text-xs border-l ${clickable}`}
+              onClick={() => handleClick("all", "materials_cost")}
+            >
               Materials / Inputs
             </th>
-            <th className="py-1.5 px-2 font-medium text-right text-xs">
+            <th
+              className={`py-1.5 px-2 font-medium text-right text-xs ${clickable}`}
+              onClick={() => handleClick("all", "energy_cost")}
+            >
               Energy
             </th>
-            <th className="py-1.5 px-2 font-medium text-right text-xs">
+            <th
+              className={`py-1.5 px-2 font-medium text-right text-xs ${clickable}`}
+              onClick={() => handleClick("all", "maintenance_cost")}
+            >
               Maintenance
             </th>
-            <th className="py-1.5 px-2 font-medium text-right text-xs">
+            <th
+              className={`py-1.5 px-2 font-medium text-right text-xs ${clickable}`}
+              onClick={() => handleClick("all", "labor_cost")}
+            >
               Labor
             </th>
-            <th className="py-1.5 px-2 font-medium text-right text-xs font-semibold text-foreground">
+            <th
+              className={`py-1.5 px-2 font-medium text-right text-xs font-semibold text-foreground ${clickable}`}
+              onClick={() => handleClick("all", "operating_cost")}
+            >
               Total OPEX
             </th>
           </tr>
@@ -88,33 +146,20 @@ export function SectionsOverviewTable({ result }: Props) {
         <tbody className="font-mono text-xs">
           {sections.map((s) => (
             <tr key={s.section_id} className="border-b border-dashed">
-              <td className="py-1.5 pr-4 font-sans text-sm">
+              <td
+                className={`py-1.5 pr-4 font-sans text-sm ${clickable}`}
+                onClick={() => handleClick(s.section_id, "all")}
+              >
                 {s.section_name}
               </td>
-              <td className="py-1.5 px-2 text-right border-l">
-                {fmtDollarsLong(s.equipment_purchase)}
-              </td>
-              <td className="py-1.5 px-2 text-right">
-                {fmtDollarsLong(s.install_engr_other)}
-              </td>
-              <td className="py-1.5 px-2 text-right font-semibold">
-                {fmtDollarsLong(s.capital_cost)}
-              </td>
-              <td className="py-1.5 px-2 text-right border-l">
-                {fmtDollarsLong(s.materials_cost)}
-              </td>
-              <td className="py-1.5 px-2 text-right">
-                {fmtDollarsLong(s.energy_cost)}
-              </td>
-              <td className="py-1.5 px-2 text-right">
-                {fmtDollarsLong(s.maintenance_cost)}
-              </td>
-              <td className="py-1.5 px-2 text-right">
-                {fmtDollarsLong(s.labor_cost)}
-              </td>
-              <td className="py-1.5 px-2 text-right font-semibold">
-                {fmtDollarsLong(s.operating_cost)}
-              </td>
+              {renderCell(s.section_id, "equipment_purchase", s.equipment_purchase, "border-l")}
+              {renderCell(s.section_id, "install_engr_other", s.install_engr_other)}
+              {renderCell(s.section_id, "capital_cost", s.capital_cost, "font-semibold")}
+              {renderCell(s.section_id, "materials_cost", s.materials_cost, "border-l")}
+              {renderCell(s.section_id, "energy_cost", s.energy_cost)}
+              {renderCell(s.section_id, "maintenance_cost", s.maintenance_cost)}
+              {renderCell(s.section_id, "labor_cost", s.labor_cost)}
+              {renderCell(s.section_id, "operating_cost", s.operating_cost, "font-semibold")}
             </tr>
           ))}
           {/* Land row */}
