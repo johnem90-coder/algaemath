@@ -1,0 +1,799 @@
+{
+  "_meta": {
+    "description": "Equipment catalog for Open Raceway Pond TEA — all items across all sections",
+    "source": "TEA_AlgaeBiomass_RacewayPond_Spirulina_230908.xlsx",
+    "extracted": "2026-03-16",
+    "notes": "Each item includes cost basis, sizing, energy, and provenance data"
+  },
+
+  "sections": {
+    "inputs": {
+      "section_id": "inputs",
+      "section_name": "Inputs (Water Treatment & Delivery)",
+      "equipment": [
+        {
+          "id": "INP-01",
+          "name": "Tank 1",
+          "type": "Cone Roof",
+          "function": "Raw water storage — backs up entire system",
+          "sizing": {
+            "method": "buffer_stock",
+            "buffer_days": 3,
+            "available_capacity_m3": 4000,
+            "sizing_basis": "buffer_days × daily_water_demand"
+          },
+          "cost": {
+            "unit_cost_2022": 338333.01,
+            "cost_basis_year": 2006,
+            "cost_2006_formula": "5700 + 700 × capacity_m3^0.7",
+            "cost_2006_value": 238262.69,
+            "escalation_factor": 1.42,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "medium",
+            "notes": "Tank cost correlation, likely from Perry's handbook or similar"
+          },
+          "energy": {
+            "power_rating_kW": 0,
+            "energy_type": "none",
+            "run_time_hrs_yr": 990,
+            "annual_energy_units": 0,
+            "annual_energy_cost": 0
+          },
+          "maintenance_rate": 0.03,
+          "units_per_pond": 0.058,
+          "total_units_default": 4,
+          "total_purchase_cost_default": 1353332.05
+        },
+        {
+          "id": "INP-02",
+          "name": "Pump 1",
+          "type": "Vortex Impeller",
+          "function": "Transfers water from Tank 1 through Filter 1 daily",
+          "sizing": {
+            "method": "flow_rate",
+            "run_time_hrs_day": 12,
+            "available_flow_Ls": 41.67,
+            "sizing_basis": "daily_water_volume ÷ (run_hours × units) → L/s"
+          },
+          "cost": {
+            "unit_cost_2022": 1345.71,
+            "cost_basis_year": 2022,
+            "cost_basis_currency": "AUD",
+            "cost_aud": 1900,
+            "aud_to_usd": 0.70827,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "medium",
+            "notes": "AUD pricing suggests Australian supplier quote"
+          },
+          "energy": {
+            "power_rating_kW": 8.2027,
+            "energy_type": "diesel",
+            "run_time_hrs_yr": 3960,
+            "annual_energy_units": 13083.79,
+            "annual_energy_units_label": "L diesel/yr",
+            "annual_energy_cost": 20934.07
+          },
+          "maintenance_rate": 0.05,
+          "units_per_pond": 0.058,
+          "total_units_default": 4,
+          "total_purchase_cost_default": 5382.85
+        },
+        {
+          "id": "INP-03",
+          "name": "Filter 1",
+          "type": "Ultrafiltration",
+          "function": "Purifies water for use in entire system",
+          "sizing": {
+            "method": "flow_rate",
+            "run_time_hrs_day": 20,
+            "available_capacity_GPD": 40000,
+            "sizing_basis": "daily_water_volume converted to GPD ÷ available_GPD"
+          },
+          "cost": {
+            "unit_cost_2022": 44345,
+            "cost_basis_year": null,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "low",
+            "notes": "Hardcoded price, no source documented"
+          },
+          "energy": {
+            "power_rating_kW": 6.0,
+            "energy_type": "electricity",
+            "run_time_hrs_yr": 6600,
+            "annual_energy_units": 39600,
+            "annual_energy_units_label": "kWh/yr",
+            "annual_energy_cost": 15935.04
+          },
+          "maintenance_rate": 0.07,
+          "units_per_pond": 0.014,
+          "total_units_default": 11,
+          "total_purchase_cost_default": 487795
+        },
+        {
+          "id": "INP-04",
+          "name": "Tank 2s",
+          "type": "Cone Roof",
+          "function": "Filtered water buffer — one per row of ponds",
+          "sizing": {
+            "method": "buffer_stock",
+            "buffer_days": 2,
+            "available_capacity_m3": 4000,
+            "sizing_basis": "buffer_days × daily_water_demand ÷ n_rows"
+          },
+          "cost": {
+            "unit_cost_2022": 338333.01,
+            "cost_basis_year": 2006,
+            "cost_2006_formula": "5700 + 700 × capacity_m3^0.7",
+            "cost_2006_value": 238262.69,
+            "escalation_factor": 1.42,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "medium",
+            "notes": "Same tank cost correlation as Tank 1"
+          },
+          "energy": {
+            "power_rating_kW": 0,
+            "energy_type": "none",
+            "run_time_hrs_yr": 0,
+            "annual_energy_units": 0,
+            "annual_energy_cost": 0
+          },
+          "maintenance_rate": 0.03,
+          "units_per_pond": 0.5,
+          "total_units_default": 1,
+          "total_purchase_cost_default": 338333.01,
+          "notes": "In default config, only 1 unit needed (1 row of ponds)"
+        },
+        {
+          "id": "INP-05",
+          "name": "Pump 2s",
+          "type": "Diesel Pump",
+          "function": "Transfers water from Tank 2s to Mix Tank 1s for nutrient dissolving",
+          "sizing": {
+            "method": "flow_rate",
+            "run_time_hrs_day": 1,
+            "available_flow_Ls": 26.67,
+            "sizing_basis": "daily_fill_volume ÷ run_time per row"
+          },
+          "cost": {
+            "unit_cost_2022": 1204.06,
+            "cost_basis_year": 2022,
+            "cost_basis_currency": "AUD",
+            "cost_aud": 1700,
+            "aud_to_usd": 0.70827,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "medium",
+            "notes": "AUD pricing"
+          },
+          "energy": {
+            "power_rating_kW": 7.457,
+            "energy_type": "diesel",
+            "run_time_hrs_yr": 330,
+            "annual_energy_units": 991.20,
+            "annual_energy_units_label": "L diesel/yr",
+            "annual_energy_cost": 1585.91
+          },
+          "maintenance_rate": 0.05,
+          "units_per_pond": 0.5,
+          "total_units_default": 1,
+          "total_purchase_cost_default": 1204.06
+        },
+        {
+          "id": "INP-06",
+          "name": "Hopper 1s",
+          "type": "Dry Storage",
+          "function": "Potassium nitrate (KNO₃) storage — 1 per 2 ponds",
+          "sizing": {
+            "method": "buffer_stock",
+            "buffer_days": 30,
+            "material_density_tons_m3": 2.11,
+            "available_capacity_gal": 160,
+            "sizing_basis": "buffer_days × daily_KNO3_demand ÷ density, in gallons"
+          },
+          "cost": {
+            "unit_cost_2022": 504,
+            "cost_basis_year": null,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "low",
+            "notes": "Hardcoded price, no source"
+          },
+          "energy": {
+            "power_rating_kW": 0,
+            "energy_type": "none",
+            "run_time_hrs_yr": 0,
+            "annual_energy_units": 0,
+            "annual_energy_cost": 0
+          },
+          "maintenance_rate": 0.03,
+          "units_per_pond": 0.5,
+          "total_units_default": 34.5,
+          "total_purchase_cost_default": 17388
+        },
+        {
+          "id": "INP-07",
+          "name": "Hopper 2s",
+          "type": "Dry Storage",
+          "function": "Diammonium phosphate (DAP) storage — 1 per 2 ponds",
+          "sizing": {
+            "method": "buffer_stock",
+            "buffer_days": 30,
+            "material_density_tons_m3": 1.62,
+            "available_capacity_gal": 15,
+            "sizing_basis": "buffer_days × daily_DAP_demand ÷ density, in gallons"
+          },
+          "cost": {
+            "unit_cost_2022": 117,
+            "cost_basis_year": null,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "low",
+            "notes": "Hardcoded price, no source"
+          },
+          "energy": {
+            "power_rating_kW": 0,
+            "energy_type": "none",
+            "run_time_hrs_yr": 0,
+            "annual_energy_units": 0,
+            "annual_energy_cost": 0
+          },
+          "maintenance_rate": 0.03,
+          "units_per_pond": 0.5,
+          "total_units_default": 34.5,
+          "total_purchase_cost_default": 4036.50
+        },
+        {
+          "id": "INP-08",
+          "name": "Hopper 3s",
+          "type": "Dry Storage",
+          "function": "Other micronutrient storage — 1 per 2 ponds",
+          "sizing": {
+            "method": "buffer_stock",
+            "buffer_days": 30,
+            "material_density_tons_m3": 1.865,
+            "available_capacity_gal": 3.5,
+            "sizing_basis": "Derived from Hopper 2 sizing ratios"
+          },
+          "cost": {
+            "unit_cost_2022": 57.33,
+            "cost_basis_year": null,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "low",
+            "notes": "Hardcoded price, no source"
+          },
+          "energy": {
+            "power_rating_kW": 0,
+            "energy_type": "none",
+            "run_time_hrs_yr": 0,
+            "annual_energy_units": 0,
+            "annual_energy_cost": 0
+          },
+          "maintenance_rate": 0.03,
+          "units_per_pond": 0.5,
+          "total_units_default": 34.5,
+          "total_purchase_cost_default": 1977.89
+        },
+        {
+          "id": "INP-09",
+          "name": "Mix Tank 1s",
+          "type": "Cone + Propeller",
+          "function": "Dissolves nutrients in water — 1 per 2 ponds",
+          "sizing": {
+            "method": "fixed_capacity",
+            "available_capacity_gal": 510,
+            "run_time_hrs_day": 1,
+            "sizing_basis": "Fixed 510 gal capacity per unit"
+          },
+          "cost": {
+            "unit_cost_2022": 1467.19,
+            "cost_breakdown": { "tank": 890, "propeller": 577.19 },
+            "cost_basis_year": null,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "low",
+            "notes": "Tank + propeller costs, no source documented"
+          },
+          "energy": {
+            "power_rating_kW": 0.37285,
+            "energy_type": "electricity",
+            "run_time_hrs_yr": 330,
+            "annual_energy_units": 123.04,
+            "annual_energy_units_label": "kWh/yr",
+            "annual_energy_cost": 49.51
+          },
+          "maintenance_rate": 0.05,
+          "units_per_pond": 0.5,
+          "total_units_default": 34.5,
+          "total_purchase_cost_default": 50618.06
+        },
+        {
+          "id": "INP-10",
+          "name": "CO₂ Tanks",
+          "type": "Pressure Vessel",
+          "function": "Liquid CO₂ storage",
+          "sizing": {
+            "method": "buffer_stock",
+            "buffer_days": 30,
+            "co2_liquid_density_tons_m3": 1.101,
+            "available_capacity_m3": 50,
+            "sizing_basis": "buffer_days × daily_CO2_tons ÷ liquid_density"
+          },
+          "cost": {
+            "unit_cost_2022": 50000,
+            "cost_basis_year": null,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "low",
+            "notes": "Hardcoded price, no source"
+          },
+          "energy": {
+            "power_rating_kW": 0.37285,
+            "energy_type": "electricity",
+            "run_time_hrs_yr": 9900,
+            "annual_energy_units": 3691.22,
+            "annual_energy_units_label": "kWh/yr",
+            "annual_energy_cost": 1485.34
+          },
+          "maintenance_rate": 0.03,
+          "units_per_pond": 0.183,
+          "total_units_default": 12.64,
+          "total_purchase_cost_default": 632013.12
+        }
+      ]
+    },
+
+    "biomass": {
+      "section_id": "biomass",
+      "section_name": "Biomass (Growth Ponds)",
+      "equipment": [
+        {
+          "id": "BIO-01",
+          "name": "Racetrack Ponds",
+          "type": "Open Raceway Pond",
+          "function": "Main algae cultivation — paddlewheel-mixed racetrack",
+          "sizing": {
+            "method": "system_sizing",
+            "sizing_basis": "n_ponds from system volume requirement"
+          },
+          "cost": {
+            "unit_cost_2022": 128834,
+            "cost_basis_year": 2011,
+            "cost_formula": "60788 × pond_size_acres + 68046 (2011$), then × 1.24",
+            "escalation_factor": 1.24,
+            "source_citation": "NREL 2011 Algae Farm Model_Open Ponds_TEA Tool_v1",
+            "source_url": null,
+            "source_confidence": "high",
+            "notes": "Fully installed cost — includes liner, earthwork, paddlewheel, baffles. No additional installation factors."
+          },
+          "energy": {
+            "power_rating_kW": null,
+            "energy_type": "electricity",
+            "energy_formula": "34.2 × pond_size_acres^(-0.176) × pond_size_acres × active_days",
+            "annual_energy_units_per_pond": 11286,
+            "annual_energy_units_label": "kWh/pond/yr",
+            "annual_energy_cost_total": 1656882.47,
+            "notes": "Paddlewheel energy from NREL power-law correlation"
+          },
+          "maintenance_rate": 0.05,
+          "units_per_pond": 1,
+          "total_units_default": 69,
+          "total_purchase_cost_default": 8889546
+        }
+      ]
+    },
+
+    "inoculum": {
+      "section_id": "inoculum",
+      "section_name": "Inoculum (Scaling Ponds)",
+      "equipment": [
+        {
+          "id": "INO-01",
+          "name": "Pond As",
+          "type": "Open Raceway Pond (0.1 acre)",
+          "function": "Largest inoculum tier — feeds growth ponds",
+          "sizing": {
+            "method": "fixed_fraction",
+            "size_fraction_of_main_pond": 0.1,
+            "count": 3,
+            "cycle_days": 7
+          },
+          "cost": {
+            "unit_cost_2022": 74124.80,
+            "cost_basis_year": 2011,
+            "cost_formula": "60788 × pond_size_acres + 68046 (2011$), then × 1.24",
+            "escalation_factor": 1.24,
+            "source_citation": "NREL 2011 Algae Farm Model_Open Ponds_TEA Tool_v1",
+            "source_confidence": "high",
+            "notes": "Same NREL correlation as biomass ponds, at 0.1 acre"
+          },
+          "energy": {
+            "energy_type": "electricity",
+            "annual_energy_units_total": 107.71,
+            "annual_energy_units_label": "kWh/yr (all 3 ponds)",
+            "annual_energy_cost_total": 130.02,
+            "notes": "Paddlewheel energy, same correlation at 0.1 acre"
+          },
+          "maintenance_rate": 0.05,
+          "total_units_default": 3,
+          "total_purchase_cost_default": 222374.40
+        },
+        {
+          "id": "INO-02",
+          "name": "Pond Bs",
+          "type": "Open Raceway Pond (0.01 acre)",
+          "function": "Mid-tier inoculum — feeds Pond As",
+          "sizing": {
+            "method": "fixed_fraction",
+            "size_fraction_of_main_pond": 0.01,
+            "count": 3,
+            "cycle_days": 7
+          },
+          "cost": {
+            "unit_cost_2022": 68653.88,
+            "cost_basis_year": 2011,
+            "cost_formula": "60788 × pond_size_acres + 68046 (2011$), then × 1.24",
+            "escalation_factor": 1.24,
+            "source_citation": "NREL 2011 Algae Farm Model_Open Ponds_TEA Tool_v1",
+            "source_confidence": "high"
+          },
+          "energy": {
+            "energy_type": "electricity",
+            "annual_energy_units_total": 16.15,
+            "annual_energy_units_label": "kWh/yr (all 3 ponds)",
+            "annual_energy_cost_total": 19.50
+          },
+          "maintenance_rate": 0.05,
+          "total_units_default": 3,
+          "total_purchase_cost_default": 205961.64
+        },
+        {
+          "id": "INO-03",
+          "name": "Pond Cs",
+          "type": "Open Raceway Pond (0.001 acre)",
+          "function": "Smallest inoculum tier — laboratory-scale starter",
+          "sizing": {
+            "method": "fixed_fraction",
+            "size_fraction_of_main_pond": 0.001,
+            "count": 3,
+            "cycle_days": 7
+          },
+          "cost": {
+            "unit_cost_2022": 68106.79,
+            "cost_basis_year": 2011,
+            "cost_formula": "60788 × pond_size_acres + 68046 (2011$), then × 1.24",
+            "escalation_factor": 1.24,
+            "source_citation": "NREL 2011 Algae Farm Model_Open Ponds_TEA Tool_v1",
+            "source_confidence": "high"
+          },
+          "energy": {
+            "energy_type": "electricity",
+            "annual_energy_units_total": 2.42,
+            "annual_energy_units_label": "kWh/yr (all 3 ponds)",
+            "annual_energy_cost_total": 2.92
+          },
+          "maintenance_rate": 0.05,
+          "total_units_default": 3,
+          "total_purchase_cost_default": 204320.36
+        }
+      ]
+    },
+
+    "harvesting": {
+      "section_id": "harvesting",
+      "section_name": "Harvesting (Dewatering)",
+      "process_parameters": {
+        "ponds_per_harvest_system": "n_rows (half of n_ponds)",
+        "harvest_systems": "n_cols",
+        "harvest_hours_per_day": 6,
+        "filter_3_efficiency": 0.70,
+        "filter_4_efficiency": 0.25
+      },
+      "equipment": [
+        {
+          "id": "HAR-01",
+          "name": "Pump 3s",
+          "type": "Twin Impeller",
+          "function": "Transfers culture from ponds to Filter 2s daily",
+          "sizing": {
+            "method": "flow_rate",
+            "run_time_hrs_day": 6,
+            "available_flow_Ls": 5,
+            "sizing_basis": "inlet_flow_m3_hr × 1000/3600 ÷ available_Ls"
+          },
+          "cost": {
+            "unit_cost_2022": 1133.23,
+            "cost_basis_year": 2022,
+            "cost_basis_currency": "AUD",
+            "cost_aud": 1600,
+            "aud_to_usd": 0.70827,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "medium",
+            "notes": "AUD pricing"
+          },
+          "energy": {
+            "power_rating_kW": 4.84705,
+            "energy_type": "diesel",
+            "run_time_hrs_yr": 1980,
+            "annual_energy_units": 3865.67,
+            "annual_energy_units_label": "L diesel/yr",
+            "annual_energy_cost": 6185.06
+          },
+          "maintenance_rate": 0.05,
+          "units_per_pond": 0.014,
+          "total_units_default": 1,
+          "total_purchase_cost_default": 1133.23
+        },
+        {
+          "id": "HAR-02",
+          "name": "Filter 2s",
+          "type": "Slant Screen",
+          "function": "Primary biomass separation from culture",
+          "sizing": {
+            "method": "flow_rate",
+            "run_time_hrs_day": 6,
+            "available_capacity_m3_hr": 30,
+            "sizing_basis": "inlet_flow_m3_hr ÷ available_capacity, rounded up"
+          },
+          "cost": {
+            "unit_cost_2022": 3000,
+            "cost_basis_year": null,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "low",
+            "notes": "Hardcoded price, no source"
+          },
+          "energy": {
+            "power_rating_kW": 2.2,
+            "energy_type": "electricity",
+            "run_time_hrs_yr": 75240,
+            "annual_energy_units": 165528,
+            "annual_energy_units_label": "kWh/yr",
+            "annual_energy_cost": 66608.47,
+            "notes": "Run time = units × harvest_hrs × active_days"
+          },
+          "maintenance_rate": 0.03,
+          "units_per_pond": 0.551,
+          "total_units_default": 38,
+          "total_purchase_cost_default": 114000
+        },
+        {
+          "id": "HAR-03",
+          "name": "Filter 3s",
+          "type": "Shaker Screen",
+          "function": "Breaks up filtered biomass chunks before vacuum belt",
+          "sizing": {
+            "method": "matched_to_filter_2",
+            "sizing_basis": "Same count as Filter 2s"
+          },
+          "cost": {
+            "unit_cost_2022": 3000,
+            "cost_basis_year": null,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "low",
+            "notes": "Hardcoded price, no source"
+          },
+          "energy": {
+            "power_rating_kW": 0.75,
+            "energy_type": "electricity",
+            "run_time_hrs_yr": 75240,
+            "annual_energy_units": 56430,
+            "annual_energy_units_label": "kWh/yr",
+            "annual_energy_cost": 22707.43
+          },
+          "maintenance_rate": 0.03,
+          "units_per_pond": 0.551,
+          "total_units_default": 38,
+          "total_purchase_cost_default": 114000
+        },
+        {
+          "id": "HAR-04",
+          "name": "Filter 4s",
+          "type": "Vacuum Belt",
+          "function": "Washes biomass to remove salts, reduces ash content",
+          "sizing": {
+            "method": "flow_rate",
+            "available_capacity_m3_hr": 30,
+            "sizing_basis": "post-Filter 3 outlet flow ÷ available_capacity"
+          },
+          "cost": {
+            "unit_cost_2022": 30000,
+            "cost_basis_year": null,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "low",
+            "notes": "Hardcoded price, no source"
+          },
+          "energy": {
+            "power_rating_kW": 2.6,
+            "energy_type": "electricity",
+            "run_time_hrs_yr": 23760,
+            "annual_energy_units": 61776,
+            "annual_energy_units_label": "kWh/yr",
+            "annual_energy_cost": 24858.66
+          },
+          "maintenance_rate": 0.07,
+          "units_per_pond": 0.174,
+          "total_units_default": 12,
+          "total_purchase_cost_default": 360000
+        },
+        {
+          "id": "HAR-05",
+          "name": "Tank 3s",
+          "type": "Cone Roof",
+          "function": "Holds filtrate water before returning to ponds",
+          "sizing": {
+            "method": "buffer_stock",
+            "buffer_days": 1,
+            "available_capacity_m3": 700,
+            "sizing_basis": "buffer_days × daily_filtrate_volume"
+          },
+          "cost": {
+            "unit_cost_2022": 105582.86,
+            "cost_basis_year": 2006,
+            "cost_2006_formula": "5700 + 700 × capacity_m3^0.7",
+            "cost_2006_value": 74354.13,
+            "escalation_factor": 1.42,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "medium",
+            "notes": "Same tank cost correlation"
+          },
+          "energy": {
+            "power_rating_kW": 0,
+            "energy_type": "none",
+            "annual_energy_units": 0,
+            "annual_energy_cost": 0
+          },
+          "maintenance_rate": 0.03,
+          "units_per_pond": 0.014,
+          "total_units_default": 1,
+          "total_purchase_cost_default": 105582.86
+        },
+        {
+          "id": "HAR-06",
+          "name": "Pump 4s",
+          "type": "Centrifugal",
+          "function": "Returns filtered water from Tank 3s back to ponds",
+          "sizing": {
+            "method": "flow_rate",
+            "run_time_hrs_day": 6,
+            "available_flow_Ls": 1.5,
+            "sizing_basis": "filtrate_return_flow ÷ harvest_hours"
+          },
+          "cost": {
+            "unit_cost_2022": 637.44,
+            "cost_basis_year": 2022,
+            "cost_basis_currency": "AUD",
+            "cost_aud": 900,
+            "aud_to_usd": 0.70827,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "medium",
+            "notes": "AUD pricing"
+          },
+          "energy": {
+            "power_rating_kW": 1.3,
+            "energy_type": "electricity",
+            "run_time_hrs_yr": 1980,
+            "annual_energy_units": 2574,
+            "annual_energy_units_label": "kWh/yr",
+            "annual_energy_cost": 1035.78
+          },
+          "maintenance_rate": 0.05,
+          "units_per_pond": 0.014,
+          "total_units_default": 1,
+          "total_purchase_cost_default": 637.44
+        }
+      ]
+    },
+
+    "drying": {
+      "section_id": "drying",
+      "section_name": "Drying (Final Processing)",
+      "equipment": [
+        {
+          "id": "DRY-01",
+          "name": "Pump 5s",
+          "type": "Sludge Pump",
+          "function": "Transfers algae slurry/cake from Filter 4s to dryer",
+          "sizing": {
+            "method": "flow_rate",
+            "run_time_hrs_day": 6,
+            "available_capacity_m3_hr": 20,
+            "sizing_basis": "drying_inlet_flow ÷ available_capacity"
+          },
+          "cost": {
+            "unit_cost_2022": 1000,
+            "cost_basis_year": 2022,
+            "source_citation": "Alibaba vendor listing",
+            "source_url": "https://www.alibaba.com/product-detail/Sludge-Pump-Sludge-Pump-26m3-h_1600227084482.html",
+            "source_confidence": "low",
+            "notes": "Single vendor quote from Alibaba"
+          },
+          "energy": {
+            "power_rating_kW": 15.0,
+            "energy_type": "electricity",
+            "run_time_hrs_yr": 85140,
+            "annual_energy_units": 1277100,
+            "annual_energy_units_label": "kWh/yr",
+            "annual_energy_cost": 513905.04,
+            "notes": "Run time = units × harvest_hrs × active_days. Note: this is a very high energy consumer — worth validating"
+          },
+          "maintenance_rate": 0.05,
+          "total_units_default": 43,
+          "total_purchase_cost_default": 43000
+        },
+        {
+          "id": "DRY-02",
+          "name": "Dryer 1",
+          "type": "Spray Dryer",
+          "function": "Evaporates excess water from slurry to produce dry powder",
+          "sizing": {
+            "method": "evaporation_rate",
+            "sizing_basis": "Total evaporation required (kg/hr) from water content difference"
+          },
+          "cost": {
+            "unit_cost_2022": 349948.56,
+            "cost_basis_year": 2006,
+            "cost_2006_formula": "190000 + 180 × evap_rate_kg_hr^0.9",
+            "cost_2006_value": 246442.65,
+            "escalation_factor": 1.42,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "medium",
+            "notes": "Cost correlation, source not documented"
+          },
+          "energy": {
+            "power_rating_kW": null,
+            "energy_type": "natural_gas",
+            "heat_required_MJ_per_ton_water": 2260,
+            "dryer_efficiency": 0.25,
+            "annual_energy_units": 469497.91,
+            "annual_energy_units_label": "cuft natural gas/yr",
+            "annual_energy_cost": 15809.56,
+            "operating_factor": 1.06,
+            "notes": "Natural gas fired. 25% thermal efficiency."
+          },
+          "maintenance_rate": 0.07,
+          "total_units_default": 1,
+          "total_purchase_cost_default": 349948.56
+        },
+        {
+          "id": "DRY-03",
+          "name": "Silo 1",
+          "type": "Dry Bulk Storage",
+          "function": "Finished product (dried biomass) storage",
+          "sizing": {
+            "method": "buffer_stock",
+            "buffer_days": 14,
+            "sizing_basis": "buffer_days × daily_production_tons"
+          },
+          "cost": {
+            "unit_cost_2022": 10000,
+            "cost_basis_year": null,
+            "source_citation": null,
+            "source_url": null,
+            "source_confidence": "low",
+            "notes": "Hardcoded price, no source"
+          },
+          "energy": {
+            "power_rating_kW": 0,
+            "energy_type": "none",
+            "annual_energy_units": 0,
+            "annual_energy_cost": 0
+          },
+          "maintenance_rate": 0.03,
+          "total_units_default": 1,
+          "total_purchase_cost_default": 10000
+        }
+      ]
+    }
+  }
+}

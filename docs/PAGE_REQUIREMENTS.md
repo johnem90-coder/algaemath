@@ -18,7 +18,7 @@ Detailed specifications for each page.
    - **Simple Simulators** — "Quick, single-reactor simulators for open pond, flat panel, and tubular photobioreactor systems. Designed for flexibility & scenario comparisons."
    - **Design Explorations** — "Explore how pond geometry affects growth dynamics with auto-running simulations over repeating weather profiles."
    - **Experiments** — coming soon (opacity-30)
-   - **Techno-Economics** — coming soon (opacity-30)
+   - **TEA** — "Techno-economic analysis — equipment sizing, capital and operating costs, and financial metrics for algae cultivation systems."
 3. Global footer (from layout.tsx) — copyright left, LinkedIn right
 
 **Components:** Inline in `page.tsx` (no separate component files needed)
@@ -143,9 +143,42 @@ Main page with collapsible exploration sections. Each section auto-runs the simu
 
 ## 5. Technoeconomics Pages
 
-**Status:** 📋 Planned (placeholder directories only)
+### Index Page (`/technoeconomics`)
+**Status:** ✅ Implemented
 
-### All Three (`open-pond`, `flat-panel`, `pbr-tubular`)
+3 cards in grid: Open Raceway Pond (active), Flat Panel PBR (coming soon, opacity-30), Tubular PBR (coming soon, opacity-30). Same card pattern as Simple Simulators index.
+
+### Open Pond TEA (`/technoeconomics/open-pond`)
+**Status:** ✅ Implemented (static results, no interactive sliders yet)
+
+**Description:** Techno-economic analysis for large-scale Spirulina cultivation in open raceway ponds. NREL-based cost correlations, 5-section equipment model, DCF financial analysis.
+
+**Engine:** `lib/technoeconomics/open-pond/engine.ts` — pure function `runTEA(config) → TEAResult`, runs client-side via `useMemo`.
+
+**Sections:** Inputs (water treatment, 10 items) → Inoculum (scaling ponds, 3 tiers) → Biomass (growth ponds) → Harvesting (dewatering, 6 items) → Drying (spray dryer, 3 items)
+
+**Page Layout:**
+1. System summary KPI cards (8 cards: ponds, production, land, CAPEX, OPEX, MBSP, IRR, volume)
+2. Unit cost inputs table (electricity, gas, diesel, CO₂, nutrients, water, labor)
+3. Sections overview table (CAPEX: equipment purchase + install/engr/other; OPEX: materials + energy + maintenance + labor)
+4. MBSP breakdown by category (annualized CAPEX, OPEX, overhead)
+5. Cost contribution by section ($/ton)
+6. Revenue sensitivity table (NPV at various sale prices)
+7. Annual cash flow schedule (30-year DCF, expandable)
+
+**Key features:**
+- Constraint-based equipment sizing with shared catalogs (water pumps, sludge pumps, tanks, filters, hoppers)
+- Three-tier installation cost cascade (installation → indirect → other) with per-factor tracking
+- Inoculum pond counts calculated from inoculation timeline (default 6 months)
+- Financial: MACRS-7, DCF, NPV, IRR, MBSP via bisection
+
+**Next phase:** User-editable input sliders with live recalculation
+
+### Flat Panel PBR TEA (`/technoeconomics/flat-panel`)
+**Status:** 📋 Planned (placeholder directory only)
+
+### Tubular PBR TEA (`/technoeconomics/pbr-tubular`)
+**Status:** 📋 Planned (placeholder directory only)
 
 ---
 

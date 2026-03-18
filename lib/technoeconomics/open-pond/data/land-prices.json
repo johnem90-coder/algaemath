@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "description": "US state land pricing reference for TEA land cost estimation",
+    "source": "TEA_AlgaeBiomass_RacewayPond_Spirulina_230908.xlsx (likely from USDA Land Values Summary)",
+    "extracted": "2026-03-16",
+    "notes": "Prices are per acre. Used to estimate land cost component of CAPEX."
+  },
+
+  "locations": [
+    { "state": "California", "land_type": "Pasture", "cost_per_acre": 3010 },
+    { "state": "Arizona", "land_type": "Farm", "cost_per_acre": 3800, "notes": "Pasture data not available; farm land used" },
+    { "state": "New Mexico", "land_type": "Pasture", "cost_per_acre": 417 },
+    { "state": "Texas", "land_type": "Pasture", "cost_per_acre": 1660 }
+  ],
+
+  "default_range": {
+    "min_per_acre": 417,
+    "max_per_acre": 3800,
+    "min_location": "New Mexico",
+    "max_location": "Arizona"
+  },
+
+  "land_area_by_section": {
+    "description": "Estimated land area required per section (in default 800 ton/yr config)",
+    "inputs": { "acres": 2.0, "notes": "Rough guess — assumes most infrastructure included in biomass section footprint" },
+    "biomass": { "acres": "computed", "notes": "Computed from pond dimensions × n_ponds with spacing" },
+    "inoculum": { "acres": "computed", "notes": "Computed from inoculum pond dimensions" },
+    "harvesting": { "acres": 1.0, "notes": "Rough guess — 1 acre per harvest system" },
+    "drying": { "acres": 2.0, "notes": "Rough guess — 1 acre per drying system" }
+  }
+}

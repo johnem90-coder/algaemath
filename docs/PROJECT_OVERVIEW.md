@@ -86,7 +86,7 @@ Weather data is fetched from Open-Meteo Historical Weather API via `scripts/gene
 
 ## Current Status
 
-**Phase:** Building Simulators
+**Phase:** Building Simulators & TEA
 **Completed:**
 - Project setup, deployment to Vercel (with Vercel Analytics)
 - Landing page with 6 section cards (3 active, 3 "coming soon" at opacity-30)
@@ -118,9 +118,23 @@ Weather data is fetched from Open-Meteo Historical Weather API via `scripts/gene
   - Dynamic y-axis scaling with intuitive tick increments (`niceAxis` helper)
   - Minimal hover tooltips: colored dot + value text anchored to the data point (no box)
 
+- **Technoeconomics — Open Pond TEA** (`/technoeconomics/open-pond`):
+  - Pure-function TEA engine (`lib/technoeconomics/`) — `runTEA(config) → TEAResult`
+  - 5-section cost model: Inputs, Inoculum, Biomass, Harvesting, Drying
+  - Constraint-based equipment sizing with shared catalogs (water pumps, sludge pumps, tanks, filters, hoppers, mix tanks)
+  - Three-tier installation cost cascade: Installation → Indirect → Other (per-factor breakdown for future user adjustability)
+  - NREL pond cost correlation (fully installed, no double-escalation)
+  - Inoculum pond counts calculated from inoculation timeline (default 6 months)
+  - Financial analysis: MACRS-7 depreciation, DCF cash flows, NPV, IRR (bisection), MBSP (bisection), sensitivity table
+  - Nutrient stoichiometry (CO₂, KNO₃, DAP, water demand from biomass composition)
+  - UI page with: KPI summary cards, unit cost inputs table, sections overview table (CAPEX + OPEX breakdown), MBSP breakdown, cost contribution by section, revenue sensitivity, expandable 30-year cash flow schedule
+  - TEA index page (`/technoeconomics`) with reactor type cards (open-pond active, flat-panel/tubular coming soon)
+  - SiteHeader TEA link activated
+
 **Next:**
 - Heat / Energy Balance accordion panel (planned for open pond simulator)
 - Flat Panel PBR and Tubular PBR simulators
-- Technoeconomics pages
+- TEA: user-editable input sliders with live recalculation
+- TEA: Flat Panel and Tubular PBR pages
 - Dynamic PBR Simulator
 - Experiments & Model Fitting pages

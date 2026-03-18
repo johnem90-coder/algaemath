@@ -1,0 +1,77 @@
+{
+  "_meta": {
+    "description": "Equipment cost correlations used for sizing-dependent pricing",
+    "source": "TEA_AlgaeBiomass_RacewayPond_Spirulina_230908.xlsx",
+    "extracted": "2026-03-16"
+  },
+
+  "tank_cost": {
+    "description": "Cone roof tank cost as a function of capacity",
+    "formula": "cost = 5700 + 700 × capacity_m3^0.7",
+    "input_units": "m³",
+    "output_units": "USD",
+    "output_year": 2006,
+    "escalation_to_2022": 1.42,
+    "applies_to": ["INP-01 (Tank 1)", "INP-04 (Tank 2s)", "HAR-05 (Tank 3s)"],
+    "source_citation": null,
+    "source_confidence": "medium",
+    "notes": "Likely from Perry's Chemical Engineers' Handbook or similar. No documentation in original model.",
+    "validation_points": [
+      { "capacity_m3": 700, "cost_2006": 74354.13, "cost_2022": 105582.86 },
+      { "capacity_m3": 4000, "cost_2006": 238262.69, "cost_2022": 338333.01 }
+    ]
+  },
+
+  "pond_cost": {
+    "description": "Open raceway pond fully installed cost as a function of size",
+    "formula": "cost = 60788 × pond_size_acres + 68046",
+    "input_units": "acres",
+    "output_units": "USD",
+    "output_year": 2022,
+    "escalation_to_2022": "baked into coefficients (fitted to already-escalated data)",
+    "applies_to": ["BIO-01 (Ponds)", "INO-01/02/03 (Inoculum Ponds)"],
+    "source_citation": "NREL 2011 Algae Farm Model_Open Ponds_TEA Tool_v1",
+    "source_confidence": "high",
+    "notes": "Linear fit to NREL 'Full' liner option data, escalated to 2022. Fully installed — no additional installation factors.",
+    "valid_range_acres": [0.001, 50]
+  },
+
+  "paddlewheel_energy": {
+    "description": "Paddlewheel energy consumption as a power-law function of pond size",
+    "formula": "energy = 34.2 × pond_size_acres^(-0.176)",
+    "input_units": "acres",
+    "output_units": "kWh/acre/day",
+    "applies_to": ["BIO-01 (Ponds)", "INO-01/02/03 (Inoculum Ponds)"],
+    "source_citation": "NREL 2011 Algae Farm Model_Open Ponds_TEA Tool_v1",
+    "source_confidence": "high",
+    "notes": "Power-law fit to NREL data at 2, 10, 50 acre points. To get total: result × pond_acres × active_days × n_ponds",
+    "valid_range_acres": [0.001, 50]
+  },
+
+  "spray_dryer_cost": {
+    "description": "Spray dryer cost as a function of evaporation rate",
+    "formula": "cost = 190000 + 180 × evap_rate_kg_hr^0.9",
+    "input_units": "kg/hr (water evaporated)",
+    "output_units": "USD",
+    "output_year": 2006,
+    "escalation_to_2022": 1.42,
+    "applies_to": ["DRY-02 (Dryer 1)"],
+    "source_citation": null,
+    "source_confidence": "medium",
+    "notes": "Source not documented in original model.",
+    "validation_points": [
+      { "evap_rate_kg_hr": 593.89, "cost_2006": 246442.65, "cost_2022": 349948.56 }
+    ]
+  },
+
+  "escalation_factors": {
+    "description": "Cost year escalation factors used throughout the model",
+    "factors": [
+      { "from_year": 2006, "to_year": 2022, "factor": 1.42, "basis": "Approximate CEPCI ratio", "notes": "Should be replaced with actual CEPCI indices for configurability" },
+      { "from_year": 2011, "to_year": 2022, "factor": 1.24, "basis": "Approximate CEPCI ratio", "notes": "Used for NREL pond costs" }
+    ],
+    "currency_conversions": [
+      { "from": "AUD", "to": "USD", "rate": 0.70827, "date": "circa 2022", "notes": "Static rate used for Australian pump pricing" }
+    ]
+  }
+}

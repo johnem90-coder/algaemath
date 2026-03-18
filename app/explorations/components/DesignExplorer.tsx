@@ -215,6 +215,17 @@ export default function DesignExplorer() {
   const [lightModelId, setLightModelId] = useState("steele");
   const [tempModelId, setTempModelId] = useState("gaussian");
 
+  // Responsive margin for Under the Hood charts with right Y-axis
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  const hoodRightMargin = isMobile ? 12 : 40;
+
   // Load weather profile once on mount
   useEffect(() => {
     if (fetchedRef.current) return;
@@ -460,9 +471,34 @@ export default function DesignExplorer() {
       </button>
       {variableDepthOpen && (
       <div className="space-y-0 pb-4">
-      <div className="flex items-start gap-8 py-4 select-none">
-      {/* ── Depth slider ──────────────────────────────────────────── */}
-      <div className="flex flex-col items-center shrink-0 w-44 border-2 border-dashed border-muted-foreground/30 rounded-lg px-4 py-4 relative mt-6">
+      {/* ── Mobile horizontal slider ── */}
+      <div className="md:hidden mb-3 select-none">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs font-medium text-foreground">Culture Depth (mm)</span>
+          <span className="text-sm font-mono font-bold" style={{ color: 'hsl(var(--accent-science))' }}>{depth} mm</span>
+        </div>
+        <Slider
+          min={DEPTH_MIN}
+          max={DEPTH_MAX}
+          step={DEPTH_STEP}
+          value={depthMm}
+          onValueChange={setDepthMm}
+          className="w-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[hsl(var(--accent-science))] [&_span[role=slider]]:!border-[hsl(var(--accent-science))] [&_span[role=slider]]:!bg-background"
+        />
+        <div className="flex justify-between mt-0.5">
+          <span className="text-[10px] font-mono text-muted-foreground">{DEPTH_MIN} Shallow</span>
+          <span className="text-[10px] font-mono text-muted-foreground">{DEPTH_MAX} Deep</span>
+        </div>
+      </div>
+
+      {/* ── Pond visual (mobile: full width) ── */}
+      <div className="md:hidden min-h-[260px] h-[260px] mb-3 overflow-hidden">
+        <DepthDiagram depthMm={depth} />
+      </div>
+
+      <div className="flex flex-col md:flex-row md:items-start md:gap-8 md:py-4 select-none">
+      {/* ── Depth slider (desktop only) ── */}
+      <div className="hidden md:flex flex-col items-center shrink-0 w-44 border-2 border-dashed border-muted-foreground/30 rounded-lg px-4 py-4 relative mt-6">
         <span className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-medium text-foreground whitespace-nowrap">
           Culture Depth (mm)
         </span>
@@ -473,7 +509,6 @@ export default function DesignExplorer() {
           Deep
         </span>
         <div className="h-52 relative w-full flex justify-center">
-          {/* Symbol on left of thumb */}
           <span
             className="absolute text-sm font-mono font-bold pointer-events-none whitespace-nowrap"
             style={{
@@ -494,7 +529,6 @@ export default function DesignExplorer() {
             onValueChange={setDepthMm}
             className="h-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[hsl(var(--accent-science))] [&_span[role=slider]]:!border-[hsl(var(--accent-science))] [&_span[role=slider]]:!bg-background"
           />
-          {/* Value on right of thumb */}
           <span
             className="absolute text-sm font-mono font-bold pointer-events-none leading-tight"
             style={{
@@ -519,15 +553,15 @@ export default function DesignExplorer() {
         </span>
       </div>
 
-      {/* ── Pond visual ─────────────────────────────────────────── */}
-      <div className="flex-1 min-h-[320px] h-[320px]">
+      {/* ── Pond visual (desktop only) ── */}
+      <div className="hidden md:block flex-1 min-w-0 w-full min-h-[320px] h-[320px]">
         <DepthDiagram depthMm={depth} />
       </div>
 
-      {/* ── Charts (side by side) ─────────────────────────────────── */}
-      <div className="flex gap-4 shrink-0">
+      {/* ── Charts ─────────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row gap-4 md:shrink-0">
         {/* Density chart */}
-        <div className="w-[320px]">
+        <div className="w-full md:w-[320px] touch-pan-y">
           <h3 className="text-xs font-medium text-foreground/70 mb-2">
             Biomass Density
           </h3>
@@ -606,7 +640,7 @@ export default function DesignExplorer() {
         </div>
 
         {/* Total biomass chart */}
-        <div className="w-[320px]">
+        <div className="w-full md:w-[320px] touch-pan-y">
           <h3 className="text-xs font-medium text-foreground/70 mb-2">
             Total Biomass
           </h3>
@@ -684,7 +718,7 @@ export default function DesignExplorer() {
           </ResponsiveContainer>
         </div>
       </div>
-    </div>
+      </div>
 
     {/* ── Under the Hood ──────────────────────────────────────────── */}
     <div className="border-t pt-2">
@@ -700,12 +734,12 @@ export default function DesignExplorer() {
         />
       </button>
       {underTheHoodOpen && (
-        <div className="grid grid-cols-3 gap-1 pb-6">
+        <div className="flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-1 pb-6">
           {/* Light Response (fL) + PAR avg */}
-          <div>
+          <div className="touch-pan-y">
             <h3 className="text-xs font-medium text-foreground/70 mb-2 flex items-center gap-2">
               Light Response
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 flex-wrap">
                 {LIGHT_MODELS.map((m) => (
                   <span
                     key={m.id}
@@ -724,7 +758,7 @@ export default function DesignExplorer() {
             <ResponsiveContainer width="100%" height={220}>
               <ComposedChart
                 data={chartData}
-                margin={{ top: 8, right: 40, bottom: 24, left: 0 }}
+                margin={{ top: 8, right: hoodRightMargin, bottom: 24, left: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis {...hoodXAxis} />
@@ -748,9 +782,11 @@ export default function DesignExplorer() {
                   domain={[0, 700]}
                   ticks={[0, 100, 200, 300, 400, 500, 600, 700]}
                   tickFormatter={(v: number) => v.toFixed(0)}
-                  tick={{ fontSize: 9, fill: "#c0c0c0" }}
-                  stroke="#c0c0c0"
-                  label={{
+                  tick={isMobile ? false : { fontSize: 9, fill: "#c0c0c0" }}
+                  stroke={isMobile ? "transparent" : "#c0c0c0"}
+                  width={isMobile ? 0 : undefined}
+                  hide={isMobile}
+                  label={isMobile ? undefined : {
                     value: "Avg Intensity (µmol/m²/s)",
                     angle: 90,
                     position: "outside",
@@ -789,13 +825,14 @@ export default function DesignExplorer() {
                 />
               </ComposedChart>
             </ResponsiveContainer>
+            {isMobile && <p className="text-[9px] text-right text-muted-foreground/50 -mt-1">dashed = Avg Intensity (µmol/m²/s)</p>}
           </div>
 
           {/* Temperature Response (fT) + pond temp */}
-          <div>
+          <div className="touch-pan-y">
             <h3 className="text-xs font-medium text-foreground/70 mb-2 flex items-center gap-2">
               Temperature Response
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 flex-wrap">
                 {TEMP_MODELS.map((m) => (
                   <span
                     key={m.id}
@@ -814,7 +851,7 @@ export default function DesignExplorer() {
             <ResponsiveContainer width="100%" height={220}>
               <ComposedChart
                 data={chartData}
-                margin={{ top: 8, right: 40, bottom: 24, left: 0 }}
+                margin={{ top: 8, right: hoodRightMargin, bottom: 24, left: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis {...hoodXAxis} />
@@ -838,9 +875,11 @@ export default function DesignExplorer() {
                   domain={[10, 50]}
                   ticks={[10, 20, 30, 40, 50]}
                   tickFormatter={(v: number) => v.toFixed(0)}
-                  tick={{ fontSize: 9, fill: "#c0c0c0" }}
-                  stroke="#c0c0c0"
-                  label={{
+                  tick={isMobile ? false : { fontSize: 9, fill: "#c0c0c0" }}
+                  stroke={isMobile ? "transparent" : "#c0c0c0"}
+                  width={isMobile ? 0 : undefined}
+                  hide={isMobile}
+                  label={isMobile ? undefined : {
                     value: "Culture Temp (°C)",
                     angle: 90,
                     position: "outside",
@@ -879,10 +918,11 @@ export default function DesignExplorer() {
                 />
               </ComposedChart>
             </ResponsiveContainer>
+            {isMobile && <p className="text-[9px] text-right text-muted-foreground/50 -mt-1">dashed = Culture Temp (°C)</p>}
           </div>
 
           {/* Productivity */}
-          <div>
+          <div className="touch-pan-y">
             <h3 className="text-xs font-medium text-foreground/70 mb-2">
               Productivity
             </h3>
@@ -937,6 +977,7 @@ export default function DesignExplorer() {
                 />
               </ComposedChart>
             </ResponsiveContainer>
+            {isMobile && <p className="text-[9px] text-right text-muted-foreground/50 -mt-1">dashed = Avg Productivity (g/m²/day)</p>}
           </div>
         </div>
       )}
@@ -960,9 +1001,34 @@ export default function DesignExplorer() {
       </button>
       {layeredLightOpen && (
       <div className="space-y-0 pb-4">
-      <div className="flex items-start gap-8 py-4 select-none">
-      {/* ── Layers slider ─────────────────────────────────────────── */}
-      <div className="flex flex-col items-center shrink-0 w-44 border-2 border-dashed border-muted-foreground/30 rounded-lg px-4 py-4 relative mt-6">
+      {/* ── Mobile horizontal slider ── */}
+      <div className="md:hidden mb-3 select-none">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs font-medium text-foreground">Number of Layers</span>
+          <span className="text-sm font-mono font-bold" style={{ color: 'hsl(var(--accent-science))' }}>{layers} {layers === 1 ? 'layer' : 'layers'}</span>
+        </div>
+        <Slider
+          min={MIN_LAYERS}
+          max={MAX_LAYERS}
+          step={1}
+          value={numLayers}
+          onValueChange={setNumLayers}
+          className="w-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[hsl(var(--accent-science))] [&_span[role=slider]]:!border-[hsl(var(--accent-science))] [&_span[role=slider]]:!bg-background"
+        />
+        <div className="flex justify-between mt-0.5">
+          <span className="text-[10px] font-mono text-muted-foreground">{MIN_LAYERS} Fewer</span>
+          <span className="text-[10px] font-mono text-muted-foreground">{MAX_LAYERS} More</span>
+        </div>
+      </div>
+
+      {/* ── Pond visual (mobile: full width) ── */}
+      <div className="md:hidden min-h-[260px] h-[260px] mb-3 overflow-hidden">
+        <LayeredDiagram layers={layers} />
+      </div>
+
+      <div className="flex flex-col md:flex-row md:items-start md:gap-8 md:py-4 select-none">
+      {/* ── Layers slider (desktop only) ── */}
+      <div className="hidden md:flex flex-col items-center shrink-0 w-44 border-2 border-dashed border-muted-foreground/30 rounded-lg px-4 py-4 relative mt-6">
         <span className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-medium text-foreground whitespace-nowrap">
           Number of Layers
         </span>
@@ -973,7 +1039,6 @@ export default function DesignExplorer() {
           More
         </span>
         <div className="h-52 relative w-full flex justify-center">
-          {/* Symbol on left of thumb */}
           <span
             className="absolute text-sm font-mono font-bold pointer-events-none whitespace-nowrap"
             style={{
@@ -994,7 +1059,6 @@ export default function DesignExplorer() {
             onValueChange={setNumLayers}
             className="h-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[hsl(var(--accent-science))] [&_span[role=slider]]:!border-[hsl(var(--accent-science))] [&_span[role=slider]]:!bg-background"
           />
-          {/* Value on right of thumb */}
           <span
             className="absolute text-sm font-mono font-bold pointer-events-none leading-tight"
             style={{
@@ -1019,15 +1083,15 @@ export default function DesignExplorer() {
         </span>
       </div>
 
-      {/* ── Pond visual ─────────────────────────────────────────── */}
-      <div className="flex-1 min-h-[320px] h-[320px]">
+      {/* ── Pond visual (desktop only) ── */}
+      <div className="hidden md:block flex-1 min-w-0 w-full min-h-[320px] h-[320px]">
         <LayeredDiagram layers={layers} />
       </div>
 
-      {/* ── Charts (side by side) ─────────────────────────────────── */}
-      <div className="flex gap-4 shrink-0">
+      {/* ── Charts ─────────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row gap-4 md:shrink-0">
         {/* Density chart */}
-        <div className="w-[320px]">
+        <div className="w-full md:w-[320px] touch-pan-y">
           <h3 className="text-xs font-medium text-foreground/70 mb-2">
             Biomass Density
           </h3>
@@ -1106,7 +1170,7 @@ export default function DesignExplorer() {
         </div>
 
         {/* Total biomass chart */}
-        <div className="w-[320px]">
+        <div className="w-full md:w-[320px] touch-pan-y">
           <h3 className="text-xs font-medium text-foreground/70 mb-2">
             Total Biomass (all layers)
           </h3>
@@ -1184,7 +1248,7 @@ export default function DesignExplorer() {
           </ResponsiveContainer>
         </div>
       </div>
-    </div>
+      </div>
 
     {/* ── Under the Hood (Layered Light) ──────────────────────────── */}
     <div className="border-t pt-2">
@@ -1200,12 +1264,12 @@ export default function DesignExplorer() {
         />
       </button>
       {layeredHoodOpen && (
-        <div className="grid grid-cols-3 gap-1 pb-6">
+        <div className="flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-1 pb-6">
           {/* Light Response (fL) + PAR avg — per layer */}
-          <div>
+          <div className="touch-pan-y">
             <h3 className="text-xs font-medium text-foreground/70 mb-2 flex items-center gap-2">
               Light Response
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 flex-wrap">
                 {LIGHT_MODELS.map((m) => (
                   <span
                     key={m.id}
@@ -1224,7 +1288,7 @@ export default function DesignExplorer() {
             <ResponsiveContainer width="100%" height={220}>
               <ComposedChart
                 data={layeredChartData}
-                margin={{ top: 8, right: 40, bottom: 24, left: 0 }}
+                margin={{ top: 8, right: hoodRightMargin, bottom: 24, left: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis {...hoodXAxis} />
@@ -1247,9 +1311,11 @@ export default function DesignExplorer() {
                   orientation="right"
                   domain={[0, layeredEnvelope?.yMaxPAR ?? 700]}
                   tickFormatter={(v: number) => v.toFixed(0)}
-                  tick={{ fontSize: 9, fill: "#c0c0c0" }}
-                  stroke="#c0c0c0"
-                  label={{
+                  tick={isMobile ? false : { fontSize: 9, fill: "#c0c0c0" }}
+                  stroke={isMobile ? "transparent" : "#c0c0c0"}
+                  width={isMobile ? 0 : undefined}
+                  hide={isMobile}
+                  label={isMobile ? undefined : {
                     value: "Avg Intensity (µmol/m²/s)",
                     angle: 90,
                     position: "outside",
@@ -1288,13 +1354,14 @@ export default function DesignExplorer() {
                 />
               </ComposedChart>
             </ResponsiveContainer>
+            {isMobile && <p className="text-[9px] text-right text-muted-foreground/50 -mt-1">dashed = Avg Intensity (µmol/m²/s)</p>}
           </div>
 
           {/* Temperature Response (fT) + pond temp — per layer */}
-          <div>
+          <div className="touch-pan-y">
             <h3 className="text-xs font-medium text-foreground/70 mb-2 flex items-center gap-2">
               Temperature Response
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 flex-wrap">
                 {TEMP_MODELS.map((m) => (
                   <span
                     key={m.id}
@@ -1313,7 +1380,7 @@ export default function DesignExplorer() {
             <ResponsiveContainer width="100%" height={220}>
               <ComposedChart
                 data={layeredChartData}
-                margin={{ top: 8, right: 40, bottom: 24, left: 0 }}
+                margin={{ top: 8, right: hoodRightMargin, bottom: 24, left: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis {...hoodXAxis} />
@@ -1337,9 +1404,11 @@ export default function DesignExplorer() {
                   domain={[10, 50]}
                   ticks={[10, 20, 30, 40, 50]}
                   tickFormatter={(v: number) => v.toFixed(0)}
-                  tick={{ fontSize: 9, fill: "#c0c0c0" }}
-                  stroke="#c0c0c0"
-                  label={{
+                  tick={isMobile ? false : { fontSize: 9, fill: "#c0c0c0" }}
+                  stroke={isMobile ? "transparent" : "#c0c0c0"}
+                  width={isMobile ? 0 : undefined}
+                  hide={isMobile}
+                  label={isMobile ? undefined : {
                     value: "Culture Temp (°C)",
                     angle: 90,
                     position: "outside",
@@ -1378,10 +1447,11 @@ export default function DesignExplorer() {
                 />
               </ComposedChart>
             </ResponsiveContainer>
+            {isMobile && <p className="text-[9px] text-right text-muted-foreground/50 -mt-1">dashed = Culture Temp (°C)</p>}
           </div>
 
           {/* Productivity — total across all layers */}
-          <div>
+          <div className="touch-pan-y">
             <h3 className="text-xs font-medium text-foreground/70 mb-2">
               Productivity (all layers)
             </h3>
@@ -1436,6 +1506,7 @@ export default function DesignExplorer() {
                 />
               </ComposedChart>
             </ResponsiveContainer>
+            {isMobile && <p className="text-[9px] text-right text-muted-foreground/50 -mt-1">dashed = Avg Productivity (g/m²/day)</p>}
           </div>
         </div>
       )}

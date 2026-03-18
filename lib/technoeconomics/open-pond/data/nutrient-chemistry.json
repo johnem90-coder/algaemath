@@ -1,0 +1,121 @@
+{
+  "_meta": {
+    "description": "Nutrient stoichiometry data for converting biomass composition to source molecule demand",
+    "source": "TEA_AlgaeBiomass_RacewayPond_Spirulina_230908.xlsx (Water & Nutrient Calcs sheet)",
+    "extracted": "2026-03-16",
+    "notes": "Used to calculate annual CO₂, KNO₃, DAP, and micronutrient demand from algae composition inputs"
+  },
+
+  "calculation_method": {
+    "description": "For each element: molecule_demand (g/g BM) = element_fraction × (MW_source / AW_element) / uptake_efficiency. Then scale to daily and annual consumption with buffer.",
+    "steps": [
+      "1. molecule_demand = element_frac × (MW_source / AW_element) / η_uptake",
+      "2. daily_consumption_tons = (Q_actual / active_days) × molecule_demand",
+      "3. daily_with_buffer = daily_consumption × (1 + buffer)",
+      "4. annual_consumption_tons = daily_with_buffer × active_days"
+    ]
+  },
+
+  "elements": [
+    {
+      "element": "Carbon",
+      "atomic_weight": 12.0107,
+      "units": "g/mol",
+      "source_molecule": "Carbon Dioxide",
+      "molecular_formula": "CO₂",
+      "molecular_weight": 44.01,
+      "default_biomass_fraction": 0.54,
+      "uptake_efficiency": 0.30,
+      "buffer_factor": 0.30,
+      "notes": "30% uptake efficiency reflects significant CO₂ degassing in open ponds. Closed PBRs would use 80-95%.",
+      "computed_demand_g_per_g_BM": 6.596,
+      "default_annual_tons": 6952.14,
+      "cost_driver_rank": 1,
+      "cost_notes": "CO₂ at $375/ton × 6952 tons = $2.61M/yr — dominates materials cost (90%)"
+    },
+    {
+      "element": "Nitrogen",
+      "atomic_weight": 14.0067,
+      "units": "g/mol",
+      "source_molecule": "Potassium Nitrate",
+      "molecular_formula": "KNO₃",
+      "molecular_weight": 101.1032,
+      "default_biomass_fraction": 0.018,
+      "uptake_efficiency": 1.0,
+      "buffer_factor": 0.20,
+      "notes": "100% uptake efficiency assumed for nitrogen",
+      "computed_demand_g_per_g_BM": 0.1299,
+      "default_annual_tons": 126.42,
+      "cost_driver_rank": 3
+    },
+    {
+      "element": "Phosphorus",
+      "atomic_weight": 30.973762,
+      "units": "g/mol",
+      "source_molecule": "Diammonium Phosphate",
+      "molecular_formula": "(NH₄)₂HPO₄",
+      "molecular_weight": 132.06,
+      "default_biomass_fraction": 0.0022,
+      "uptake_efficiency": 1.0,
+      "buffer_factor": 0.20,
+      "notes": "100% uptake efficiency assumed for phosphorus",
+      "computed_demand_g_per_g_BM": 0.00938,
+      "default_annual_tons": 9.13,
+      "cost_driver_rank": 4
+    },
+    {
+      "element": "Other Micronutrients",
+      "atomic_weight": null,
+      "source_molecule": "Various",
+      "molecular_formula": null,
+      "molecular_weight": null,
+      "default_biomass_fraction": 0.000269,
+      "fraction_derivation": "P_frac² / N_frac (rough estimate, not stoichiometric)",
+      "uptake_efficiency": 1.0,
+      "buffer_factor": 0.20,
+      "notes": "Currently just a guess — fraction derived from phosphorus/nitrogen ratio",
+      "default_annual_tons": 0.66,
+      "cost_driver_rank": 5
+    }
+  ],
+
+  "water": {
+    "description": "Water demand calculation (separate from nutrient stoichiometry)",
+    "daily_demand_components": [
+      {
+        "component": "Evaporation",
+        "formula": "evap_rate_mm × total_pond_area_m2 / 1000",
+        "units": "m³/day",
+        "default_evap_rate_mm": 10,
+        "notes": "Location-dependent. 10 mm/day is a common estimate for arid regions."
+      },
+      {
+        "component": "Harvest slurry",
+        "formula": "system_volume × growth_rate × (1 - harvest_efficiency)",
+        "units": "m³/day",
+        "default_harvest_efficiency": 0.70,
+        "notes": "Volume of culture that passes through harvesting but is not returned as clarified water"
+      }
+    ],
+    "default_annual_m3": 1573638,
+    "cost_driver_rank": 2,
+    "cost_notes": "Water at $0.133/m³ × 1.57M m³ = $209k/yr"
+  },
+
+  "carbon_sequestration": {
+    "description": "Net CO₂ fixation metrics (for reporting, not cost calculation)",
+    "formulas": {
+      "tons_C_per_yr": "daily_C_consumption × uptake_efficiency × active_days",
+      "tons_CO2_per_yr": "tons_C_per_yr × (AW_C / MW_CO2)",
+      "tons_C_per_acre_yr": "tons_C_per_yr / land_area_acres",
+      "tons_CO2_per_acre_yr": "tons_CO2_per_yr / land_area_acres"
+    },
+    "default_values": {
+      "tons_C_per_yr": 1604.34,
+      "tons_CO2_per_yr": 437.84,
+      "tons_C_per_acre_yr": 20.40,
+      "tons_CO2_per_acre_yr": 5.57
+    },
+    "notes": "These represent the carbon actually fixed into biomass, not the total CO₂ consumed (which is higher due to uptake inefficiency)"
+  }
+}

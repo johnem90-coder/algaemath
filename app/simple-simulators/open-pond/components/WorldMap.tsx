@@ -154,6 +154,33 @@ export default function WorldMap({
   const dragStart = useRef({ x: 0, scrollLeft: 0 });
   const didDrag = useRef(false);
 
+  // Pinch-to-zoom for mobile
+  const [mapScale, setMapScale] = useState(1);
+  const pinchStart = useRef<{ dist: number; scale: number } | null>(null);
+
+  const getTouchDist = (t: React.TouchEvent) => {
+    const [a, b] = [t.touches[0], t.touches[1]];
+    return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  };
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      pinchStart.current = { dist: getTouchDist(e), scale: mapScale };
+    }
+  }, [mapScale]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 2 && pinchStart.current) {
+      const newDist = getTouchDist(e);
+      const ratio = newDist / pinchStart.current.dist;
+      setMapScale(Math.max(1, Math.min(4, pinchStart.current.scale * ratio)));
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    pinchStart.current = null;
+  }, []);
+
   const theme = SEASON_THEMES[season];
 
   // Close weather data overlay when a new sim starts (simComplete goes false)
@@ -207,23 +234,22 @@ export default function WorldMap({
 
   return (
     <div
-      className="relative flex h-full w-[38%] shrink-0 flex-col overflow-hidden rounded-xl border"
+      className="relative flex h-[250px] md:h-full w-full md:w-[38%] shrink-0 flex-col overflow-hidden rounded-xl border"
       style={{ backgroundColor: theme.bg, transition: "background-color 0.4s" }}
     >
       {/* Header bar */}
-      <div className="flex items-center justify-between border-b px-4 py-2">
+      <div className="flex flex-wrap items-center justify-between border-b px-4 py-2 gap-y-1">
         <div className="flex items-center gap-2">
           <div className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--accent-science))]" />
           <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
             {headerText}
             {loading && <span className="ml-1 animate-pulse">...</span>}
           </span>
-          {simComplete && weatherData && (
-            <button
-              onClick={() => setShowData((v) => !v)}
-              className="flex items-center gap-1 rounded-sm bg-foreground/5 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-widest text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
-            >
-              Weather Data
+          <button
+            onClick={() => setShowData((v) => !v)}
+            className="flex items-center gap-1 rounded-sm bg-foreground/5 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-widest text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
+          >
+            Weather Data
               <svg
                 width="8"
                 height="8"
@@ -240,7 +266,6 @@ export default function WorldMap({
                 />
               </svg>
             </button>
-          )}
         </div>
         <div className="flex gap-1">
           {SEASONS.map((s) => (
@@ -262,12 +287,15 @@ export default function WorldMap({
       {/* Map area */}
       <div
         ref={containerRef}
-        className="relative flex-1 overflow-x-hidden overflow-y-hidden"
+        className="relative flex-1 overflow-x-hidden overflow-y-hidden touch-none"
         style={{ cursor: isDragging ? "grabbing" : "grab" }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <svg
           viewBox="-180 -90 360 180"
@@ -275,7 +303,7 @@ export default function WorldMap({
           height="100%"
           preserveAspectRatio="xMidYMid meet"
           shapeRendering="geometricPrecision"
-          style={{ minWidth: "200%" }}
+          style={{ minWidth: "200%", transform: `scale(${mapScale})`, transformOrigin: "center center" }}
         >
           {/* Ocean background */}
           <rect
@@ -363,6 +391,12 @@ export default function WorldMap({
       </div>
 
       {/* Data dropdown overlay */}
+      {showData && !(displayRaw && weatherData) && (
+        <div className="absolute inset-x-0 top-[33px] bottom-0 z-10 flex flex-col items-center justify-center border-t bg-background/80 backdrop-blur-sm">
+          <p className="text-sm text-muted-foreground">Run simulation to create data</p>
+          <button onClick={() => setShowData(false)} className="mt-2 text-[10px] font-medium text-muted-foreground hover:text-foreground">Close</button>
+        </div>
+      )}
       {showData && displayRaw && weatherData && (
         <div className="absolute inset-x-0 top-[33px] bottom-0 z-10 flex flex-col border-t bg-background/80 backdrop-blur-sm">
           <div className="flex items-center justify-between px-3 py-1.5 border-b">

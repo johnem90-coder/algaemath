@@ -903,8 +903,32 @@ function ModelVisualizer({
 
   return (
     <div className="grid grid-cols-1 gap-2 lg:grid-cols-[240px_1fr_1fr_290px] py-4 select-none">
-      {/* Vertical sliders */}
-      <div className="flex items-center justify-center px-3 py-4 relative self-start" style={{ gap: sliderLayout.outerGap }}>
+      {/* Mobile horizontal sliders */}
+      <div className="space-y-2 mb-2 lg:hidden">
+        {model.parameters.map((p) => {
+          const color = p.color ?? model.color;
+          const isDisabled = simRunning || !!p.readOnly;
+          return (
+            <div key={p.symbol} style={{ "--sc": color } as React.CSSProperties}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-muted-foreground">{p.label} ({p.unit})</span>
+                <span className="text-xs font-medium tabular-nums" style={{ color }}>{params[p.symbol].toFixed(p.step < 1 ? 2 : 0)}</span>
+              </div>
+              <Slider
+                min={p.min}
+                max={p.max}
+                step={p.step}
+                value={[params[p.symbol]]}
+                onValueChange={([v]) => { if (!p.readOnly) handleSlider(p, v); }}
+                className={`w-full [&_[data-slot=slider-track]]:!bg-border [&_[data-slot=slider-range]]:!bg-[var(--sc)] [&_[data-slot=slider-thumb]]:!border-[var(--sc)] [&_[data-slot=slider-thumb]]:!bg-background ${isDisabled ? 'pointer-events-none opacity-50' : ''}`}
+                disabled={isDisabled}
+              />
+            </div>
+          );
+        })}
+      </div>
+      {/* Vertical sliders (desktop only) */}
+      <div className="hidden lg:flex items-center justify-center px-3 py-4 relative self-start" style={{ gap: sliderLayout.outerGap }}>
         <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-background px-2 text-[11px] font-mono text-muted-foreground whitespace-nowrap">
           {simRunning ? "\u23F5 simulating" : "\u2195 drag to adjust"}
         </span>
@@ -1025,7 +1049,7 @@ function ModelVisualizer({
       {/* SVG Chart */}
       <svg
         viewBox={`0 0 ${VB_W} ${VB_H}`}
-        className="w-full h-full min-h-[200px]"
+        className="w-full h-full min-h-[200px] touch-pan-y"
         preserveAspectRatio="xMidYMin meet"
         aria-label={`${model.name} model chart`}
       >
@@ -1290,7 +1314,7 @@ function ModelVisualizer({
       {/* Time-series chart */}
       <svg
         viewBox={`0 0 ${VB_W} ${VB_H}`}
-        className="w-full h-full min-h-[200px]"
+        className="w-full h-full min-h-[200px] touch-pan-y"
         preserveAspectRatio="xMidYMin meet"
         aria-label={`${model.name} time series`}
       >
@@ -1402,7 +1426,7 @@ function ModelVisualizer({
       </svg>
 
       {/* Equation panel */}
-      <div className="space-y-3 border-l border-border pl-4 self-start">
+      <div className="space-y-3 lg:border-l border-border lg:pl-4 self-start">
         <div className="text-xs font-semibold text-foreground">
           {model.name}
         </div>
@@ -1728,7 +1752,7 @@ function HeatBalancePanel({
       />
 
       {/* Equations panel */}
-      <div className="space-y-3 border-l border-border pl-4 self-start">
+      <div className="space-y-3 lg:border-l border-border lg:pl-4 self-start">
         <div className="text-xs font-semibold text-foreground">Energy Balance</div>
         <div
           className="text-left overflow-x-auto overflow-y-hidden [&_.katex-mathml]:!hidden [&_.katex-display]:!text-left [&_.katex-display]:!m-0 [&_.fleqn]:!pl-0 [&_.fleqn>.katex]:!pl-0"
@@ -2107,7 +2131,7 @@ function MassBalancePanel({
       />
 
       {/* Equations + live values */}
-      <div className="space-y-3 border-l border-border pl-4 self-start">
+      <div className="space-y-3 lg:border-l border-border lg:pl-4 self-start">
         <div className="text-xs font-semibold text-foreground">Water Balance</div>
         <div
           className="text-left overflow-x-auto overflow-y-hidden [&_.katex-mathml]:!hidden [&_.katex-display]:!text-left [&_.katex-display]:!m-0 [&_.fleqn]:!pl-0 [&_.fleqn>.katex]:!pl-0"
@@ -2208,7 +2232,7 @@ function InlineSimControls({
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <span
-      className="ml-auto flex items-center gap-5 mr-2 [&_[data-slot=slider-track]]:h-1 [&_[data-slot=slider-thumb]]:size-3 [&_[data-slot=slider-thumb]]:border"
+      className="ml-auto flex flex-wrap items-center gap-x-5 gap-y-2 mr-2 [&_[data-slot=slider-track]]:h-1 [&_[data-slot=slider-thumb]]:size-3 [&_[data-slot=slider-thumb]]:border"
       onClick={stop}
       onPointerDown={stop}
     >
@@ -2377,9 +2401,9 @@ function SectionHeader({
   const others = models.filter((m) => m.id !== activeId);
 
   return (
-    <span className="flex items-center gap-2">
+    <span className="flex flex-wrap items-center gap-2">
       {title}
-      <span className="flex items-center gap-1">
+      <span className="flex flex-wrap items-center gap-1">
         {models.map((m) => (
           <span
             key={m.id}
@@ -2467,7 +2491,7 @@ export default function GrowthModelPanels({
       <Accordion type="multiple" className="w-full">
         <AccordionItem value="light-response">
           <AccordionTrigger className="text-sm font-medium">
-            <span className="flex flex-1 items-center">
+            <span className="flex flex-1 flex-wrap items-center gap-y-1">
               <SectionHeader
                 title="Light Response"
                 models={LIGHT_RESPONSE_MODELS}
@@ -2493,7 +2517,7 @@ export default function GrowthModelPanels({
 
         <AccordionItem value="light-attenuation">
           <AccordionTrigger className="text-sm font-medium">
-            <span className="flex flex-1 items-center">
+            <span className="flex flex-1 flex-wrap items-center gap-y-1">
               <SectionHeader
                 title="Light Attenuation"
                 models={LIGHT_ATTENUATION_MODELS}
@@ -2519,7 +2543,7 @@ export default function GrowthModelPanels({
 
         <AccordionItem value="temperature-response">
           <AccordionTrigger className="text-sm font-medium">
-            <span className="flex flex-1 items-center">
+            <span className="flex flex-1 flex-wrap items-center gap-y-1">
               <SectionHeader
                 title="Temperature Response"
                 models={TEMPERATURE_RESPONSE_MODELS}
@@ -2545,7 +2569,7 @@ export default function GrowthModelPanels({
 
         <AccordionItem value="heat-energy-balance">
           <AccordionTrigger className="text-sm font-medium">
-            <span className="flex flex-1 items-center">
+            <span className="flex flex-1 flex-wrap items-center gap-y-1">
               <span className="flex items-center gap-2">Heat / Energy Balance</span>
               {simControls()}
             </span>
@@ -2561,7 +2585,7 @@ export default function GrowthModelPanels({
 
         <AccordionItem value="mass-balance">
           <AccordionTrigger className="text-sm font-medium">
-            <span className="flex flex-1 items-center">
+            <span className="flex flex-1 flex-wrap items-center gap-y-1">
               <span className="flex items-center gap-2">Mass Balance</span>
               {simControls()}
             </span>
@@ -2578,7 +2602,7 @@ export default function GrowthModelPanels({
 
         <AccordionItem value="nutrient-response">
           <AccordionTrigger className="text-sm font-medium">
-            <span className="flex flex-1 items-center">
+            <span className="flex flex-1 flex-wrap items-center gap-y-1">
               <span className="flex items-center gap-2">Nutrient Response</span>
               {simControls()}
             </span>
@@ -2590,7 +2614,7 @@ export default function GrowthModelPanels({
 
         <AccordionItem value="ph-response">
           <AccordionTrigger className="text-sm font-medium">
-            <span className="flex flex-1 items-center">
+            <span className="flex flex-1 flex-wrap items-center gap-y-1">
               <span className="flex items-center gap-2">pH Response</span>
               {simControls()}
             </span>

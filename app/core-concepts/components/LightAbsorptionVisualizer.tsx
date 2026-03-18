@@ -178,6 +178,15 @@ const absChartBot = chartTop + absChartH;
 // Equation area starts at
 const eqX = absX + absW + 40;
 
+// Pigment icon data — shared across multiple render functions
+const pigmentIconData = [
+  { id: 'chla', label: 'Chl a', peaks: [430, 662], bandWidths: [40, 40], fullName: 'Chlorophyll a' },
+  { id: 'carot', label: 'Car', peaks: [450, 480], bandWidths: [35, 35], fullName: 'Carotenoids' },
+  { id: 'pc', label: 'PC', peaks: [565], bandWidths: [25], fullName: 'Phycocyanin' },
+  { id: 'pe', label: 'PE', peaks: [620], bandWidths: [20], fullName: 'Phycoerythrin' },
+  { id: 'chlb', label: 'Chl b', peaks: [453, 642], bandWidths: [32, 30], fullName: 'Chlorophyll b' },
+];
+
 const LightAbsorptionVisualizer = () => {
   const [hoveredPigment, setHoveredPigment] = useState<string | null>(null);
   const [pinnedPigments, setPinnedPigments] = useState<Set<string>>(new Set());
@@ -438,35 +447,80 @@ const LightAbsorptionVisualizer = () => {
   // X-axis tick wavelengths
   const xTicks = [400, 450, 500, 550, 600, 650, 700, 750];
 
-  return (
-    <div className="py-4 select-none">
-      <svg viewBox="0 0 1060 320" className="w-full min-w-[900px]" aria-label="Light absorption visualization">
+  // ── Helper: pigment gradient defs (shared by sunlight and bar chart sections) ──
+  const renderPigmentGradientDefs = (s: string) => {
+    return pigmentIconData.map(p => {
+      if (p.peaks.length === 2) {
+        const peakGap = p.peaks[1] - p.peaks[0];
+        if (peakGap < 60) {
+          const outer1 = nmToRGB(p.peaks[0] - p.bandWidths[0]);
+          const c1 = nmToRGB(p.peaks[0]);
+          const mid = nmToRGB((p.peaks[0] + p.peaks[1]) / 2);
+          const c2 = nmToRGB(p.peaks[1]);
+          const outer2 = nmToRGB(Math.min(750, p.peaks[1] + p.bandWidths[1]));
+          return (
+            <linearGradient key={p.id} id={`pig-${p.id}${s}`} x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor={outer1} />
+              <stop offset="25%" stopColor={c1} />
+              <stop offset="50%" stopColor={mid} />
+              <stop offset="75%" stopColor={c2} />
+              <stop offset="100%" stopColor={outer2} />
+            </linearGradient>
+          );
+        } else {
+          const c1outer = nmToRGB(p.peaks[0] - p.bandWidths[0] * 0.3);
+          const c1 = nmToRGB(p.peaks[0]);
+          const c1edge = nmToRGB(p.peaks[0] + p.bandWidths[0]);
+          const c2edge = nmToRGB(p.peaks[1] - p.bandWidths[1]);
+          const c2 = nmToRGB(p.peaks[1]);
+          const c2outer = nmToRGB(Math.min(750, p.peaks[1] + p.bandWidths[1] * 0.3));
+          return (
+            <linearGradient key={p.id} id={`pig-${p.id}${s}`} x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor={c1outer} />
+              <stop offset="15%" stopColor={c1} />
+              <stop offset="40%" stopColor={c1edge} />
+              <stop offset="50%" stopColor={c1edge} />
+              <stop offset="50%" stopColor={c2edge} />
+              <stop offset="60%" stopColor={c2edge} />
+              <stop offset="85%" stopColor={c2} />
+              <stop offset="100%" stopColor={c2outer} />
+            </linearGradient>
+          );
+        }
+      } else {
+        const c = nmToRGB(p.peaks[0]);
+        const cEdge1 = nmToRGB(p.peaks[0] - p.bandWidths[0]);
+        const cEdge2 = nmToRGB(p.peaks[0] + p.bandWidths[0]);
+        return (
+          <linearGradient key={p.id} id={`pig-${p.id}${s}`} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor={cEdge1} stopOpacity="0.6" />
+            <stop offset="50%" stopColor={c} />
+            <stop offset="100%" stopColor={cEdge2} stopOpacity="0.6" />
+          </linearGradient>
+        );
+      }
+    });
+  };
+
+  // ── Mobile section 1: Sunlight section ──
+  const renderSunlightSection = (s: string) => {
+    return (
+      <>
         <defs>
-          {/* Sunlight spectrum rainbow gradient */}
-          <linearGradient id="sun-spectrum-grad" x1="0" y1="0" x2="1" y2="0">
-            {spectrumStops.map((s, i) => (
-              <stop key={i} offset={s.offset} stopColor={s.color} stopOpacity="0.45" />
+          <linearGradient id={`sun-spectrum-grad${s}`} x1="0" y1="0" x2="1" y2="0">
+            {spectrumStops.map((st, i) => (
+              <stop key={i} offset={st.offset} stopColor={st.color} stopOpacity="0.45" />
             ))}
           </linearGradient>
-          <linearGradient id="abs-spectrum-grad" x1="0" y1="0" x2="1" y2="0">
-            {spectrumStops.map((s, i) => (
-              <stop key={i} offset={s.offset} stopColor={s.color} stopOpacity="0.45" />
-            ))}
-          </linearGradient>
-          {/* Arrows */}
-          <marker id="arrow-abs" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
-            <path d="M0,0 L6,2 L0,4" fill="var(--muted-foreground)" />
-          </marker>
-          {/* Sun beam gradient */}
-          <linearGradient id="sun-beam-grad" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={`sun-beam-grad${s}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="rgb(250, 200, 50)" stopOpacity="0.18" />
             <stop offset="100%" stopColor="rgb(250, 200, 50)" stopOpacity="0.01" />
           </linearGradient>
-          {/* Sun glow */}
-          <radialGradient id="sun-glow">
+          <radialGradient id={`sun-glow${s}`}>
             <stop offset="0%" stopColor="rgb(255, 220, 80)" stopOpacity="0.4" />
             <stop offset="100%" stopColor="rgb(255, 220, 80)" stopOpacity="0" />
           </radialGradient>
+          {renderPigmentGradientDefs(s)}
         </defs>
 
         {/* ── Sun Beam (behind chart) ── */}
@@ -503,7 +557,527 @@ const LightAbsorptionVisualizer = () => {
 
           return (
             <g>
-              <path d={beamPath} fill="url(#sun-beam-grad)" />
+              <path d={beamPath} fill={`url(#sun-beam-grad${s})`} />
+            </g>
+          );
+        })()}
+
+        {/* ── Sunlight Emission Spectrum ── */}
+        <g>
+          {/* Y-axis */}
+          <line x1={sunX} y1={chartTop} x2={sunX} y2={chartBot} stroke="var(--border)" strokeWidth="1" />
+          {/* X-axis */}
+          <line x1={sunX} y1={chartBot} x2={sunX + sunW} y2={chartBot} stroke="var(--border)" strokeWidth="1" />
+
+          {/* Y-axis label */}
+          <text x={sunX - 14} y={chartTop + chartH / 2} textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${sunX - 14}, ${chartTop + chartH / 2})`}>
+            Relative Intensity
+          </text>
+
+          {/* X ticks */}
+          {xTicks.filter(nm => nm <= NM_MAX).map(nm => {
+            const px = sunX + ((nm - NM_MIN) / (NM_MAX - NM_MIN)) * sunW;
+            return (
+              <g key={nm}>
+                <line x1={px} y1={chartBot} x2={px} y2={chartBot + 3} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                <text x={px} y={chartBot + 14} textAnchor="middle" className="text-[9px] font-mono" fill="var(--muted-foreground)">{nm}</text>
+              </g>
+            );
+          })}
+          <text x={sunX + sunW / 2} y={chartBot + 26} textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)">
+            Wavelength (nm)
+          </text>
+
+          {/* Rainbow fill under curve */}
+          <path d={sunFill} fill={`url(#sun-spectrum-grad${s})`} />
+          {/* Curve */}
+          <path d={sunCurve} fill="none" stroke="rgb(210, 150, 20)" strokeWidth="2" strokeLinejoin="round" />
+
+          {/* Pinned + hovered pigment absorption overlays */}
+          {(() => {
+            const visible = new Set(pinnedPigments);
+            if (hoveredPigment) visible.add(hoveredPigment);
+            return Array.from(visible).map((pigId) => {
+              const absFn = pigmentAbsorption[pigId];
+              if (!absFn) return null;
+              const isHovered = pigId === hoveredPigment;
+              const pts: string[] = [];
+              for (let i = 0; i <= STEPS; i++) {
+                const nm = NM_MIN + (i / STEPS) * (NM_MAX - NM_MIN);
+                const val = absFn(nm);
+                const px = sunX + (i / STEPS) * sunW;
+                const py = chartBot - val * chartH;
+                pts.push(`${px.toFixed(1)},${py.toFixed(1)}`);
+              }
+              const curvePath = `M${pts.join(' L')}`;
+              const fillPath = `M${sunX},${chartBot} L${pts.join(' L')} L${sunX + sunW},${chartBot} Z`;
+              const baseColor = absColors[pigId] || 'rgb(120, 120, 120)';
+              const strokeColor = isHovered ? baseColor : baseColor.replace('rgb', 'rgba').replace(')', ', 0.5)');
+              const strokeW = isHovered ? 2 : 1.2;
+              const fillColor = baseColor.replace('rgb', 'rgba').replace(')', isHovered ? ', 0.15)' : ', 0.08)');
+              return (
+                <g key={pigId}>
+                  <path d={fillPath} fill={fillColor} />
+                  <path d={curvePath} fill="none" stroke={strokeColor} strokeWidth={strokeW} strokeLinejoin="round" strokeDasharray="4 2" />
+                </g>
+              );
+            });
+          })()}
+
+          {/* Pigment icon row */}
+          {(() => {
+            const iconY = chartBot + 50;
+            const iconSpacing = sunW / 5;
+            const r = 11;
+            return (
+              <>
+                {pigmentIconData.map((p, i) => {
+                  const px = sunX + iconSpacing * i + iconSpacing / 2;
+                  return (
+                    <g key={i} onMouseEnter={() => setHoveredPigment(p.id)} onMouseLeave={() => setHoveredPigment(null)} onClick={() => setPinnedPigments(prev => { const next = new Set(prev); if (next.has(p.id)) next.delete(p.id); else next.add(p.id); return next; })} style={{ cursor: 'pointer' }}>
+                      {(() => {
+                        const isWide = p.id === 'chla' || p.id === 'chlb';
+                        const rx = isWide ? r * 1.4 : r;
+                        const ry = r;
+                        const isHov = hoveredPigment === p.id;
+                        const isPinned = pinnedPigments.has(p.id);
+                        const borderW = isHov ? 2.5 : (isPinned ? 2 : 1.5);
+                        return (
+                          <>
+                            <ellipse cx={px} cy={iconY} rx={rx} ry={ry} fill={`url(#pig-${p.id}${s})`} />
+                            {p.peaks.length === 2 && (
+                              <line x1={px} y1={iconY - ry} x2={px} y2={iconY + ry} stroke="white" strokeWidth="0.8" opacity="0.7" />
+                            )}
+                            <ellipse cx={px} cy={iconY} rx={rx} ry={ry} fill="none" stroke={absColors[p.id] || 'rgb(30,30,30)'} strokeWidth={borderW} />
+                          </>
+                        );
+                      })()}
+                      <text x={px} y={iconY + r + 11} textAnchor="middle" className="text-[8px] font-mono" fill="var(--foreground)" fontWeight="500">{p.label}</text>
+                    </g>
+                  );
+                })}
+                <text x={sunX + sunW / 2} y={iconY + r + 35} textAnchor="middle" className="text-xs font-mono" fill="var(--foreground)" fontWeight="500">
+                  Light Absorbing Pigments
+                </text>
+              </>
+            );
+          })()}
+        </g>
+
+        {/* ── Sun Icon (on top of chart) ── */}
+        {(() => {
+          const sunCX = sunX + sunW + 18 - 56;
+          const sunCY = 22;
+          const sunR = 14;
+          return (
+            <g>
+              <circle cx={sunCX} cy={sunCY} r={sunR * 2.2} fill={`url(#sun-glow${s})`} />
+              <circle cx={sunCX} cy={sunCY} r={sunR} fill="rgb(250, 200, 50)" />
+              <circle cx={sunCX} cy={sunCY} r={sunR - 2} fill="rgb(255, 220, 80)" />
+              {Array.from({ length: 10 }, (_, i) => {
+                const angle = (i / 10) * Math.PI * 2;
+                const inner = sunR + 3;
+                const outer = sunR + 8;
+                return (
+                  <line key={i}
+                    x1={sunCX + Math.cos(angle) * inner} y1={sunCY + Math.sin(angle) * inner}
+                    x2={sunCX + Math.cos(angle) * outer} y2={sunCY + Math.sin(angle) * outer}
+                    stroke="rgb(250, 200, 50)" strokeWidth="1.5" strokeLinecap="round" />
+                );
+              })}
+            </g>
+          );
+        })()}
+      </>
+    );
+  };
+
+  // ── Mobile section 2: Bar chart section ──
+  const renderBarChartSection = (s: string) => {
+    return (
+      <>
+        <defs>
+          {renderPigmentGradientDefs(s)}
+        </defs>
+
+        {/* ── Large Algae Cell ── */}
+        <g>
+          {/* Pigments inside cell */}
+          {pigmentBasePositions.map((item, i) => {
+            const off = pigmentOffsets[i];
+            const cx = cellCX + item.bx + off.dx;
+            const cy = cellCY + item.by + off.dy;
+            const rot = item.rot + off.dr;
+            return (
+              <ellipse
+                key={`pig-cell-${i}`}
+                cx={cx}
+                cy={cy}
+                rx={item.rx}
+                ry={item.ry}
+                fill={item.fill}
+                stroke="rgb(30,30,30)"
+                strokeWidth="0.3"
+                transform={`rotate(${rot}, ${cx}, ${cy})`}
+              />
+            );
+          })}
+
+          {/* Cell blob */}
+          <path
+            d={blobPath(cellCX, cellCY, cellR * 1.5, cellShape, 0.3, cellAngularJitter)}
+            fill="rgba(130, 200, 140, 0.18)"
+            stroke="rgba(40, 120, 55, 0.6)"
+            strokeWidth="1.5"
+          />
+
+          {/* Nucleus */}
+          <circle cx={cellCX} cy={cellCY} r={cellR * 0.12} fill="rgba(30, 100, 45, 0.6)" />
+
+          <text x={cellCX} y={cellCY - cellR * 1.5 * 0.45 - 8} textAnchor="middle" className="text-[9px] font-mono" fill="var(--muted-foreground)" fontWeight="500">
+            Algae Cell
+          </text>
+        </g>
+
+        {/* ── Relative Pigment Contribution Bar Chart ── */}
+        <g>
+          {(() => {
+            const pigments = [
+              { id: 'chla', label: 'Chl a', scale: absScales.chla, color: absColors.chla },
+              { id: 'carot', label: 'Car', scale: absScales.carot, color: absColors.carot },
+              { id: 'pc', label: 'PC', scale: absScales.pc, color: absColors.pc },
+              { id: 'pe', label: 'PE', scale: absScales.pe, color: absColors.pe },
+              { id: 'chlb', label: 'Chl b', scale: absScales.chlb, color: absColors.chlb },
+            ];
+            const maxScale = Math.max(...pigments.map(p => p.scale));
+            const barCount = pigments.length;
+            const gap = 6;
+            const totalGaps = (barCount - 1) * gap;
+            const barWidth = (barW - totalGaps) / barCount;
+            return (
+              <>
+                {/* X-axis */}
+                <line x1={barX} y1={barBot} x2={barX + barW} y2={barBot} stroke="var(--border)" strokeWidth="1" />
+
+                {/* Bars */}
+                {pigments.map((p, i) => {
+                  const x = barX + i * (barWidth + gap);
+                  const normalizedH = (p.scale / maxScale) * barH;
+                  const y = barBot - normalizedH;
+                  const isHov = hoveredPigment === p.id;
+                  const isPinned = pinnedPigments.has(p.id);
+                  return (
+                    <g key={p.id}
+                      onMouseEnter={() => setHoveredPigment(p.id)}
+                      onMouseLeave={() => setHoveredPigment(null)}
+                      onClick={() => setPinnedPigments(prev => { const next = new Set(prev); if (next.has(p.id)) next.delete(p.id); else next.add(p.id); return next; })}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <rect
+                        x={x}
+                        y={y}
+                        width={barWidth}
+                        height={normalizedH}
+                        fill={p.color}
+                        fillOpacity={isHov ? 0.85 : (isPinned ? 0.7 : 0.55)}
+                        rx={2}
+                      />
+                      <rect
+                        x={x}
+                        y={y}
+                        width={barWidth}
+                        height={normalizedH}
+                        fill="none"
+                        stroke={p.color}
+                        strokeWidth={isHov ? 2 : (isPinned ? 1.5 : 1)}
+                        rx={2}
+                      />
+                      {/* Value label above bar */}
+                      <text x={x + barWidth / 2} y={y - 4} textAnchor="middle" className="text-[8px] font-mono" fill={p.color} fontWeight="600">
+                        {p.scale.toFixed(2)}
+                      </text>
+                      {/* Pigment name label below x-axis */}
+                      <text x={x + barWidth / 2} y={barBot + 12} textAnchor="middle" className="text-[8px] font-mono" fill="var(--foreground)" fontWeight="500">{p.label}</text>
+                    </g>
+                  );
+                })}
+                <text x={barX + barW / 2} y={266} textAnchor="middle" className="text-xs font-mono" fill="var(--foreground)" fontWeight="500">
+                  Relative Contribution
+                </text>
+
+                {/* Vertical sliders for each pigment */}
+                {pigments.map((p, i) => {
+                  const x = barX + i * (barWidth + gap);
+                  const sliderTop = 196;
+                  const sliderH = 46;
+                  const range = absScaleRanges[p.id];
+                  const sliderCx = x + barWidth / 2;
+                  const fraction = (p.scale - range[0]) / (range[1] - range[0]);
+                  const thumbY = sliderTop + sliderH - fraction * sliderH;
+                  return (
+                    <g key={`slider-${p.id}`} style={{ cursor: 'pointer', touchAction: 'none' }}
+                      onMouseEnter={() => setHoveredSlider(p.id)}
+                      onMouseLeave={() => setHoveredSlider(null)}
+                      onPointerDown={(e) => {
+                        e.preventDefault();
+                        const svg = (e.currentTarget as SVGGElement).ownerSVGElement!;
+                        const onMove = (ev: PointerEvent) => {
+                          const pt = svg.createSVGPoint();
+                          pt.x = ev.clientX; pt.y = ev.clientY;
+                          const svgPt = pt.matrixTransform(svg.getScreenCTM()!.inverse());
+                          const frac = 1 - Math.max(0, Math.min(1, (svgPt.y - sliderTop) / sliderH));
+                          const val = range[0] + frac * (range[1] - range[0]);
+                          setAbsScales(prev => ({ ...prev, [p.id]: parseFloat(val.toFixed(3)) }));
+                        };
+                        const onUp = () => {
+                          window.removeEventListener('pointermove', onMove);
+                          window.removeEventListener('pointerup', onUp);
+                        };
+                        window.addEventListener('pointermove', onMove);
+                        window.addEventListener('pointerup', onUp);
+                        onMove(e.nativeEvent);
+                      }}
+                    >
+                      {/* Invisible wider hit area for touch */}
+                      <rect x={sliderCx - 12} y={sliderTop - 8} width={24} height={sliderH + 16} fill="transparent" />
+                      {/* Track */}
+                      <rect x={sliderCx - 1.5} y={sliderTop} width={3} height={sliderH} rx={1.5} fill="var(--border)" />
+                      {/* Thumb */}
+                      {hoveredSlider === p.id && (
+                        <circle cx={sliderCx} cy={thumbY} r={6} fill="none" stroke="var(--muted-foreground)" strokeWidth={1.5} opacity={0.5} />
+                      )}
+                      <circle cx={sliderCx} cy={thumbY} r={4} fill={p.color} />
+                    </g>
+                  );
+                })}
+              </>
+            );
+          })()}
+        </g>
+      </>
+    );
+  };
+
+  // ── Mobile section 3: Absorption spectrum section ──
+  const renderAbsorptionSection = (s: string) => {
+    return (
+      <>
+        <defs>
+          <linearGradient id={`abs-spectrum-grad${s}`} x1="0" y1="0" x2="1" y2="0">
+            {spectrumStops.map((st, i) => (
+              <stop key={i} offset={st.offset} stopColor={st.color} stopOpacity="0.45" />
+            ))}
+          </linearGradient>
+        </defs>
+
+        {/* ── Algae Absorption Spectrum ── */}
+        <g>
+          {/* Y-axis */}
+          <line x1={absX} y1={chartTop} x2={absX} y2={absChartBot} stroke="var(--border)" strokeWidth="1" />
+          {/* X-axis */}
+          <line x1={absX} y1={absChartBot} x2={absX + absW} y2={absChartBot} stroke="var(--border)" strokeWidth="1" />
+
+          {/* Y-axis label */}
+          <text x={absX - 4} y={chartTop + absChartH / 2} textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)" transform={`rotate(-90, ${absX - 4}, ${chartTop + absChartH / 2})`}>
+            Absorbance
+          </text>
+
+          {/* X ticks */}
+          {xTicks.filter(nm => nm <= NM_MAX).map(nm => {
+            const px = absX + ((nm - NM_MIN) / (NM_MAX - NM_MIN)) * absW;
+            return (
+              <g key={nm}>
+                <line x1={px} y1={absChartBot} x2={px} y2={absChartBot + 3} stroke="var(--muted-foreground)" strokeWidth="0.8" />
+                <text x={px} y={absChartBot + 14} textAnchor="middle" className="text-[9px] font-mono" fill="var(--muted-foreground)">{nm}</text>
+              </g>
+            );
+          })}
+          <text x={absX + absW / 2} y={absChartBot + 26} textAnchor="middle" className="text-[10px] font-mono" fill="var(--muted-foreground)">
+            Wavelength (nm)
+          </text>
+
+          {/* Inefficiency shading between sunlight and combined curves */}
+          <path d={absInefficiencyFill} fill="rgb(200, 60, 40)" fillOpacity="0.15" />
+          {/* Label in the gap between curves */}
+          {(() => {
+            const labelNm = 580;
+            const labelPx = absX + ((labelNm - NM_MIN) / (NM_MAX - NM_MIN)) * absW - 17;
+            const sunVal = sunlightSpectrum(labelNm);
+            const pigIds = ['chla', 'chlb', 'carot', 'pc', 'pe'];
+            let sum = 0;
+            for (const pid of pigIds) sum += pigmentAbsorption[pid](labelNm) * absScales[pid];
+            const combMax = 1.7;
+            const combVal = sum / combMax;
+            const midY = absChartBot - ((sunVal + combVal) / 2) * absChartH;
+            return (
+              <>
+                <text x={labelPx} y={midY - 16} textAnchor="middle" className="text-[10px] font-mono" fill="rgb(200, 60, 40)" fontWeight="700">
+                  mismatch =
+                </text>
+                <text x={labelPx} y={midY - 4} textAnchor="middle" className="text-[10px] font-mono" fill="rgb(200, 60, 40)" fontWeight="700">
+                  wasted
+                </text>
+                <text x={labelPx} y={midY + 8} textAnchor="middle" className="text-[10px] font-mono" fill="rgb(200, 60, 40)" fontWeight="700">
+                  energy
+                </text>
+              </>
+            );
+          })()}
+
+          {/* Individual pigment curves (faded, no fill) */}
+          {absPigmentCurves.map(({ pigId, curvePath, color }) => (
+            <g key={pigId}>
+              <path d={curvePath} fill="none" stroke={color} strokeWidth="1.2" strokeLinejoin="round" opacity="0.4" />
+            </g>
+          ))}
+          {/* Combined normalized sum curve */}
+          <path d={absCombinedCurve.curvePath} fill="none" stroke="rgb(30, 120, 50)" strokeWidth="2" strokeLinejoin="round" />
+          <path d={absSunCurve} fill="none" stroke="rgb(180, 130, 10)" strokeWidth="2" strokeLinejoin="round" />
+
+          <text x={absX + absW / 2} y={266} textAnchor="middle" className="text-xs font-mono" fill="var(--foreground)" fontWeight="500">
+            Absorption Spectrum
+          </text>
+        </g>
+      </>
+    );
+  };
+
+  // ── Mobile section 4: Equations section ──
+  const renderEquationsSection = () => {
+    return (
+      <>
+        {/* ── Equations ── */}
+        <g>
+          {/* Variable definitions */}
+          <text x={eqX} y={chartTop + 18} className="text-[11px] font-mono" fill="var(--foreground)">
+            <tspan fill="rgb(180, 130, 10)" fontWeight="600">S</tspan>
+            <tspan fill="rgb(180, 130, 10)">(&#955;)</tspan>
+            <tspan> = solar emission spectrum</tspan>
+          </text>
+          <text x={eqX} y={chartTop + 34} className="text-[11px] font-mono" fill="var(--foreground)">
+            <tspan fill="rgb(30, 120, 50)" fontWeight="600">A</tspan>
+            <tspan fill="rgb(30, 120, 50)">(&#955;)</tspan>
+            <tspan> = pigment absorption spectrum</tspan>
+          </text>
+
+          {/* Divider */}
+          <line x1={eqX} y1={chartTop + 42} x2={eqX + 230} y2={chartTop + 42} stroke="var(--border)" strokeWidth="0.5" />
+
+          {/* Spectral Mismatch */}
+          <text x={eqX} y={chartTop + 58} className="text-[11px] font-mono" fill="var(--foreground)">
+            <tspan fontWeight="600">Spectral mismatch:</tspan>
+          </text>
+          <text x={eqX} y={chartTop + 80} className="text-sm font-mono" fill="var(--foreground)">
+            <tspan fill="rgb(200, 60, 40)">&#951;</tspan>
+            <tspan fill="rgb(200, 60, 40)" baselineShift="sub" className="text-[9px]">mis</tspan>
+            <tspan> = </tspan>
+            <tspan>&#931;</tspan>
+            <tspan baselineShift="-3" className="text-[7px]">&#955;</tspan>
+            <tspan> max(0, </tspan>
+            <tspan fill="rgb(180, 130, 10)">S</tspan>
+            <tspan fill="rgb(180, 130, 10)">(&#955;)</tspan>
+            <tspan> &#8722; </tspan>
+            <tspan fill="rgb(30, 120, 50)">A</tspan>
+            <tspan fill="rgb(30, 120, 50)">(&#955;)</tspan>
+            <tspan>)</tspan>
+          </text>
+          {/* Divider bar for fraction */}
+          <line x1={eqX + 30} y1={chartTop + 85} x2={eqX + 210} y2={chartTop + 85} stroke="var(--foreground)" strokeWidth="1" />
+          <text x={eqX + 120} y={chartTop + 100} textAnchor="middle" className="text-sm font-mono" fill="var(--foreground)">
+            <tspan>&#931;</tspan>
+            <tspan baselineShift="-3" className="text-[7px]">&#955;</tspan>
+            <tspan> </tspan>
+            <tspan fill="rgb(180, 130, 10)">S</tspan>
+            <tspan fill="rgb(180, 130, 10)">(&#955;)</tspan>
+          </text>
+
+          {/* Divider */}
+          <line x1={eqX} y1={chartTop + 112} x2={eqX + 230} y2={chartTop + 112} stroke="var(--border)" strokeWidth="0.5" />
+
+          {/* Live computed value */}
+          <text x={eqX} y={chartTop + 130} className="text-sm font-mono" fontWeight="500" opacity="0.5">
+            <tspan fill="rgb(200, 60, 40)">&#951;</tspan>
+            <tspan fill="rgb(200, 60, 40)" baselineShift="sub" className="text-[9px]">mis</tspan>
+            <tspan fill="rgb(200, 60, 40)"> = {mismatchPct.toFixed(1)}%</tspan>
+          </text>
+          <text x={eqX} y={chartTop + 151} className="text-[10px] font-mono" fill="var(--muted-foreground)" opacity="0.5">
+            {mismatchPct.toFixed(1)}% of solar energy is not absorbed
+          </text>
+        </g>
+      </>
+    );
+  };
+
+  // Render all SVG content with suffixed IDs to avoid conflicts between mobile and desktop SVGs
+  const renderAllContent = (s: string) => {
+    return (
+      <>
+        <defs>
+          {/* Sunlight spectrum rainbow gradient */}
+          <linearGradient id={`sun-spectrum-grad${s}`} x1="0" y1="0" x2="1" y2="0">
+            {spectrumStops.map((st, i) => (
+              <stop key={i} offset={st.offset} stopColor={st.color} stopOpacity="0.45" />
+            ))}
+          </linearGradient>
+          <linearGradient id={`abs-spectrum-grad${s}`} x1="0" y1="0" x2="1" y2="0">
+            {spectrumStops.map((st, i) => (
+              <stop key={i} offset={st.offset} stopColor={st.color} stopOpacity="0.45" />
+            ))}
+          </linearGradient>
+          {/* Arrows */}
+          <marker id={`arrow-abs${s}`} markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
+            <path d="M0,0 L6,2 L0,4" fill="var(--muted-foreground)" />
+          </marker>
+          {/* Sun beam gradient */}
+          <linearGradient id={`sun-beam-grad${s}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgb(250, 200, 50)" stopOpacity="0.18" />
+            <stop offset="100%" stopColor="rgb(250, 200, 50)" stopOpacity="0.01" />
+          </linearGradient>
+          {/* Sun glow */}
+          <radialGradient id={`sun-glow${s}`}>
+            <stop offset="0%" stopColor="rgb(255, 220, 80)" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="rgb(255, 220, 80)" stopOpacity="0" />
+          </radialGradient>
+
+          {/* Pigment gradient defs */}
+          {renderPigmentGradientDefs(s)}
+        </defs>
+
+        {/* ── Sun Beam (behind chart) ── */}
+        {(() => {
+          const sunCX = sunX + sunW + 18 - 56;
+          const sunCY = 22;
+          const sunR = 14;
+
+          const firstVal = sunlightSpectrum(NM_MIN);
+          const lastVal = sunlightSpectrum(NM_MAX);
+          const leftTarget = { x: sunX, y: chartBot - firstVal * chartH };
+          const rightTarget = { x: sunX + sunW, y: chartBot - lastVal * chartH };
+
+          const lAngle = Math.atan2(leftTarget.y - sunCY, leftTarget.x - sunCX);
+          const lTangentAngle = lAngle + Math.PI / 2 - (20 * Math.PI) / 180;
+          const sunLeftX = sunCX + Math.cos(lTangentAngle) * sunR;
+          const sunLeftY = sunCY + Math.sin(lTangentAngle) * sunR;
+
+          const rAngle = Math.atan2(rightTarget.y - sunCY, rightTarget.x - sunCX);
+          const rTangentAngle = rAngle - Math.PI / 2;
+          const sunRightX = sunCX + Math.cos(rTangentAngle) * sunR;
+          const sunRightY = sunCY + Math.sin(rTangentAngle) * sunR;
+
+          const curvePts: string[] = [];
+          for (let i = 0; i <= STEPS; i++) {
+            const nm = NM_MIN + (i / STEPS) * (NM_MAX - NM_MIN);
+            const val = sunlightSpectrum(nm);
+            const px = sunX + (i / STEPS) * sunW;
+            const py = chartBot - val * chartH;
+            curvePts.push(`${px.toFixed(1)},${py.toFixed(1)}`);
+          }
+
+          const beamPath = `M${sunLeftX.toFixed(1)},${sunLeftY.toFixed(1)} L${sunX},${chartTop} L${curvePts.join(' L')} L${sunRightX.toFixed(1)},${sunRightY.toFixed(1)} A${sunR},${sunR} 0 1,1 ${sunLeftX.toFixed(1)},${sunLeftY.toFixed(1)} Z`;
+
+          return (
+            <g>
+              <path d={beamPath} fill={`url(#sun-beam-grad${s})`} />
             </g>
           );
         })()}
@@ -536,7 +1110,7 @@ const LightAbsorptionVisualizer = () => {
           </text>
 
           {/* Rainbow fill under curve */}
-          <path d={sunFill} fill="url(#sun-spectrum-grad)" />
+          <path d={sunFill} fill={`url(#sun-spectrum-grad${s})`} />
           {/* Curve */}
           <path d={sunCurve} fill="none" stroke="rgb(210, 150, 20)" strokeWidth="2" strokeLinejoin="round" />
 
@@ -575,74 +1149,9 @@ const LightAbsorptionVisualizer = () => {
             const iconY = chartBot + 50;
             const iconSpacing = sunW / 5;
             const r = 11;
-            const pigments = [
-              { id: 'chla', label: 'Chl a', peaks: [430, 662], bandWidths: [40, 40], fullName: 'Chlorophyll a' },
-              { id: 'carot', label: 'Car', peaks: [450, 480], bandWidths: [35, 35], fullName: 'Carotenoids' },
-              { id: 'pc', label: 'PC', peaks: [565], bandWidths: [25], fullName: 'Phycocyanin' },
-              { id: 'pe', label: 'PE', peaks: [620], bandWidths: [20], fullName: 'Phycoerythrin' },
-              { id: 'chlb', label: 'Chl b', peaks: [453, 642], bandWidths: [32, 30], fullName: 'Chlorophyll b' },
-            ];
             return (
               <>
-                {/* Gradient defs for pigments */}
-                {pigments.map(p => {
-                  if (p.peaks.length === 2) {
-                    const peakGap = p.peaks[1] - p.peaks[0];
-                    // For close peaks, use a continuous gradient; for far peaks, use a split
-                    if (peakGap < 60) {
-                      // Continuous band: outer1 → peak1 → midpoint → peak2 → outer2
-                      const outer1 = nmToRGB(p.peaks[0] - p.bandWidths[0]);
-                      const c1 = nmToRGB(p.peaks[0]);
-                      const mid = nmToRGB((p.peaks[0] + p.peaks[1]) / 2);
-                      const c2 = nmToRGB(p.peaks[1]);
-                      const outer2 = nmToRGB(Math.min(750, p.peaks[1] + p.bandWidths[1]));
-                      return (
-                        <linearGradient key={p.id} id={`pig-${p.id}`} x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor={outer1} />
-                          <stop offset="25%" stopColor={c1} />
-                          <stop offset="50%" stopColor={mid} />
-                          <stop offset="75%" stopColor={c2} />
-                          <stop offset="100%" stopColor={outer2} />
-                        </linearGradient>
-                      );
-                    } else {
-                      // Split halves for widely separated peaks
-                      const c1outer = nmToRGB(p.peaks[0] - p.bandWidths[0] * 0.3);
-                      const c1 = nmToRGB(p.peaks[0]);
-                      const c1edge = nmToRGB(p.peaks[0] + p.bandWidths[0]);
-                      const c2edge = nmToRGB(p.peaks[1] - p.bandWidths[1]);
-                      const c2 = nmToRGB(p.peaks[1]);
-                      const c2outer = nmToRGB(Math.min(750, p.peaks[1] + p.bandWidths[1] * 0.3));
-                      return (
-                        <linearGradient key={p.id} id={`pig-${p.id}`} x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor={c1outer} />
-                          <stop offset="15%" stopColor={c1} />
-                          <stop offset="40%" stopColor={c1edge} />
-                          <stop offset="50%" stopColor={c1edge} />
-                          <stop offset="50%" stopColor={c2edge} />
-                          <stop offset="60%" stopColor={c2edge} />
-                          <stop offset="85%" stopColor={c2} />
-                          <stop offset="100%" stopColor={c2outer} />
-                        </linearGradient>
-                      );
-                    }
-                  } else {
-                    const c = nmToRGB(p.peaks[0]);
-                    const cEdge1 = nmToRGB(p.peaks[0] - p.bandWidths[0]);
-                    const cEdge2 = nmToRGB(p.peaks[0] + p.bandWidths[0]);
-                    return (
-                      <linearGradient key={p.id} id={`pig-${p.id}`} x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor={cEdge1} stopOpacity="0.6" />
-                        <stop offset="50%" stopColor={c} />
-                        <stop offset="100%" stopColor={cEdge2} stopOpacity="0.6" />
-                      </linearGradient>
-                    );
-                  }
-                })}
-
-
-
-                {pigments.map((p, i) => {
+                {pigmentIconData.map((p, i) => {
                   const px = sunX + iconSpacing * i + iconSpacing / 2;
                   return (
                     <g key={i} onMouseEnter={() => setHoveredPigment(p.id)} onMouseLeave={() => setHoveredPigment(null)} onClick={() => setPinnedPigments(prev => { const next = new Set(prev); if (next.has(p.id)) next.delete(p.id); else next.add(p.id); return next; })} style={{ cursor: 'pointer' }}>
@@ -656,7 +1165,7 @@ const LightAbsorptionVisualizer = () => {
                         const borderW = isHov ? 2.5 : (isPinned ? 2 : 1.5);
                         return (
                           <>
-                            <ellipse cx={px} cy={iconY} rx={rx} ry={ry} fill={`url(#pig-${p.id})`} />
+                            <ellipse cx={px} cy={iconY} rx={rx} ry={ry} fill={`url(#pig-${p.id}${s})`} />
                             {p.peaks.length === 2 && (
                               <line x1={px} y1={iconY - ry} x2={px} y2={iconY + ry} stroke="white" strokeWidth="0.8" opacity="0.7" />
                             )}
@@ -684,7 +1193,7 @@ const LightAbsorptionVisualizer = () => {
           const sunR = 14;
           return (
             <g>
-              <circle cx={sunCX} cy={sunCY} r={sunR * 2.2} fill="url(#sun-glow)" />
+              <circle cx={sunCX} cy={sunCY} r={sunR * 2.2} fill={`url(#sun-glow${s})`} />
               <circle cx={sunCX} cy={sunCY} r={sunR} fill="rgb(250, 200, 50)" />
               <circle cx={sunCX} cy={sunCY} r={sunR - 2} fill="rgb(255, 220, 80)" />
               {Array.from({ length: 10 }, (_, i) => {
@@ -820,7 +1329,7 @@ const LightAbsorptionVisualizer = () => {
                   const fraction = (p.scale - range[0]) / (range[1] - range[0]);
                   const thumbY = sliderTop + sliderH - fraction * sliderH;
                   return (
-                    <g key={`slider-${p.id}`} style={{ cursor: 'pointer' }}
+                    <g key={`slider-${p.id}`} style={{ cursor: 'pointer', touchAction: 'none' }}
                       onMouseEnter={() => setHoveredSlider(p.id)}
                       onMouseLeave={() => setHoveredSlider(null)}
                       onPointerDown={(e) => {
@@ -843,6 +1352,8 @@ const LightAbsorptionVisualizer = () => {
                         onMove(e.nativeEvent);
                       }}
                     >
+                      {/* Invisible wider hit area for touch */}
+                      <rect x={sliderCx - 12} y={sliderTop - 8} width={24} height={sliderH + 16} fill="transparent" />
                       {/* Track */}
                       <rect x={sliderCx - 1.5} y={sliderTop} width={3} height={sliderH} rx={1.5} fill="var(--border)" />
                       {/* Thumb */}
@@ -990,6 +1501,30 @@ const LightAbsorptionVisualizer = () => {
             {mismatchPct.toFixed(1)}% of solar energy is not absorbed
           </text>
         </g>
+      </>
+    );
+  };
+
+  return (
+    <div className="py-4 select-none">
+      {/* Mobile layout: 4 stacked SVGs with independent render functions */}
+      <div className="sm:hidden space-y-2">
+        <svg viewBox="-5 -10 285 290" className="w-full" aria-label="Light absorbing pigments">
+          {renderSunlightSection('-m')}
+        </svg>
+        <svg viewBox="235 0 285 275" className="w-full touch-none" aria-label="Relative pigment contributions">
+          {renderBarChartSection('-m')}
+        </svg>
+        <svg viewBox="495 35 270 240" className="w-full" aria-label="Absorption spectrum">
+          {renderAbsorptionSection('-m')}
+        </svg>
+        <svg viewBox="780 50 280 175" className="w-full" aria-label="Spectral mismatch equations">
+          {renderEquationsSection()}
+        </svg>
+      </div>
+      {/* Desktop: original single SVG */}
+      <svg viewBox="0 0 1060 320" className="hidden sm:block w-full sm:min-w-[900px]" aria-label="Light absorption visualization">
+        {renderAllContent('')}
       </svg>
     </div>
   );

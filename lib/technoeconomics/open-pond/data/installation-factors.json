@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "description": "Installation, indirect, and other cost factors per section. Three-tier cascade: installation factors × equipment → installation cost; indirect factors × installation cost → indirect cost; other factors × (installation + indirect) → other cost.",
+    "source": "TEA_AlgaeBiomass_RacewayPond_Spirulina_230908.xlsx",
+    "extracted": "2026-03-16"
+  },
+
+  "inputs": {
+    "section_id": "inputs",
+    "has_installation_factors": true,
+    "installation": {
+      "process_piping":        { "value": 0.00, "low": 0.00, "high": 0.10 },
+      "instrumentation":       { "value": 0.00, "low": 0.00, "high": 0.10 },
+      "insulation":            { "value": 0.00, "low": 0.00, "high": 0.01 },
+      "electrical":            { "value": 0.00, "low": 0.00, "high": 0.05 },
+      "buildings":             { "value": 0.00, "low": 0.00, "high": 0.10 },
+      "yard_improvement":      { "value": 0.00, "low": 0.00, "high": 0.05 },
+      "auxiliary_facilities":  { "value": 0.35, "low": 0.20, "high": 0.50 }
+    },
+    "indirect": {
+      "engineering":           { "value": 0.225, "low": 0.20, "high": 0.25 },
+      "construction":          { "value": 0.325, "low": 0.30, "high": 0.35 }
+    },
+    "other": {
+      "contractors_fee":       { "value": 0.04, "low": 0.03, "high": 0.05 },
+      "contingency":           { "value": 0.085, "low": 0.07, "high": 0.10 }
+    }
+  },
+
+  "biomass": {
+    "section_id": "biomass",
+    "has_installation_factors": false,
+    "notes": "NREL pond costs are fully installed — no additional factors."
+  },
+
+  "inoculum": {
+    "section_id": "inoculum",
+    "has_installation_factors": false,
+    "notes": "Same as biomass — NREL costs are fully installed."
+  },
+
+  "harvesting": {
+    "section_id": "harvesting",
+    "has_installation_factors": true,
+    "installation": {
+      "process_piping":        { "value": 0.35, "low": 0.30, "high": 0.40 },
+      "instrumentation":       { "value": 0.275, "low": 0.20, "high": 0.35 },
+      "insulation":            { "value": 0.02, "low": 0.01, "high": 0.03 },
+      "electrical":            { "value": 0.125, "low": 0.10, "high": 0.15 },
+      "buildings":             { "value": 0.275, "low": 0.10, "high": 0.45 },
+      "yard_improvement":      { "value": 0.10, "low": 0.05, "high": 0.15 },
+      "auxiliary_facilities":  { "value": 0.35, "low": 0.20, "high": 0.50 }
+    },
+    "indirect": {
+      "engineering":           { "value": 0.225, "low": 0.20, "high": 0.25 },
+      "construction":          { "value": 0.325, "low": 0.30, "high": 0.35 }
+    },
+    "other": {
+      "contractors_fee":       { "value": 0.04, "low": 0.03, "high": 0.05 },
+      "contingency":           { "value": 0.085, "low": 0.07, "high": 0.10 }
+    }
+  },
+
+  "drying": {
+    "section_id": "drying",
+    "has_installation_factors": true,
+    "installation": {
+      "installation":          { "value": 0.35, "low": 0.20, "high": 0.50 },
+      "process_piping":        { "value": 0.35, "low": 0.30, "high": 0.40 },
+      "instrumentation":       { "value": 0.275, "low": 0.20, "high": 0.35 },
+      "insulation":            { "value": 0.02, "low": 0.01, "high": 0.03 },
+      "electrical":            { "value": 0.125, "low": 0.10, "high": 0.15 },
+      "buildings":             { "value": 0.275, "low": 0.10, "high": 0.45 },
+      "yard_improvement":      { "value": 0.10, "low": 0.05, "high": 0.15 },
+      "auxiliary_facilities":  { "value": 0.35, "low": 0.20, "high": 0.50 }
+    },
+    "indirect": {
+      "engineering":           { "value": 0.225, "low": 0.20, "high": 0.25 },
+      "construction":          { "value": 0.325, "low": 0.30, "high": 0.35 }
+    },
+    "other": {
+      "contractors_fee":       { "value": 0.04, "low": 0.03, "high": 0.05 },
+      "contingency":           { "value": 0.085, "low": 0.07, "high": 0.10 }
+    }
+  }
+}

@@ -130,9 +130,37 @@ function EquationCard({ equation }: { equation: AttenuationEquation }) {
     );
 
     return (
-        <div className="grid grid-cols-1 gap-2 lg:grid-cols-[240px_1fr_400px] lg:h-[320px]">
-            {/* Left — vertical sliders */}
-            <div className="flex items-center justify-center">
+        <div>
+        {/* Mobile horizontal sliders */}
+        <div className="space-y-3 mb-3 lg:hidden">
+            {equation.parameters.map((p) => (
+                <div key={p.symbol}>
+                    <div className="flex items-center justify-between mb-1">
+                        <span
+                            className="text-xs text-muted-foreground"
+                            dangerouslySetInnerHTML={{
+                                __html: katex.renderToString(p.symbol, { throwOnError: false }),
+                            }}
+                        />
+                        <span className="text-xs font-medium tabular-nums">
+                            {params[p.symbol]} {p.unit}
+                        </span>
+                    </div>
+                    <Slider
+                        min={p.min}
+                        max={p.max}
+                        step={p.step}
+                        value={[params[p.symbol]]}
+                        onValueChange={([v]) => updateParam(p.symbol, v)}
+                        className="w-full"
+                    />
+                </div>
+            ))}
+        </div>
+        <div className="grid grid-cols-1 gap-2 overflow-hidden lg:grid-cols-[240px_1fr_400px] lg:h-[320px]">
+            <div className="flex flex-col sm:flex-row gap-2 lg:contents">
+            {/* Left — vertical sliders (desktop only) */}
+            <div className="hidden lg:flex items-center justify-center">
                 {equation.parameters.map((p) => (
                     <div
                         key={p.symbol}
@@ -166,7 +194,7 @@ function EquationCard({ equation }: { equation: AttenuationEquation }) {
             </div>
 
             {/* Center — chart */}
-            <div className="min-h-[320px]">
+            <div className="w-full min-w-0 min-h-[320px] touch-pan-y">
                 <ResponsiveContainer width="100%" height={320}>
                     <ComposedChart
                         data={data}
@@ -239,6 +267,7 @@ function EquationCard({ equation }: { equation: AttenuationEquation }) {
                     </ComposedChart>
                 </ResponsiveContainer>
             </div>
+            </div>
 
             {/* Right — equation, description, parameter table */}
             <div className="space-y-2 overflow-y-auto">
@@ -279,6 +308,7 @@ function EquationCard({ equation }: { equation: AttenuationEquation }) {
                     </tbody>
                 </table>
             </div>
+        </div>
         </div>
     );
 }
