@@ -4,11 +4,12 @@
 AlgaeMath is a Next.js (App Router) site with interactive tools for algae cultivation engineering. Built with TypeScript, Tailwind CSS v4, Recharts, Three.js, and KaTeX.
 
 ## Key Architecture
-- **Framework**: Next.js 15 with App Router, "use client" for interactive components
+- **Framework**: Next.js 16 with App Router, "use client" for interactive components
 - **Styling**: Tailwind CSS v4 with `@import "tailwindcss"` in globals.css
 - **Fonts**: Geist (sans) + Geist Mono loaded via `next/font/google`
 - **UI Components**: shadcn/ui (Slider, Accordion, etc.) in `components/ui/`
-- **Logo**: Inline SVG in SiteHeader.tsx and app/page.tsx using Geist font
+- **Logo**: Inline SVG in SiteHeader.tsx and app/(site)/page.tsx using Geist font
+- **Route groups**: `app/(site)/` holds all public pages (SiteHeader + footer via `app/(site)/layout.tsx`); `app/admin/` is admin-only (no site chrome)
 
 ## Mobile Responsive Design (established patterns)
 - **Horizontal sliders on mobile**: Vertical sliders are hidden on mobile (`hidden sm:flex` or `hidden md:flex` or `hidden lg:flex`) and replaced with horizontal `<Slider>` components (`sm:hidden` / `md:hidden` / `lg:hidden`). The horizontal sliders show parameter label + value on a row above the slider.
@@ -18,6 +19,7 @@ AlgaeMath is a Next.js (App Router) site with interactive tools for algae cultiv
 - **Breakpoints used**: `sm:` (640px) for header nav, `md:` (768px) for explorations/simulators, `lg:` (1024px) for equations grid and growth model panels.
 
 ## Pages & Key Components
+All public pages live under `app/(site)/` (URL paths unchanged):
 - `/` — Home page with logo + page cards
 - `/core-concepts` — 7 interactive visualizers (growth rate, light, temp, nutrient, combined, attenuation, absorption)
 - `/equations` — 5 equation sections with model cards (light, temp, nutrient, pH, attenuation)
@@ -26,16 +28,24 @@ AlgaeMath is a Next.js (App Router) site with interactive tools for algae cultiv
 - `/technoeconomics` — TEA index page with reactor type cards
 - `/technoeconomics/open-pond` — Open pond TEA with interactive sliders (facility size, sale price), financial overview table + lifetime value chart, clickable sections overview with right slide-in detail panel, cost contribution, sensitivity, cash flow schedule, left slide-in System Inputs panel
 
+Admin pages live under `app/admin/` (no SiteHeader/footer, not in nav):
+- `/admin/diagrams` — React Flow diagram editor (password-gated, full-viewport canvas)
+
 ## Commands
-- `npm run dev` — Start dev server
+- `npm run dev` — Start dev server (Turbopack, default)
+- `npm run dev -- --webpack` — Start dev server with webpack (required when working on `/admin/diagrams` — Turbopack panics on that route due to a known bug with `@xyflow/react`)
 - `npm run build` — Production build
 - `npm run lint` — ESLint
 
 ## Important Files
 - `components/layout/SiteHeader.tsx` — Header with inline SVG logo + mobile hamburger menu
-- `app/layout.tsx` — Root layout with `overflow-x-hidden` on body
+- `app/layout.tsx` — Root layout (html/body/fonts only — no SiteHeader)
+- `app/(site)/layout.tsx` — Public site layout (SiteHeader + footer + Analytics)
+- `app/admin/layout.tsx` — Admin layout (bare, no site chrome; loads `/xyflow-style.css` via `<link>`)
 - `app/globals.css` — Tailwind v4 config with custom CSS variables
 - `lib/simulation/cell-animation.ts` — Shared cell animation constants (MX=260, MY=195, MR=70)
+- `public/robots.txt` — Disallows `/admin/` from search crawlers
+- `public/xyflow-style.css` — React Flow CSS served as static asset (avoids Turbopack resolution bug)
 
 ## TEA Engine Architecture
 - **Engine**: `lib/technoeconomics/open-pond/engine.ts` — `runTEA(configOverrides?)` pure function, config → TEAResult

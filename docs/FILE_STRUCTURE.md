@@ -3,12 +3,15 @@
 ```
 algaemathdotcom/
 ├── app/                                    # Next.js 16 App Router
-│   ├── layout.tsx                          # Root layout (SiteHeader, global footer w/ copyright + LinkedIn, Analytics)
-│   ├── page.tsx                            # Landing page (6 section cards, 3 active + 3 "coming soon")
+│   ├── layout.tsx                          # Root layout (html/body/fonts only — no SiteHeader)
 │   ├── globals.css                         # Global styles (Tailwind)
 │   ├── favicon.ico                         # Site favicon
 │   │
-│   ├── core-concepts/
+│   ├── (site)/                             # Route group — all public pages (URL paths unchanged)
+│   │   ├── layout.tsx                      # Public layout (SiteHeader + footer + Analytics)
+│   │   ├── page.tsx                        # Landing page (6 section cards, 3 active + 3 "coming soon")
+│   │   │
+│   ├── (site)/core-concepts/
 │   │   ├── page.tsx                        # Server component (metadata + CoreConceptsAccordions)
 │   │   └── components/
 │   │       ├── CoreConceptsAccordions.tsx   # Client component — accordion layout for all visualizers
@@ -80,6 +83,21 @@ algaemathdotcom/
 │   │   ├── light-response-fitting/
 │   │   ├── temperature-response-fitting/
 │   │   └── nutrient-uptake-fitting/
+│   │
+│   ├── admin/                              # Admin pages — no SiteHeader/footer, not in nav
+│   │   ├── layout.tsx                      # Bare layout (loads /xyflow-style.css via <link>)
+│   │   └── diagrams/
+│   │       ├── page.tsx                    # Password gate (NEXT_PUBLIC_ADMIN_KEY, brute-force cooldown)
+│   │       └── components/
+│   │           ├── DiagramEditor.tsx       # React Flow canvas orchestrator
+│   │           ├── Toolbar.tsx             # Top toolbar (shapes, colors, save/load/export)
+│   │           └── nodes/
+│   │               ├── RectangleNode.tsx
+│   │               ├── RoundedRectNode.tsx
+│   │               ├── DiamondNode.tsx
+│   │               ├── CircleNode.tsx
+│   │               ├── PillNode.tsx
+│   │               └── index.ts            # nodeTypes registry + shapeDefaults
 │   │
 │   └── api/                                # API route placeholders (.gitkeep)
 │       ├── climate/
@@ -192,6 +210,9 @@ algaemathdotcom/
 │   └── generate-weather-data.mjs           # Generates static weather JSON from Open-Meteo
 │
 ├── public/
+│   ├── robots.txt                          # Disallows /admin/ from search crawlers
+│   ├── xyflow-style.css                    # React Flow CSS (static asset — avoids Turbopack bug)
+│   ├── diagrams/                           # Saved diagram JSON files (manually placed after download)
 │   ├── weather/                            # Pre-cached weather data (29 cities × 4 seasons)
 │   │   ├── gainesville.json
 │   │   ├── dallas.json
