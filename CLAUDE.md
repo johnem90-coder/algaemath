@@ -24,7 +24,7 @@ All public pages live under `app/(site)/` (URL paths unchanged):
 - `/core-concepts` — 7 interactive visualizers (growth rate, light, temp, nutrient, combined, attenuation, absorption)
 - `/equations` — 5 equation sections with model cards (light, temp, nutrient, pH, attenuation)
 - `/simple-simulators/open-pond` — Open pond simulator with 3D canvas, world map, growth model panels
-- `/explorations` — Design explorer with variable depth + layered light sections
+- `/explorations` — Design explorer with three collapsible sections: Variable Depth, Layered Light Distribution, Light-Guide Panels. Each has a 3D Three.js pond animation, 2D SVG cross-section, dimension diagram, and Recharts charts (empty axes for Light-Guide Panels pending engine work)
 - `/technoeconomics` — TEA index page with reactor type cards
 - `/technoeconomics/open-pond` — Open pond TEA with interactive sliders (facility size, sale price), financial overview table + lifetime value chart, process flow diagram (static SVG with interactive section highlighting), clickable sections overview with right slide-in detail panel, cost contribution, sensitivity, cash flow schedule, left slide-in System Inputs panel
 
@@ -48,6 +48,15 @@ Admin pages live under `app/admin/` (no SiteHeader/footer, not in nav):
 - `public/xyflow-style.css` — React Flow CSS served as static asset (avoids Turbopack resolution bug)
 - `public/diagrams/` — Diagram JSON files exported from the admin editor, embedded as static SVGs on public pages
 - `app/(site)/technoeconomics/open-pond/components/DiagramView.tsx` — Pure SVG renderer for diagram JSON (no React Flow dependency); auto-detects sections via geometry, interactive hover/click linking with SectionsOverviewTable and Economic Details panel
+
+## Explorations Page Architecture
+- **Pond dimensions**: 4.4m × 1.4m stadium (3.0m straight edge, 0.7m semicircle radius). All three sections use identical `POND_L=4.4`, `POND_W=1.4` geometry constants.
+- **3D diagrams**: `DepthDiagram.tsx`, `LayeredDiagram.tsx`, `LightGuidePanelDiagram.tsx` — Three.js with transparent background (`alpha: true`), matching lighting rigs, camera at `Spherical(9.0, 1.0, 0.65)`, line-based sun ray animation (`RayData` interface, traveling segments with fade). No water pulse animations.
+- **2D cross-sections**: Inline SVG with `useId()`-based gradient IDs to avoid conflicts when components render twice (mobile + desktop). Proportional aspect ratio: `drawW` pixels = 600mm channel width, depth scaled by same `pxPerMm` factor. Pinned above dimension diagram via `flex-col` + `alignItems: "flex-end"`.
+- **Dimension diagram**: Stadium-outline SVG below cross-section showing 1.4m width and 4.4m length callouts.
+- **Layout**: Desktop: flex row with cross-section column (220px, `hidden md:flex`) | 3D canvas (flex-1) | charts. Mobile: horizontal sliders + full-width diagram, cross-section hidden.
+- **Light-Guide Panels**: Two sliders in single dashed box (`w-44`). Panel ticks: [6,8,10,12,15,20,24,30]. Channel width = 600mm, spacing = 600/panelsPerSide. Capture wedges (trapezoidal) above surface, thin plates submerged. Cross-section shows gold panel glows + depth attenuation overlay.
+- **DesignExplorer.tsx**: Main orchestrator with collapsible sections, state for all sliders, weather data loading, simulation runs for Variable Depth and Layered Light (not yet wired for Light-Guide Panels). Under the Hood sub-sections with model selector pills and 3-column chart grids.
 
 ## TEA Engine Architecture
 - **Engine**: `lib/technoeconomics/open-pond/engine.ts` — `runTEA(configOverrides?)` pure function, config → TEAResult

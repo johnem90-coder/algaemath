@@ -12,6 +12,7 @@ import {
 import type { RawDayData, SeasonWeather } from "@/lib/simulation/weather-types";
 import DepthDiagram from "./DepthDiagram";
 import LayeredDiagram from "./LayeredDiagram";
+import LightGuidePanelDiagram from "./LightGuidePanelDiagram";
 import {
   ComposedChart,
   Line,
@@ -37,6 +38,12 @@ const LAYERED_DEPTH_MM = 300; // baseline depth for layered simulation (mm)
 const LAYERED_DEPTH_M = LAYERED_DEPTH_MM / 1000; // 0.3 m
 const MIN_LAYERS = 1;
 const MAX_LAYERS = 10;
+
+// Light-Guide Panels constants
+const PANEL_TICKS = [6, 8, 10, 12, 15, 20, 24, 30];
+const PANEL_DEPTH_MIN = DEPTH_MIN; // same range as Variable Depth
+const PANEL_DEPTH_MAX = DEPTH_MAX;
+const PANEL_DEPTH_STEP = DEPTH_STEP;
 
 const C_DENSITY = "#16a34a"; // green-600
 const C_MASS = "hsl(200, 55%, 40%)"; // blue
@@ -212,6 +219,10 @@ export default function DesignExplorer() {
   const [layeredLightOpen, setLayeredLightOpen] = useState(false);
   const [numLayers, setNumLayers] = useState([2]); // 1–10 layers
   const [layeredHoodOpen, setLayeredHoodOpen] = useState(false);
+  const [lightGuidePanelOpen, setLightGuidePanelOpen] = useState(false);
+  const [lgPanelIdx, setLgPanelIdx] = useState([0]);
+  const [lgDepthMm, setLgDepthMm] = useState([300]);
+  const [lgHoodOpen, setLgHoodOpen] = useState(false);
   const [lightModelId, setLightModelId] = useState("steele");
   const [tempModelId, setTempModelId] = useState("gaussian");
 
@@ -428,6 +439,14 @@ export default function DesignExplorer() {
   // Slider thumb position tracking (Layered Light)
   const layeredFraction = 1 - (layers - MIN_LAYERS) / (MAX_LAYERS - MIN_LAYERS);
   const layeredThumbTop = 10 + layeredFraction * 188;
+
+  // Light-Guide Panels derived values & thumb tracking
+  const lgPanelsPerSide = PANEL_TICKS[lgPanelIdx[0]];
+  const lgDepth = lgDepthMm[0];
+  const lgPanelFraction = 1 - lgPanelIdx[0] / (PANEL_TICKS.length - 1);
+  const lgPanelThumbTop = 10 + lgPanelFraction * 188;
+  const lgDepthFraction = 1 - (lgDepth - PANEL_DEPTH_MIN) / (PANEL_DEPTH_MAX - PANEL_DEPTH_MIN);
+  const lgDepthThumbTop = 10 + lgDepthFraction * 188;
 
   if (loading) {
     return (
@@ -1512,6 +1531,406 @@ export default function DesignExplorer() {
       )}
     </div>
     </div>
+      )}
+    </div>
+
+    {/* ── Light-Guide Panels ─────────────────────────────────── */}
+    <div className="border-b">
+      <button
+        onClick={() => setLightGuidePanelOpen((prev) => !prev)}
+        className="flex w-full items-center justify-between py-4 text-sm font-semibold tracking-tight text-foreground hover:text-foreground/80 transition-colors"
+      >
+        <span>Light-Guide Panels</span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 transition-transform duration-200 ${
+            lightGuidePanelOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      {lightGuidePanelOpen && (
+      <div className="space-y-0 pb-4">
+      {/* ── Mobile horizontal sliders ── */}
+      <div className="md:hidden mb-3 select-none space-y-3">
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-foreground">Panels per Side</span>
+            <span className="text-sm font-mono font-bold" style={{ color: 'hsl(var(--accent-science))' }}>{lgPanelsPerSide}</span>
+          </div>
+          <Slider
+            min={0}
+            max={PANEL_TICKS.length - 1}
+            step={1}
+            value={lgPanelIdx}
+            onValueChange={setLgPanelIdx}
+            className="w-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[hsl(var(--accent-science))] [&_span[role=slider]]:!border-[hsl(var(--accent-science))] [&_span[role=slider]]:!bg-background"
+          />
+          <div className="flex justify-between mt-0.5">
+            <span className="text-[10px] font-mono text-muted-foreground">{PANEL_TICKS[0]} Fewer</span>
+            <span className="text-[10px] font-mono text-muted-foreground">{PANEL_TICKS[PANEL_TICKS.length - 1]} More</span>
+          </div>
+        </div>
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-foreground">Culture Depth (mm)</span>
+            <span className="text-sm font-mono font-bold" style={{ color: 'hsl(var(--accent-science))' }}>{lgDepth} mm</span>
+          </div>
+          <Slider
+            min={PANEL_DEPTH_MIN}
+            max={PANEL_DEPTH_MAX}
+            step={PANEL_DEPTH_STEP}
+            value={lgDepthMm}
+            onValueChange={setLgDepthMm}
+            className="w-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[hsl(var(--accent-science))] [&_span[role=slider]]:!border-[hsl(var(--accent-science))] [&_span[role=slider]]:!bg-background"
+          />
+          <div className="flex justify-between mt-0.5">
+            <span className="text-[10px] font-mono text-muted-foreground">{PANEL_DEPTH_MIN} Shallow</span>
+            <span className="text-[10px] font-mono text-muted-foreground">{PANEL_DEPTH_MAX} Deep</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Pond visual (mobile: full width) ── */}
+      <div className="md:hidden min-h-[260px] h-[260px] mb-3 overflow-hidden">
+        <LightGuidePanelDiagram panelsPerSide={lgPanelsPerSide} depthMm={lgDepth} />
+      </div>
+
+      <div className="flex flex-col md:flex-row md:items-start md:gap-4 md:py-4 select-none">
+      {/* ── Sliders (desktop only) — single box with both sliders ── */}
+      <div className="hidden md:flex flex-col items-center shrink-0 w-44 border-2 border-dashed border-muted-foreground/30 rounded-lg px-4 py-4 relative mt-6">
+        <span className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-medium text-foreground whitespace-nowrap">
+          Panel Configuration
+        </span>
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-background px-2 text-[11px] font-mono text-muted-foreground whitespace-nowrap">
+          ↕ drag to adjust
+        </span>
+        {/* Two sliders side-by-side */}
+        <div className="flex gap-4 w-full">
+          {/* Panels per side */}
+          <div className="flex flex-col items-center flex-1">
+            <span className="text-[10px] font-mono font-medium text-muted-foreground mb-1">More</span>
+            <div className="h-52 relative w-full flex justify-center">
+              <span
+                className="absolute text-sm font-mono font-bold pointer-events-none whitespace-nowrap"
+                style={{
+                  left: "calc(50% - 16px)",
+                  top: lgPanelThumbTop,
+                  transform: "translate(-100%, -50%)",
+                  color: "hsl(var(--accent-science))",
+                }}
+              >
+                N
+              </span>
+              <Slider
+                orientation="vertical"
+                min={0}
+                max={PANEL_TICKS.length - 1}
+                step={1}
+                value={lgPanelIdx}
+                onValueChange={setLgPanelIdx}
+                className="h-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[hsl(var(--accent-science))] [&_span[role=slider]]:!border-[hsl(var(--accent-science))] [&_span[role=slider]]:!bg-background"
+              />
+              <span
+                className="absolute text-sm font-mono font-bold pointer-events-none leading-tight"
+                style={{
+                  left: "calc(50% + 12px)",
+                  top: lgPanelThumbTop - 1,
+                  transform: "translateY(-50%)",
+                  color: "hsl(var(--accent-science))",
+                }}
+              >
+                {lgPanelsPerSide}
+                <br />
+                <span className="text-[10px] font-normal text-muted-foreground" style={{ display: "block", lineHeight: "1.1" }}>
+                  panels
+                </span>
+              </span>
+            </div>
+            <span className="text-[10px] font-mono font-medium text-muted-foreground mt-1">Fewer</span>
+          </div>
+          {/* Depth */}
+          <div className="flex flex-col items-center flex-1">
+            <span className="text-[10px] font-mono font-medium text-muted-foreground mb-1">Deep</span>
+            <div className="h-52 relative w-full flex justify-center">
+              <span
+                className="absolute text-sm font-mono font-bold pointer-events-none whitespace-nowrap"
+                style={{
+                  left: "calc(50% - 16px)",
+                  top: lgDepthThumbTop,
+                  transform: "translate(-100%, -50%)",
+                  color: "hsl(var(--accent-science))",
+                }}
+              >
+                d
+              </span>
+              <Slider
+                orientation="vertical"
+                min={PANEL_DEPTH_MIN}
+                max={PANEL_DEPTH_MAX}
+                step={PANEL_DEPTH_STEP}
+                value={lgDepthMm}
+                onValueChange={setLgDepthMm}
+                className="h-full [&_span:first-child]:!bg-border [&_span_span]:!bg-[hsl(var(--accent-science))] [&_span[role=slider]]:!border-[hsl(var(--accent-science))] [&_span[role=slider]]:!bg-background"
+              />
+              <span
+                className="absolute text-sm font-mono font-bold pointer-events-none leading-tight"
+                style={{
+                  left: "calc(50% + 12px)",
+                  top: lgDepthThumbTop - 1,
+                  transform: "translateY(-50%)",
+                  color: "hsl(var(--accent-science))",
+                }}
+              >
+                {lgDepth}
+                <br />
+                <span className="text-[10px] font-normal text-muted-foreground" style={{ display: "block", lineHeight: "1.1" }}>
+                  mm
+                </span>
+              </span>
+            </div>
+            <span className="text-[10px] font-mono font-medium text-muted-foreground mt-1">Shallow</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Pond visual (desktop only) ── */}
+      <div className="hidden md:block flex-1 min-w-0 w-full min-h-[320px] h-[320px]">
+        <LightGuidePanelDiagram panelsPerSide={lgPanelsPerSide} depthMm={lgDepth} />
+      </div>
+
+      {/* ── Charts ─────────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row gap-4 md:shrink-0">
+        {/* Biomass Density */}
+        <div className="w-full md:w-[320px] touch-pan-y">
+          <h3 className="text-xs font-medium text-foreground/70 mb-2">
+            Biomass Density
+          </h3>
+          <ResponsiveContainer width="100%" height={280}>
+            <ComposedChart
+              data={[]}
+              margin={{ top: 8, right: 16, bottom: 24, left: 0 }}
+            >
+              <XAxis
+                dataKey="time"
+                type="number"
+                domain={[0, TOTAL_DAYS]}
+                ticks={[0, 1, 2, 3, 4, 5, 6, 7]}
+                tickFormatter={(v: number) => `${v}`}
+                label={{
+                  value: "Day",
+                  position: "insideBottom",
+                  offset: -8,
+                  style: { fontSize: 11, fill: "#6b7280" },
+                }}
+                tick={{ fontSize: 10 }}
+              />
+              <YAxis
+                domain={[0, 2]}
+                ticks={[0, 0.5, 1.0, 1.5, 2.0]}
+                interval={0}
+                tickFormatter={(v: number) => v.toFixed(1)}
+                tick={{ fontSize: 10 }}
+                label={{
+                  value: "Density (g/L)",
+                  angle: -90,
+                  position: "center",
+                  dx: -8,
+                  style: { fontSize: 10, fill: "#6b7280" },
+                }}
+              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Total Biomass */}
+        <div className="w-full md:w-[320px] touch-pan-y">
+          <h3 className="text-xs font-medium text-foreground/70 mb-2">
+            Total Biomass
+          </h3>
+          <ResponsiveContainer width="100%" height={280}>
+            <ComposedChart
+              data={[]}
+              margin={{ top: 8, right: 16, bottom: 24, left: 0 }}
+            >
+              <XAxis
+                dataKey="time"
+                type="number"
+                domain={[0, TOTAL_DAYS]}
+                ticks={[0, 1, 2, 3, 4, 5, 6, 7]}
+                tickFormatter={(v: number) => `${v}`}
+                label={{
+                  value: "Day",
+                  position: "insideBottom",
+                  offset: -8,
+                  style: { fontSize: 11, fill: "#6b7280" },
+                }}
+                tick={{ fontSize: 10 }}
+              />
+              <YAxis
+                domain={[0, 500]}
+                ticks={[0, 100, 200, 300, 400, 500]}
+                interval={0}
+                tickFormatter={(v: number) => v.toFixed(0)}
+                tick={{ fontSize: 10 }}
+                label={{
+                  value: "Biomass (kg)",
+                  angle: -90,
+                  position: "center",
+                  dx: -8,
+                  style: { fontSize: 10, fill: "#6b7280" },
+                }}
+              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+      </div>
+
+    {/* ── Under the Hood (Light-Guide Panels) ──────────────────── */}
+    <div className="border-t pt-2">
+      <button
+        onClick={() => setLgHoodOpen((prev) => !prev)}
+        className="flex w-full items-center justify-between py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <span>Under the Hood</span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 transition-transform duration-200 ${
+            lgHoodOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      {lgHoodOpen && (
+        <div className="flex flex-col gap-4 md:grid md:grid-cols-3 md:gap-1 pb-6">
+          {/* Light Response (fL) */}
+          <div className="touch-pan-y">
+            <h3 className="text-xs font-medium text-foreground/70 mb-2">
+              Light Response
+            </h3>
+            <ResponsiveContainer width="100%" height={220}>
+              <ComposedChart
+                data={[]}
+                margin={{ top: 8, right: hoodRightMargin, bottom: 24, left: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis {...hoodXAxis} />
+                <YAxis
+                  domain={[0, 1]}
+                  ticks={[0, 0.2, 0.4, 0.6, 0.8, 1.0]}
+                  interval={0}
+                  tickFormatter={(v: number) => v.toFixed(1)}
+                  tick={{ fontSize: 10 }}
+                  label={{
+                    value: "fL (-)",
+                    angle: -90,
+                    position: "center",
+                    dx: -8,
+                    style: { fontSize: 10, fill: "#6b7280" },
+                  }}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  domain={[0, 700]}
+                  ticks={[0, 100, 200, 300, 400, 500, 600, 700]}
+                  tickFormatter={(v: number) => v.toFixed(0)}
+                  tick={isMobile ? false : { fontSize: 9, fill: "#c0c0c0" }}
+                  stroke={isMobile ? "transparent" : "#c0c0c0"}
+                  width={isMobile ? 0 : undefined}
+                  hide={isMobile}
+                  label={isMobile ? undefined : {
+                    value: "Avg Intensity (µmol/m²/s)",
+                    angle: 90,
+                    position: "outside",
+                    dx: 2,
+                    style: { fontSize: 9, fill: "#c0c0c0" },
+                  }}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Temperature Response (fT) */}
+          <div className="touch-pan-y">
+            <h3 className="text-xs font-medium text-foreground/70 mb-2">
+              Temperature Response
+            </h3>
+            <ResponsiveContainer width="100%" height={220}>
+              <ComposedChart
+                data={[]}
+                margin={{ top: 8, right: hoodRightMargin, bottom: 24, left: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis {...hoodXAxis} />
+                <YAxis
+                  domain={[0, 1]}
+                  ticks={[0, 0.2, 0.4, 0.6, 0.8, 1.0]}
+                  interval={0}
+                  tickFormatter={(v: number) => v.toFixed(1)}
+                  tick={{ fontSize: 10 }}
+                  label={{
+                    value: "fT (-)",
+                    angle: -90,
+                    position: "center",
+                    dx: -8,
+                    style: { fontSize: 10, fill: "#6b7280" },
+                  }}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  domain={[0, 50]}
+                  ticks={[0, 10, 20, 30, 40, 50]}
+                  tickFormatter={(v: number) => v.toFixed(0)}
+                  tick={isMobile ? false : { fontSize: 9, fill: "#c0c0c0" }}
+                  stroke={isMobile ? "transparent" : "#c0c0c0"}
+                  width={isMobile ? 0 : undefined}
+                  hide={isMobile}
+                  label={isMobile ? undefined : {
+                    value: "Pond Temp (°C)",
+                    angle: 90,
+                    position: "outside",
+                    dx: 2,
+                    style: { fontSize: 9, fill: "#c0c0c0" },
+                  }}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Productivity */}
+          <div className="touch-pan-y">
+            <h3 className="text-xs font-medium text-foreground/70 mb-2">
+              Productivity
+            </h3>
+            <ResponsiveContainer width="100%" height={220}>
+              <ComposedChart
+                data={[]}
+                margin={{ top: 8, right: hoodRightMargin, bottom: 24, left: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis {...hoodXAxis} />
+                <YAxis
+                  domain={[0, 100]}
+                  ticks={[0, 20, 40, 60, 80, 100]}
+                  interval={0}
+                  tickFormatter={(v: number) => v.toFixed(0)}
+                  tick={{ fontSize: 10 }}
+                  label={{
+                    value: "Productivity (g/m²/day)",
+                    angle: -90,
+                    position: "center",
+                    dx: -8,
+                    style: { fontSize: 10, fill: "#6b7280" },
+                  }}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+    </div>
+      </div>
       )}
     </div>
 

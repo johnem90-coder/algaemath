@@ -1,22 +1,18 @@
 "use client";
 
-import { useMemo, useRef, useEffect } from "react";
+import { useRef, useEffect, useId } from "react";
 import * as THREE from "three";
-import { computeGeometry } from "@/lib/simulation/simple-outdoor/geometry";
-import { DEFAULT_CONFIG } from "@/lib/simulation/simple-outdoor/types";
 
 /* ═══════════════════════ PALETTE ═══════════════════════ */
 const PAL = {
-  waterTop: new THREE.Color(0xae7f01),
+  waterTop: new THREE.Color(0xf9b501),
   waterBottom: new THREE.Color(0x5a9a4a),
   gold: 0xf9b501,
-  pulse: 0xd49a00,
-  bg: 0x070710,
 };
 
 /* ═══════════════════════ GEOMETRY CONSTANTS ═══════════════════════ */
-const POND_L = 3.2;
-const POND_W = 1.3;
+const POND_L = 4.4;
+const POND_W = 1.4;
 const SPHERE_R = 0.15;
 
 const R_A = POND_W / 2;
@@ -44,20 +40,6 @@ function stadiumShape(length: number, width: number) {
   }
   s.closePath();
   return s;
-}
-
-function stadiumOutlinePts(length: number, width: number, n: number) {
-  const r = width / 2, hl = length / 2 - r, pts: THREE.Vector3[] = [];
-  for (let i = 0; i <= n; i++) {
-    const a = -Math.PI / 2 + (Math.PI * i) / n;
-    pts.push(new THREE.Vector3(hl + r * Math.cos(a), 0, r * Math.sin(a)));
-  }
-  for (let i = 0; i <= n; i++) {
-    const a = Math.PI / 2 + (Math.PI * i) / n;
-    pts.push(new THREE.Vector3(-hl + r * Math.cos(a), 0, r * Math.sin(a)));
-  }
-  pts.push(pts[0].clone());
-  return pts;
 }
 
 function extrudeY(shape: THREE.Shape, height: number, yOff: number) {
@@ -109,28 +91,6 @@ function disposeGroup(g: THREE.Group) {
   }
 }
 
-function makeTextSprite(text: string) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 64;
-  const ctx = canvas.getContext("2d")!;
-  ctx.font = "bold 36px 'JetBrains Mono', 'Fira Code', monospace";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillStyle = "#F9B501";
-  ctx.fillText(text, 128, 32);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.needsUpdate = true;
-  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
-  const sprite = new THREE.Sprite(mat);
-  sprite.scale.set(0.6, 0.15, 1);
-  return sprite;
-}
-
-function pulseLineMat() {
-  return new THREE.LineBasicMaterial({ color: PAL.pulse, transparent: true, opacity: 0.9, depthWrite: false });
-}
-
 /* ═══════════════════════ INSIDE STADIUM CHECK ═══════════════════════ */
 
 function isInsideStadium(x: number, z: number) {
@@ -159,7 +119,6 @@ function buildPond(group: THREE.Group, depthMm: number) {
   const sp = new THREE.Mesh(new THREE.SphereGeometry(SPHERE_R, 32, 32), sphereMat);
   sp.position.set(SUN_X, SPHERE_Y, 0);
   group.add(sp);
-
 }
 
 /* ═══════════════════════ BUILD RAYS ═══════════════════════ */
@@ -229,45 +188,6 @@ function buildRays(rayGroup: THREE.Group, rayState: React.MutableRefObject<RayDa
   }
 }
 
-/* ═══════════════════════ BUILD WATER PULSES ═══════════════════════ */
-
-const WATER_CYCLE = 4.0;
-const WATER_WAVES = 5;
-const WATER_END_PAD = 0.3;
-
-interface WaterPulseData {
-  mesh: THREE.Line;
-  offset: number;
-  waterYTop: number;
-  waterYBottom: number;
-  duration: number;
-}
-
-function buildWaterPulses(pulseGroup: THREE.Group, depthMm: number, pulseState: React.MutableRefObject<WaterPulseData[]>) {
-  disposeGroup(pulseGroup);
-  pulseState.current = [];
-
-  const depth = depthToU(depthMm);
-  const waterYTop = SURFACE_Y;
-  const waterYBottom = SURFACE_Y - depth;
-  const endTime = WATER_CYCLE - WATER_END_PAD;
-
-  for (let w = 0; w < WATER_WAVES; w++) {
-    const wPts = stadiumOutlinePts(POND_L + 0.02, POND_W + 0.02, 48);
-    const wRing = new THREE.Line(new THREE.BufferGeometry().setFromPoints(wPts), pulseLineMat());
-    wRing.visible = false;
-    pulseGroup.add(wRing);
-
-    pulseState.current.push({
-      mesh: wRing,
-      offset: (w / WATER_WAVES) * WATER_CYCLE,
-      waterYTop,
-      waterYBottom,
-      duration: endTime,
-    });
-  }
-}
-
 /* ═══════════════════════ UPDATE ANIMATIONS ═══════════════════════ */
 
 function updateRays(rayState: React.MutableRefObject<RayData[]>, time: number) {
@@ -301,23 +221,6 @@ function updateRays(rayState: React.MutableRefObject<RayData[]>, time: number) {
   }
 }
 
-function updateWaterPulses(pulseState: React.MutableRefObject<WaterPulseData[]>, time: number) {
-  for (const p of pulseState.current) {
-    const ct = ((time + p.offset) % WATER_CYCLE + WATER_CYCLE) % WATER_CYCLE;
-    if (ct <= p.duration && p.duration > 0) {
-      const vf = ct / p.duration;
-      p.mesh.position.set(0, p.waterYTop + (p.waterYBottom - p.waterYTop) * vf, 0);
-      let op = Math.max(0.03, 1 - vf * 0.95);
-      if (vf < 0.08) op *= vf / 0.08;
-      if (vf > 0.90) op *= (1 - vf) / 0.10;
-      (p.mesh.material as THREE.LineBasicMaterial).opacity = op;
-      p.mesh.visible = true;
-    } else {
-      p.mesh.visible = false;
-    }
-  }
-}
-
 /* ═══════════════════════ COMPONENT ═══════════════════════ */
 
 export default function DepthDiagram({ depthMm }: { depthMm: number }) {
@@ -326,10 +229,9 @@ export default function DepthDiagram({ depthMm }: { depthMm: number }) {
   const pondGroup = useRef<THREE.Group | null>(null);
   const rayGroup = useRef<THREE.Group | null>(null);
   const rayState = useRef<RayData[]>([]);
-  const pulseGroup = useRef<THREE.Group | null>(null);
-  const pulseState = useRef<WaterPulseData[]>([]);
   const rendRef = useRef<THREE.WebGLRenderer | null>(null);
   const clockRef = useRef(new THREE.Clock());
+  const uid = useId().replace(/:/g, "");
 
   useEffect(() => {
     const el = mountRef.current;
@@ -371,17 +273,12 @@ export default function DepthDiagram({ depthMm }: { depthMm: number }) {
     scene.add(rg);
     rayGroup.current = rg;
 
-    const plg = new THREE.Group();
-    scene.add(plg);
-    pulseGroup.current = plg;
-
     buildPond(pg, depthMm);
     buildRays(rg, rayState);
-    buildWaterPulses(plg, depthMm, pulseState);
     clockRef.current.start();
 
     const target = new THREE.Vector3(-0.2, 0.45, 0);
-    const sp = new THREE.Spherical(5.5, 1.0, 0.65);
+    const sp = new THREE.Spherical(9.0, 1.0, 0.65);
     cam.position.setFromSpherical(sp).add(target);
     cam.lookAt(target);
 
@@ -395,7 +292,6 @@ export default function DepthDiagram({ depthMm }: { depthMm: number }) {
     function tick() {
       const t = clockRef.current.getElapsedTime();
       updateRays(rayState, t);
-      updateWaterPulses(pulseState, t);
       rend.render(scene, cam);
       frameId.current = requestAnimationFrame(tick);
     }
@@ -411,18 +307,75 @@ export default function DepthDiagram({ depthMm }: { depthMm: number }) {
   }, []);
 
   useEffect(() => {
-    if (pondGroup.current && pulseGroup.current) {
+    if (pondGroup.current) {
       buildPond(pondGroup.current, depthMm);
-      buildWaterPulses(pulseGroup.current, depthMm, pulseState);
     }
   }, [depthMm]);
 
-  const geo = useMemo(
-    () => computeGeometry(DEFAULT_CONFIG.area_ha, DEFAULT_CONFIG.aspect_ratio, depthMm / 1000, DEFAULT_CONFIG.berm_width),
-    [depthMm],
-  );
+  const volumeL = Math.round(4.4 * 1.4 * (depthMm / 1000) * 1000); // approx liters
+  const volumeKL = Math.round(volumeL / 1000);
 
-  const volumeKL = Math.round(geo.V_liters / 1000);
+  /* ── 2D Cross-Section SVG ── */
+  const crossSection = (() => {
+    const svgW = 220;
+    const margin = { top: 32, bottom: 10, left: 12, right: 12 };
+    const drawW = svgW - margin.left - margin.right;
+
+    const pxPerMm = drawW / 600; // drawW represents 600mm channel width
+    const depthPx = depthMm * pxPerMm;
+    const maxDepthPx = 500 * pxPerMm;
+
+    const sunCx = svgW / 2;
+    const sunCy = 14;
+    const sunR = 5;
+
+    const surfaceYSvg = margin.top + 6;
+    const bottomYSvg = surfaceYSvg + depthPx;
+
+    const contentBottomAt500 = surfaceYSvg + maxDepthPx + 18;
+    const offsetY = 0;
+
+    const numRays = 8;
+    const rayPositions: number[] = [];
+    for (let i = 0; i < numRays; i++) {
+      rayPositions.push(margin.left + (drawW / (numRays + 1)) * (i + 1));
+    }
+
+    return (
+      <svg viewBox={`0 0 ${svgW} ${contentBottomAt500}`} style={{ width: "100%" }} preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id={`depth-wg-${uid}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#f9b501" />
+            <stop offset="100%" stopColor="#5a9a4a" />
+          </linearGradient>
+        </defs>
+
+        <g transform={`translate(0, ${offsetY})`}>
+          <text x={margin.left} y={sunCy - 2} textAnchor="start" fill="#555" fontSize={10} fontWeight="700" letterSpacing={2} fontFamily="monospace" style={{ textTransform: "uppercase" as const }}>
+            Cross-Section
+          </text>
+
+          <circle cx={sunCx} cy={sunCy + 12} r={sunR} fill="#F9B501" />
+
+          {rayPositions.map((px, i) => (
+            <line key={`ray-${i}`} x1={sunCx} y1={sunCy + 12 + sunR} x2={px} y2={surfaceYSvg - 2}
+              stroke="#F9B501" strokeWidth={0.5} opacity={0.3} />
+          ))}
+
+          <rect x={margin.left} y={surfaceYSvg} width={drawW} height={depthPx} rx={3}
+            fill={`url(#depth-wg-${uid})`} opacity={0.9} />
+
+          <line x1={margin.left} y1={surfaceYSvg} x2={margin.left} y2={bottomYSvg} stroke="#5a9a4a" strokeWidth={3} />
+          <line x1={svgW - margin.right} y1={surfaceYSvg} x2={svgW - margin.right} y2={bottomYSvg} stroke="#5a9a4a" strokeWidth={3} />
+          <line x1={margin.left} y1={bottomYSvg} x2={svgW - margin.right} y2={bottomYSvg} stroke="#5a9a4a" strokeWidth={2} />
+
+          <text x={svgW / 2} y={bottomYSvg + 5} textAnchor="middle" fill="#666" fontSize={11} fontWeight="600" fontFamily="monospace" dominantBaseline="hanging">
+            {depthMm}mm depth
+          </text>
+        </g>
+      </svg>
+    );
+  })();
 
   return (
     <div
@@ -433,61 +386,43 @@ export default function DepthDiagram({ depthMm }: { depthMm: number }) {
         userSelect: "none",
         overflow: "hidden",
         borderRadius: 8,
+        display: "flex",
       }}
     >
+      {/* Cross-section + dimensions — desktop only */}
       <div
-        ref={mountRef}
-        style={{ width: "100%", height: "100%" }}
-      />
-
-      {/* Bottom-left: pond dimensions */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 8,
-          left: 8,
-          zIndex: 10,
-        }}
+        className="hidden md:flex flex-col items-center"
+        style={{ flexShrink: 0, width: 220, padding: "4px 0", gap: 8 }}
       >
-        <svg
-          viewBox="0 0 206 76"
-          className="w-[200px]"
-          aria-label={`Pond: ${Math.round(geo.W)}m × ${Math.round(geo.Ltotal)}m, ${depthMm}mm deep`}
-        >
-          <text x="4" y="10" fill="#555" fontSize="10" fontFamily="monospace" fontWeight="600">
-            1 acre | {depthMm}mm deep
+        <div style={{ flex: 1, minHeight: 0, width: "100%", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+          {crossSection}
+        </div>
+        <svg viewBox="0 0 206 66" style={{ width: 180, flexShrink: 0 }}>
+          <rect x="4" y="4" width="168" height="22" rx="11" fill="none" stroke="#888" strokeWidth="1.2" />
+          <line x1="180" y1="4" x2="180" y2="26" stroke="#888" strokeWidth="0.7" />
+          <line x1="177" y1="4" x2="183" y2="4" stroke="#888" strokeWidth="0.7" />
+          <line x1="177" y1="26" x2="183" y2="26" stroke="#888" strokeWidth="0.7" />
+          <text x="196" y="19" textAnchor="middle" fill="#666" fontSize="8" fontFamily="monospace">
+            1.4m
           </text>
-          <rect x="4" y="29" width="168" height="22" rx="11" fill="none" stroke="#888" strokeWidth="1.2" />
-          <text x="88" y="44" textAnchor="middle" fill="#666" fontSize="8.5" fontFamily="monospace">
-            {depthMm}mm deep
-          </text>
-          <line x1="180" y1="29" x2="180" y2="51" stroke="#888" strokeWidth="0.7" />
-          <line x1="177" y1="29" x2="183" y2="29" stroke="#888" strokeWidth="0.7" />
-          <line x1="177" y1="51" x2="183" y2="51" stroke="#888" strokeWidth="0.7" />
-          <text x="196" y="44" textAnchor="middle" fill="#666" fontSize="8" fontFamily="monospace">
-            {Math.round(geo.W)}m
-          </text>
-          <line x1="4" y1="62" x2="172" y2="62" stroke="#888" strokeWidth="0.7" />
-          <line x1="4" y1="59" x2="4" y2="65" stroke="#888" strokeWidth="0.7" />
-          <line x1="172" y1="59" x2="172" y2="65" stroke="#888" strokeWidth="0.7" />
-          <text x="88" y="74" textAnchor="middle" fill="#666" fontSize="9" fontFamily="monospace">
-            {Math.round(geo.Ltotal)}m
+          <line x1="4" y1="37" x2="172" y2="37" stroke="#888" strokeWidth="0.7" />
+          <line x1="4" y1="34" x2="4" y2="40" stroke="#888" strokeWidth="0.7" />
+          <line x1="172" y1="34" x2="172" y2="40" stroke="#888" strokeWidth="0.7" />
+          <text x="88" y="52" textAnchor="middle" fill="#666" fontSize="9" fontFamily="monospace">
+            4.4m
           </text>
         </svg>
       </div>
 
-      {/* Top-right: dynamic volume */}
-      <div
-        style={{
-          position: "absolute",
-          top: 8,
-          right: 8,
-          zIndex: 10,
-        }}
-      >
-        <span style={{ color: "#555", fontSize: 11, fontFamily: "monospace", fontWeight: 600 }}>
-          Volume: {volumeKL.toLocaleString()} kL
-        </span>
+      {/* 3D canvas + volume overlay */}
+      <div style={{ position: "relative", flex: 1, minWidth: 0, height: "100%" }}>
+        <div ref={mountRef} style={{ width: "100%", height: "100%" }} />
+
+        <div style={{ position: "absolute", top: 8, right: 8, zIndex: 10 }}>
+          <span style={{ color: "#555", fontSize: 11, fontFamily: "monospace", fontWeight: 600 }}>
+            Volume: {volumeKL.toLocaleString()} kL
+          </span>
+        </div>
       </div>
     </div>
   );
