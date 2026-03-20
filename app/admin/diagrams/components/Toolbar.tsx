@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import type { ShapeType } from "./nodes";
 
 const FILL_COLORS = [
+  { label: "None", value: "transparent" },
   { label: "White", value: "#ffffff" },
   { label: "Gray", value: "#f3f4f6" },
   { label: "Green", value: "#dcfce7" },
@@ -14,7 +15,16 @@ const FILL_COLORS = [
   { label: "Red", value: "#fee2e2" },
 ];
 
+const TEXT_COLORS = [
+  { label: "Black", value: "#111827" },
+  { label: "Gray", value: "#6b7280" },
+  { label: "Blue", value: "#2563eb" },
+  { label: "Red", value: "#dc2626" },
+  { label: "Green", value: "#16a34a" },
+];
+
 const BORDER_COLORS = [
+  { label: "None", value: "none" },
   { label: "Gray", value: "#6b7280" },
   { label: "Black", value: "#1f2937" },
   { label: "Green", value: "#16a34a" },
@@ -37,6 +47,20 @@ interface ToolbarProps {
   onExportSVG: () => void;
   onAddShape: (shape: ShapeType) => void;
   onDeleteSelected: () => void;
+  onMoveToBack: () => void;
+  onMoveToFront: () => void;
+  dashed: boolean;
+  onDashedChange: (value: boolean) => void;
+  borderDashed: boolean;
+  onBorderDashedChange: (value: boolean) => void;
+  textAlign: "left" | "center" | "right";
+  onTextAlignChange: (align: "left" | "center" | "right") => void;
+  textColor: string;
+  onTextColorChange: (color: string) => void;
+  fontBold: boolean;
+  onFontBoldChange: (value: boolean) => void;
+  fontItalic: boolean;
+  onFontItalicChange: (value: boolean) => void;
 }
 
 const shapes: { type: ShapeType; label: string; icon: React.ReactNode }[] = [
@@ -59,20 +83,11 @@ const shapes: { type: ShapeType; label: string; icon: React.ReactNode }[] = [
     ),
   },
   {
-    type: "diamond",
-    label: "Diamond",
+    type: "chamferedRect",
+    label: "Chamfered",
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M8 1 L15 8 L8 15 L1 8 Z" />
-      </svg>
-    ),
-  },
-  {
-    type: "circle",
-    label: "Circle",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <circle cx="8" cy="8" r="6.5" />
+        <polygon points="4,3 12,3 15,6 15,10 12,13 4,13 1,10 1,6" />
       </svg>
     ),
   },
@@ -104,8 +119,48 @@ export default function Toolbar({
   onExportSVG,
   onAddShape,
   onDeleteSelected,
+  onMoveToBack,
+  onMoveToFront,
+  dashed,
+  onDashedChange,
+  borderDashed,
+  onBorderDashedChange,
+  textAlign,
+  onTextAlignChange,
+  textColor,
+  onTextColorChange,
+  fontBold,
+  onFontBoldChange,
+  fontItalic,
+  onFontItalicChange,
 }: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileMenuOpen, setFileMenuOpen] = useState(false);
+  const [fileMenuPos, setFileMenuPos] = useState({ top: 0, left: 0 });
+  const fileButtonRef = useRef<HTMLButtonElement>(null);
+  const fileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!fileMenuOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        fileMenuRef.current && !fileMenuRef.current.contains(e.target as Node) &&
+        fileButtonRef.current && !fileButtonRef.current.contains(e.target as Node)
+      ) {
+        setFileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [fileMenuOpen]);
+
+  const openFileMenu = useCallback(() => {
+    if (fileButtonRef.current) {
+      const rect = fileButtonRef.current.getBoundingClientRect();
+      setFileMenuPos({ top: rect.bottom + 4, left: rect.left });
+    }
+    setFileMenuOpen((o) => !o);
+  }, []);
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,7 +174,7 @@ export default function Toolbar({
   );
 
   return (
-    <div className="flex items-center gap-2 border-b bg-white px-3 py-2 shadow-sm">
+    <div className="flex items-center gap-2 border-b bg-white px-3 py-2 shadow-sm overflow-x-auto">
       {/* Diagram name */}
       <input
         type="text"
@@ -131,20 +186,57 @@ export default function Toolbar({
 
       <Separator />
 
-      {/* File operations */}
-      <Button variant="outline" size="sm" onClick={onNew}>
-        New
-      </Button>
-      <Button variant="outline" size="sm" onClick={onSave}>
-        Save
-      </Button>
+      {/* File dropdown */}
       <Button
+        ref={fileButtonRef}
         variant="outline"
         size="sm"
-        onClick={() => fileInputRef.current?.click()}
+        onClick={openFileMenu}
       >
-        Load
+        File ▾
       </Button>
+      {fileMenuOpen && (
+        <div
+          ref={fileMenuRef}
+          style={{
+            position: "fixed",
+            top: fileMenuPos.top,
+            left: fileMenuPos.left,
+            background: "#fff",
+            border: "1px solid #e5e7eb",
+            borderRadius: 6,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+            minWidth: 140,
+            zIndex: 1000,
+          }}
+        >
+          {[
+            { label: "New", action: () => { onNew(); setFileMenuOpen(false); } },
+            { label: "Save (Ctrl+S)", action: () => { onSave(); setFileMenuOpen(false); } },
+            { label: "Load…", action: () => { fileInputRef.current?.click(); setFileMenuOpen(false); } },
+            { label: "Export SVG", action: () => { onExportSVG(); setFileMenuOpen(false); } },
+          ].map((item) => (
+            <button
+              key={item.label}
+              onClick={item.action}
+              style={{
+                display: "block",
+                width: "100%",
+                textAlign: "left",
+                padding: "7px 14px",
+                fontSize: 13,
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#f3f4f6")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
       <input
         ref={fileInputRef}
         type="file"
@@ -152,9 +244,6 @@ export default function Toolbar({
         onChange={handleFileChange}
         className="hidden"
       />
-      <Button variant="outline" size="sm" onClick={onExportSVG}>
-        Export SVG
-      </Button>
 
       <Separator />
 
@@ -173,6 +262,97 @@ export default function Toolbar({
 
       <Separator />
 
+      {/* Dash edge (selected edges) */}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onDashedChange(!dashed)}
+        style={dashed ? { background: "#dbeafe", borderColor: "#2563eb" } : {}}
+        title="Toggle dashed on selected edges"
+      >
+        Dash edge
+      </Button>
+
+      {/* Dash border (selected nodes) */}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onBorderDashedChange(!borderDashed)}
+        style={borderDashed ? { background: "#dbeafe", borderColor: "#2563eb" } : {}}
+        title="Toggle dashed border on selected nodes"
+      >
+        Dash border
+      </Button>
+
+      <Separator />
+
+      {/* Text alignment */}
+      {(["left", "center", "right"] as const).map((align) => (
+        <Button
+          key={align}
+          variant="outline"
+          size="icon-sm"
+          title={`Align ${align}`}
+          onClick={() => onTextAlignChange(align)}
+          style={textAlign === align ? { background: "#dbeafe", borderColor: "#2563eb" } : {}}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            {align === "left" && (<><line x1="1" y1="3" x2="13" y2="3"/><line x1="1" y1="7" x2="9" y2="7"/><line x1="1" y1="11" x2="11" y2="11"/></>)}
+            {align === "center" && (<><line x1="1" y1="3" x2="13" y2="3"/><line x1="3" y1="7" x2="11" y2="7"/><line x1="2" y1="11" x2="12" y2="11"/></>)}
+            {align === "right" && (<><line x1="1" y1="3" x2="13" y2="3"/><line x1="5" y1="7" x2="13" y2="7"/><line x1="3" y1="11" x2="13" y2="11"/></>)}
+          </svg>
+        </Button>
+      ))}
+
+      <Separator />
+
+      {/* Text formatting */}
+      <Button
+        variant="outline"
+        size="icon-sm"
+        onClick={() => onFontBoldChange(!fontBold)}
+        style={fontBold ? { background: "#dbeafe", borderColor: "#2563eb" } : {}}
+        title="Bold"
+      >
+        <span style={{ fontWeight: "bold", fontSize: 13 }}>B</span>
+      </Button>
+      <Button
+        variant="outline"
+        size="icon-sm"
+        onClick={() => onFontItalicChange(!fontItalic)}
+        style={fontItalic ? { background: "#dbeafe", borderColor: "#2563eb" } : {}}
+        title="Italic"
+      >
+        <span style={{ fontStyle: "italic", fontSize: 13 }}>I</span>
+      </Button>
+      <div className="flex items-center gap-1.5">
+        <span className="text-xs text-muted-foreground">Text</span>
+        <div className="flex gap-0.5">
+          {TEXT_COLORS.map((c) => (
+            <button
+              key={c.value}
+              title={c.label}
+              onClick={() => onTextColorChange(c.value)}
+              className="h-5 w-5 rounded border"
+              style={{
+                backgroundColor: c.value,
+                outline: textColor === c.value ? "2px solid #2563eb" : "none",
+                outlineOffset: 1,
+              }}
+            />
+          ))}
+          <input
+            type="color"
+            value={textColor}
+            onChange={(e) => onTextColorChange(e.target.value)}
+            className="h-5 w-5 cursor-pointer rounded border p-0"
+            title="Custom text color"
+          />
+        </div>
+      </div>
+
+      <Separator />
+
       {/* Fill color */}
       <div className="flex items-center gap-1.5">
         <span className="text-xs text-muted-foreground">Fill</span>
@@ -184,7 +364,10 @@ export default function Toolbar({
               onClick={() => onFillColorChange(c.value)}
               className="h-5 w-5 rounded border"
               style={{
-                backgroundColor: c.value,
+                backgroundColor: c.value === "transparent" ? "#ffffff" : c.value,
+                backgroundImage: c.value === "transparent"
+                  ? "linear-gradient(to bottom right, transparent calc(50% - 1px), #ef4444 calc(50% - 1px), #ef4444 calc(50% + 1px), transparent calc(50% + 1px))"
+                  : undefined,
                 outline: fillColor === c.value ? "2px solid #2563eb" : "none",
                 outlineOffset: 1,
               }}
@@ -213,7 +396,10 @@ export default function Toolbar({
               onClick={() => onBorderColorChange(c.value)}
               className="h-5 w-5 rounded border"
               style={{
-                backgroundColor: c.value,
+                backgroundColor: c.value === "none" ? "#ffffff" : c.value,
+                backgroundImage: c.value === "none"
+                  ? "linear-gradient(to bottom right, transparent calc(50% - 1px), #ef4444 calc(50% - 1px), #ef4444 calc(50% + 1px), transparent calc(50% + 1px))"
+                  : undefined,
                 outline: borderColor === c.value ? "2px solid #2563eb" : "none",
                 outlineOffset: 1,
               }}
@@ -228,6 +414,16 @@ export default function Toolbar({
           />
         </div>
       </div>
+
+      <Separator />
+
+      {/* Layer order */}
+      <Button variant="outline" size="sm" onClick={onMoveToBack} title="Move selected to back">
+        To back
+      </Button>
+      <Button variant="outline" size="sm" onClick={onMoveToFront} title="Move selected to front">
+        To front
+      </Button>
 
       <Separator />
 

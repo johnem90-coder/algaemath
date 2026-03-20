@@ -12,6 +12,8 @@ import { CostContributionTable } from "./CostContributionTable";
 import { LifetimeValueChart } from "./LifetimeValueChart";
 import { SectionDetailPanel, type PanelSelection } from "./SectionDetailPanel";
 import { InputCostsPanel } from "./InputCostsPanel";
+import { DiagramView } from "./DiagramView";
+import diagramData from "../../../../../public/diagrams/open-raceway-pond_simple.json";
 
 // ── Back-calculate desired_output_tons_yr from a target n_ponds ────
 // Inverts geometry.ts: n_ponds = ceil(V_required / V_pond), grid = n_rows × 2
@@ -45,6 +47,7 @@ export default function OpenPondTEA() {
   const [panelSelection, setPanelSelection] = useState<PanelSelection | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [inputsPanelOpen, setInputsPanelOpen] = useState(false);
+  const [hoveredSection, setHoveredSection] = useState<string | null>(null);
 
   // Reactive TEA computation — only re-runs when pond count changes
   const result = useMemo(() => {
@@ -77,6 +80,14 @@ export default function OpenPondTEA() {
     const v = Math.round(value[0] / 2) * 2;
     setNPonds(Math.max(10, Math.min(100, v)));
   }, []);
+
+  const handleHoverSection = useCallback((sectionId: string | null) => {
+    setHoveredSection(sectionId);
+  }, []);
+
+  const handleDiagramClick = useCallback((sectionId: string) => {
+    handleCellClick(sectionId, "all");
+  }, [handleCellClick]);
 
   return (
     <div className="space-y-12">
@@ -189,6 +200,26 @@ export default function OpenPondTEA() {
         </div>
       </section>
 
+      {/* ── Process Flow Diagram ── */}
+      <section
+        className="relative transition-[padding] duration-300 ease-out"
+        style={{
+          zIndex: panelOpen ? 45 : undefined,
+          paddingRight: panelOpen ? "min(50vw, 640px)" : undefined,
+        }}
+      >
+        <h2 className="text-xl font-medium tracking-tight mb-4">
+          Process Flow
+        </h2>
+        <DiagramView
+          diagram={diagramData as React.ComponentProps<typeof DiagramView>["diagram"]}
+          hoveredSection={hoveredSection}
+          activeSection={panelOpen && panelSelection?.sectionId !== "all" ? panelSelection?.sectionId ?? null : null}
+          onHoverSection={handleHoverSection}
+          onSectionClick={handleDiagramClick}
+        />
+      </section>
+
       {/* ── Sections Overview (interactive) ── */}
       <section>
         <h2 className="text-xl font-medium tracking-tight mb-1">
@@ -197,7 +228,12 @@ export default function OpenPondTEA() {
         <p className="text-xs text-muted-foreground mb-4">
           Click any cell to view detailed breakdown
         </p>
-        <SectionsOverviewTable result={result} onCellClick={handleCellClick} />
+        <SectionsOverviewTable
+          result={result}
+          onCellClick={handleCellClick}
+          hoveredSection={hoveredSection}
+          onHoverSection={handleHoverSection}
+        />
       </section>
 
       {/* ── Cost Contribution by Section ── */}

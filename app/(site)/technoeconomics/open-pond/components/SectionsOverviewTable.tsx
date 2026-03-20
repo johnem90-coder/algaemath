@@ -6,6 +6,8 @@ import { fmtDollarsLong } from "./formatters";
 interface Props {
   result: TEAResult;
   onCellClick?: (sectionId: string, costCategory: string) => void;
+  hoveredSection?: string | null;
+  onHoverSection?: (sectionId: string | null) => void;
 }
 
 const SECTION_ORDER = ["inputs", "inoculum", "biomass", "harvesting", "drying"];
@@ -23,7 +25,7 @@ const COST_CATEGORIES = [
 
 type CostCategory = (typeof COST_CATEGORIES)[number];
 
-export function SectionsOverviewTable({ result, onCellClick }: Props) {
+export function SectionsOverviewTable({ result, onCellClick, hoveredSection, onHoverSection }: Props) {
   const sections = SECTION_ORDER.map((id) => result.sections[id]);
 
   // Compute totals
@@ -145,7 +147,12 @@ export function SectionsOverviewTable({ result, onCellClick }: Props) {
         </thead>
         <tbody className="font-mono text-xs">
           {sections.map((s) => (
-            <tr key={s.section_id} className="border-b border-dashed">
+            <tr
+              key={s.section_id}
+              className={`border-b border-dashed transition-colors ${hoveredSection === s.section_id ? "bg-blue-50/60" : ""}`}
+              onMouseEnter={() => onHoverSection?.(s.section_id)}
+              onMouseLeave={() => onHoverSection?.(null)}
+            >
               <td
                 className={`py-1.5 pr-4 font-sans text-sm ${clickable}`}
                 onClick={() => handleClick(s.section_id, "all")}

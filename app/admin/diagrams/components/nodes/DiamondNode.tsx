@@ -44,7 +44,7 @@ function DiamondNode({ data, selected }: NodeProps<Node<ShapeNodeData>>) {
             backgroundColor: data.fillColor || "#ffffff",
             borderColor: data.borderColor || "#6b7280",
             borderWidth: 2,
-            borderStyle: "solid",
+            borderStyle: data.borderDashed ? "dashed" : "solid",
           }}
         >
           <div style={{ transform: "rotate(-45deg)" }} className="px-2 py-1">
@@ -58,7 +58,7 @@ function DiamondNode({ data, selected }: NodeProps<Node<ShapeNodeData>>) {
                 className="w-full bg-transparent text-center text-sm outline-none"
               />
             ) : (
-              <span className="select-none text-center">{label || "Text"}</span>
+              <span className="select-none text-center">{label}</span>
             )}
           </div>
         </div>
