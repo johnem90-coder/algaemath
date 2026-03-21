@@ -9,6 +9,8 @@ const navItems = [
     { href: "/equations", title: "Equations" },
     { href: "/simple-simulators", title: "Simulators" },
     { href: "/explorations", title: "Explorations" },
+    { href: "/complex-simulators", title: "Complex Sim", soon: true },
+    { href: "/sensors", title: "Sensors", soon: true },
     { href: "/experiments", title: "Experiments", soon: true },
     { href: "/technoeconomics", title: "TEA", soon: true },
 ];

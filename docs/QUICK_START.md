@@ -53,8 +53,11 @@ The model registry pattern, equation metadata, simulation engine, weather data p
 ## Common Commands
 
 ```bash
-# Development server
+# Development server (Turbopack — default, fast)
 npm run dev
+
+# Development server with webpack (required for /admin/diagrams — Turbopack panics on that route)
+npm run dev -- --webpack
 
 # Type checking
 npm run type-check
@@ -126,9 +129,15 @@ gh pr create --title "..." --body "..."
 
 ## Environment Variables
 
-No API keys are required. Weather data uses the free Open-Meteo API (no key needed) and is pre-cached as static JSON in `public/weather/`.
+Create a `.env.local` file at the project root:
 
-Vercel Analytics is configured via `@vercel/analytics/next` and works automatically on Vercel deployments.
+```
+NEXT_PUBLIC_ADMIN_KEY=your-password-here
+```
+
+- `NEXT_PUBLIC_ADMIN_KEY` — Password for the `/admin/diagrams` editor. Required to log in locally. Set the same value in Vercel dashboard → Settings → Environment Variables for production.
+
+Weather data uses the free Open-Meteo API (no key needed) and is pre-cached as static JSON in `public/weather/`. Vercel Analytics works automatically on Vercel deployments.
 
 ---
 

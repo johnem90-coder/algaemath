@@ -12,12 +12,6 @@ export const GAL_TO_M3 = 0.00378541;
 export const MJ_PER_KWH = 3.6;
 export const MJ_PER_L_DIESEL = 38.4;
 
-// Drivetrain efficiency chain (diesel pumps)
-export const ETA_PUMP = 0.70;
-export const ETA_DRIVE = 0.95;
-export const ETA_MOTOR = 0.35;
-export const ETA_DIESEL_CHAIN = ETA_PUMP * ETA_DRIVE * ETA_MOTOR; // ≈ 0.23275
-
 // ── Molecular Weights & Atomic Weights ─────────────────────────
 
 export const MW_CO2 = 44.01; // g/mol
@@ -36,8 +30,6 @@ export const MACRS_7 = [
 // ── Spray Dryer Constants ──────────────────────────────────────
 
 export const HEAT_REQUIRED_MJ_PER_TON_WATER = 2260;
-export const DRYER_EFFICIENCY = 0.25;
-export const DRYER_OPERATING_FACTOR = 1.06;
 
 // ── Natural Gas Energy ─────────────────────────────────────────
 

@@ -9,7 +9,7 @@
   "sections": {
     "inputs": {
       "section_id": "inputs",
-      "section_name": "Inputs (Water Treatment & Delivery)",
+      "section_name": "Inputs (Water & Nutrients)",
       "equipment": [
         {
           "id": "INP-01",

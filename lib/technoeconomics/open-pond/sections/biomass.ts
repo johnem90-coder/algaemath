@@ -1,9 +1,8 @@
 // Section: Biomass (Growth Ponds) — 1 equipment item
 // Reference: docs/TEA_DESIGN.md Section 2.2
 
-import type { TEAConfig, PondGeometryTEA, SectionCost, EquipmentItem, InstallationBreakdown } from "../../types";
+import type { TEAConfig, PondGeometryTEA, SectionCost, EquipmentItem, InstallationBreakdown, LaborRole } from "../../types";
 import { pondCost2022, paddlewheelEnergyPerAcreDay } from "../../common/cost-escalation";
-import laborData from "../data/labor-roles.json";
 
 export function computeBiomassSection(
   config: TEAConfig,
@@ -33,8 +32,8 @@ export function computeBiomassSection(
     energy_type: "electricity",
     annual_energy_units: total_energy_kWh,
     annual_energy_cost: energy_cost,
-    maintenance_rate: 0.05,
-    annual_maintenance_cost: total_cost * 0.05,
+    maintenance_rate: config.maintenance_rate_mechanical,
+    annual_maintenance_cost: total_cost * config.maintenance_rate_mechanical,
   });
 
   // ── Aggregation ────────────────────────────────────────────
@@ -47,8 +46,8 @@ export function computeBiomassSection(
     grand_total: 0,
   };
 
-  const maintenance_cost = total_cost * 0.05;
-  const labor_cost = laborData.sections.biomass.total_annual_cost;
+  const maintenance_cost = equipment.reduce((s, e) => s + e.annual_maintenance_cost, 0);
+  const labor_cost = config.labor.biomass.reduce((s: number, r: LaborRole) => s + r.headcount * r.annual_salary, 0);
   const materials_cost = 0; // Nutrients are in inputs section
   const operating_cost = materials_cost + energy_cost + maintenance_cost + labor_cost;
 

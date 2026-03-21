@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 const sections = [
+  // ── Row 1: Active ──────────────────────────────────────────
   {
     href: '/core-concepts',
     title: 'Core Concepts',
@@ -19,7 +20,7 @@ const sections = [
     href: '/simple-simulators',
     title: 'Simple Simulators',
     description:
-      'Quick, single-reactor simulators for open pond, flat panel, and tubular photobioreactor systems. Designed for flexibility & scenario comparisons.',
+      'Quick, single-reactor simulators for open pond, flat panel, and tubular photobioreactor systems.',
     badge: 'Simulate',
   },
   {
@@ -28,6 +29,23 @@ const sections = [
     description:
       'Explore how pond geometry affects growth dynamics with auto-running simulations over repeating weather profiles.',
     badge: 'Design',
+  },
+  // ── Row 2: Coming soon ─────────────────────────────────────
+  {
+    href: '/complex-simulators',
+    title: 'Complex Simulators',
+    description:
+      'Full-system simulations with PID-controlled equipment — pumps, heaters, gas exchange — keeping the reactor stable in real time.',
+    badge: 'Control',
+    soon: true,
+  },
+  {
+    href: '/sensors',
+    title: 'Sensors',
+    description:
+      'The concepts and mathematics behind optical density sensing, PAM fluorimetry, and other measurement techniques.',
+    badge: 'Sensing',
+    soon: true,
   },
   {
     href: '/experiments',
@@ -69,12 +87,12 @@ export default function HomePage() {
       </header>
 
       {/* Section cards */}
-      <section className="mx-auto max-w-5xl px-6 pb-32">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="mx-auto max-w-6xl px-6 pb-32">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {sections.map((s) => {
             const card = (
               <div
-                className={`group relative flex flex-col rounded-xl border p-6 transition-colors ${s.soon
+                className={`group relative flex flex-col rounded-xl border px-5 py-5 transition-colors ${s.soon
                     ? 'opacity-30 cursor-default'
                     : 'hover:border-[hsl(var(--accent-science))] hover:bg-[hsl(var(--accent-science-muted))]'
                   }`}

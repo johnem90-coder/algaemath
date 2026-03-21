@@ -122,12 +122,14 @@ Weather data is fetched from Open-Meteo Historical Weather API via `scripts/gene
   - Pure-function TEA engine (`lib/technoeconomics/`) — `runTEA(config) → TEAResult`
   - 5-section cost model: Inputs, Inoculum, Biomass, Harvesting, Drying
   - Constraint-based equipment sizing with shared catalogs (water pumps, sludge pumps, tanks, filters, hoppers, mix tanks)
-  - Three-tier installation cost cascade: Installation → Indirect → Other (per-factor breakdown for future user adjustability)
+  - Three-tier installation cost cascade: Installation → Indirect → Other (per-factor breakdown)
   - NREL pond cost correlation (fully installed, no double-escalation)
   - Inoculum pond counts calculated from inoculation timeline (default 6 months)
   - Financial analysis: MACRS-7 depreciation, DCF cash flows, NPV, IRR (bisection), MBSP (bisection), sensitivity table
   - Nutrient stoichiometry (CO₂, KNO₃, DAP, water demand from biomass composition)
-  - UI page with: KPI summary cards, unit cost inputs table, sections overview table (CAPEX + OPEX breakdown), MBSP breakdown, cost contribution by section, revenue sensitivity, expandable 30-year cash flow schedule
+  - Land cost: pond footprint + 20% buffer, land price catalog (6 US locations)
+  - Nearly all parameters configurable via TEAConfig: uptake efficiencies, buffer days, diesel drivetrain efficiency, dryer efficiency, maintenance rates (passive/mechanical/membrane), labor roles per section, land price
+  - UI page with: KPI summary cards, unit cost inputs table, sections overview table (CAPEX + OPEX breakdown with land row), MBSP breakdown, cost contribution by section with totals, revenue sensitivity, expandable 30-year cash flow schedule
   - TEA index page (`/technoeconomics`) with reactor type cards (open-pond active, flat-panel/tubular coming soon)
   - SiteHeader TEA link activated
 

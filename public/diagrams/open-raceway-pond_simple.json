@@ -1,0 +1,1138 @@
+{
+  "name": "open-raceway-pond_simple",
+  "created": "2026-03-20T03:56:06.291Z",
+  "modified": "2026-03-20T03:56:06.291Z",
+  "viewport": {
+    "x": 11.01501470084213,
+    "y": -232.70521057996507,
+    "zoom": 0.7027413172002754
+  },
+  "nodes": [
+    {
+      "id": "node-78",
+      "type": "rectangle",
+      "position": {
+        "x": 610,
+        "y": 1280
+      },
+      "data": {
+        "label": "",
+        "fillColor": "transparent",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 600,
+        "height": 90
+      },
+      "width": 600,
+      "height": 90
+    },
+    {
+      "id": "node-51",
+      "type": "rectangle",
+      "position": {
+        "x": 610,
+        "y": 530
+      },
+      "data": {
+        "label": "",
+        "fillColor": "transparent",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 1200,
+        "height": 410
+      },
+      "width": 1200,
+      "height": 410
+    },
+    {
+      "id": "node-97",
+      "type": "chamferedRect",
+      "position": {
+        "x": 1630,
+        "y": 690
+      },
+      "data": {
+        "label": "CO2 Tanks",
+        "fillColor": "#fef9c3",
+        "borderColor": "#ca8a04",
+        "textAlign": "center"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-88",
+      "type": "rectangle",
+      "position": {
+        "x": 1290,
+        "y": 1190
+      },
+      "data": {
+        "label": "",
+        "fillColor": "transparent",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 820,
+        "height": 180
+      },
+      "width": 820,
+      "height": 180
+    },
+    {
+      "id": "node-79",
+      "type": "rectangle",
+      "position": {
+        "x": 930,
+        "y": 1020
+      },
+      "data": {
+        "label": "",
+        "fillColor": "transparent",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 600,
+        "height": 90
+      },
+      "width": 600,
+      "height": 90
+    },
+    {
+      "id": "node-69",
+      "type": "rectangle",
+      "position": {
+        "x": 1580,
+        "y": 1010
+      },
+      "data": {
+        "label": "",
+        "fillColor": "transparent",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 260,
+        "height": 110
+      },
+      "width": 260,
+      "height": 110
+    },
+    {
+      "id": "node-6",
+      "type": "rectangle",
+      "position": {
+        "x": 1430,
+        "y": 780
+      },
+      "data": {
+        "label": "Mix Tank 1s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-7",
+      "type": "rectangle",
+      "position": {
+        "x": 1230,
+        "y": 550
+      },
+      "data": {
+        "label": "Hopper 1s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-8",
+      "type": "rectangle",
+      "position": {
+        "x": 1230,
+        "y": 620
+      },
+      "data": {
+        "label": "Hopper 2s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-9",
+      "type": "rectangle",
+      "position": {
+        "x": 1230,
+        "y": 690
+      },
+      "data": {
+        "label": "Hopper 3s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-11",
+      "type": "rectangle",
+      "position": {
+        "x": 1030,
+        "y": 780
+      },
+      "data": {
+        "label": "Tank 2s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-12",
+      "type": "rectangle",
+      "position": {
+        "x": 830,
+        "y": 780
+      },
+      "data": {
+        "label": "Filter 1s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-22",
+      "type": "roundedRect",
+      "position": {
+        "x": 1430,
+        "y": 870
+      },
+      "data": {
+        "label": "Pump 3s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-23",
+      "type": "roundedRect",
+      "position": {
+        "x": 630,
+        "y": 780
+      },
+      "data": {
+        "label": "Pump 1s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-24",
+      "type": "roundedRect",
+      "position": {
+        "x": 1230,
+        "y": 780
+      },
+      "data": {
+        "label": "Pump 2s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-29",
+      "type": "pill",
+      "position": {
+        "x": 1600,
+        "y": 1030
+      },
+      "data": {
+        "label": "Production Ponds",
+        "fillColor": "#dcfce7",
+        "borderColor": "#16a34a"
+      },
+      "style": {
+        "width": 220,
+        "height": 70
+      },
+      "width": 220,
+      "height": 70
+    },
+    {
+      "id": "node-31",
+      "type": "chamferedRect",
+      "position": {
+        "x": 1030,
+        "y": 550
+      },
+      "data": {
+        "label": "Nitrogen",
+        "fillColor": "#ffedd5",
+        "borderColor": "#ca8a04"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-32",
+      "type": "chamferedRect",
+      "position": {
+        "x": 1030,
+        "y": 620
+      },
+      "data": {
+        "label": "Phosphorus",
+        "fillColor": "#ffedd5",
+        "borderColor": "#ca8a04"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-33",
+      "type": "chamferedRect",
+      "position": {
+        "x": 1030,
+        "y": 690
+      },
+      "data": {
+        "label": "Micronutrients",
+        "fillColor": "#ffedd5",
+        "borderColor": "#ca8a04"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-35",
+      "type": "rectangle",
+      "position": {
+        "x": 630,
+        "y": 690
+      },
+      "data": {
+        "label": "Tank 1s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-49",
+      "type": "pill",
+      "position": {
+        "x": 950,
+        "y": 1040
+      },
+      "data": {
+        "label": "Inoculation Pond As",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-52",
+      "type": "pill",
+      "position": {
+        "x": 1150,
+        "y": 1040
+      },
+      "data": {
+        "label": "Inoculation Pond Bs",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-53",
+      "type": "pill",
+      "position": {
+        "x": 1350,
+        "y": 1040
+      },
+      "data": {
+        "label": "Inoculation Pond Cs",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-58",
+      "type": "chamferedRect",
+      "position": {
+        "x": 630,
+        "y": 600
+      },
+      "data": {
+        "label": "Source Water",
+        "fillColor": "#dbeafe",
+        "borderColor": "#2563eb"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-60",
+      "type": "rectangle",
+      "position": {
+        "x": 1310,
+        "y": 1300
+      },
+      "data": {
+        "label": "Tank 5s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-61",
+      "type": "rectangle",
+      "position": {
+        "x": 1530,
+        "y": 1300
+      },
+      "data": {
+        "label": "Filter 2s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-62",
+      "type": "rectangle",
+      "position": {
+        "x": 1420,
+        "y": 1210
+      },
+      "data": {
+        "label": "Tank 4s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-63",
+      "type": "rectangle",
+      "position": {
+        "x": 1930,
+        "y": 1300
+      },
+      "data": {
+        "label": "Tank 3s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-64",
+      "type": "roundedRect",
+      "position": {
+        "x": 1630,
+        "y": 1210
+      },
+      "data": {
+        "label": "Pump 6s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-65",
+      "type": "roundedRect",
+      "position": {
+        "x": 1730,
+        "y": 1300
+      },
+      "data": {
+        "label": "Pump 5s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-66",
+      "type": "roundedRect",
+      "position": {
+        "x": 1930,
+        "y": 1210
+      },
+      "data": {
+        "label": "Pump 4s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-85",
+      "type": "rectangle",
+      "position": {
+        "x": 830,
+        "y": 1300
+      },
+      "data": {
+        "label": "Dryer 1s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-86",
+      "type": "roundedRect",
+      "position": {
+        "x": 1030,
+        "y": 1300
+      },
+      "data": {
+        "label": "Pump 7s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-87",
+      "type": "rectangle",
+      "position": {
+        "x": 630,
+        "y": 1300
+      },
+      "data": {
+        "label": "Silo 1s",
+        "fillColor": "#ffffff",
+        "borderColor": "#6b7280"
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-92",
+      "type": "rectangle",
+      "position": {
+        "x": 610,
+        "y": 940
+      },
+      "data": {
+        "label": "Inputs Section",
+        "fillColor": "transparent",
+        "borderColor": "none",
+        "textAlign": "left",
+        "fontBold": true
+      },
+      "style": {
+        "width": 120,
+        "height": 40
+      },
+      "width": 120,
+      "height": 40
+    },
+    {
+      "id": "node-93",
+      "type": "rectangle",
+      "position": {
+        "x": 930,
+        "y": 1110
+      },
+      "data": {
+        "label": "Inoculum Section",
+        "fillColor": "transparent",
+        "borderColor": "none",
+        "textAlign": "left",
+        "fontBold": true
+      },
+      "style": {
+        "width": 140,
+        "height": 40
+      },
+      "width": 140,
+      "height": 40
+    },
+    {
+      "id": "node-94",
+      "type": "rectangle",
+      "position": {
+        "x": 1580,
+        "y": 1120
+      },
+      "data": {
+        "label": "Biomass Section",
+        "fillColor": "transparent",
+        "borderColor": "none",
+        "textAlign": "left",
+        "fontBold": true
+      },
+      "style": {
+        "width": 140,
+        "height": 40
+      },
+      "width": 140,
+      "height": 40
+    },
+    {
+      "id": "node-95",
+      "type": "rectangle",
+      "position": {
+        "x": 1290,
+        "y": 1370
+      },
+      "data": {
+        "label": "Harvesting Section",
+        "fillColor": "transparent",
+        "borderColor": "none",
+        "textAlign": "left",
+        "fontBold": true
+      },
+      "style": {
+        "width": 150,
+        "height": 40
+      },
+      "width": 150,
+      "height": 40
+    },
+    {
+      "id": "node-96",
+      "type": "rectangle",
+      "position": {
+        "x": 610,
+        "y": 1370
+      },
+      "data": {
+        "label": "Drying Section",
+        "fillColor": "transparent",
+        "borderColor": "none",
+        "textAlign": "left",
+        "fontBold": true
+      },
+      "style": {
+        "width": 130,
+        "height": 40
+      },
+      "width": 130,
+      "height": 40
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-37",
+      "source": "node-35",
+      "target": "node-23",
+      "sourceHandle": "bottom",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-38",
+      "source": "node-23",
+      "target": "node-12",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-39",
+      "source": "node-12",
+      "target": "node-11",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-40",
+      "source": "node-11",
+      "target": "node-24",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-41",
+      "source": "node-33",
+      "target": "node-9",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-42",
+      "source": "node-32",
+      "target": "node-8",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-43",
+      "source": "node-31",
+      "target": "node-7",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-44",
+      "source": "node-24",
+      "target": "node-6",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-45",
+      "source": "node-7",
+      "target": "node-6",
+      "sourceHandle": "right",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-46",
+      "source": "node-8",
+      "target": "node-6",
+      "sourceHandle": "right",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-47",
+      "source": "node-9",
+      "target": "node-6",
+      "sourceHandle": "right",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-48",
+      "source": "node-6",
+      "target": "node-22",
+      "sourceHandle": "bottom",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-56",
+      "source": "node-55",
+      "target": "node-35",
+      "sourceHandle": "bottom",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-59",
+      "source": "node-58",
+      "target": "node-35",
+      "sourceHandle": "bottom",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-70",
+      "source": "node-64",
+      "target": "node-29",
+      "sourceHandle": "top",
+      "targetHandle": "bottom",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-71",
+      "source": "node-29",
+      "target": "node-66",
+      "sourceHandle": "right",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-72",
+      "source": "node-66",
+      "target": "node-63",
+      "sourceHandle": "bottom",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-73",
+      "source": "node-63",
+      "target": "node-65",
+      "sourceHandle": "left",
+      "targetHandle": "right",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-74",
+      "source": "node-65",
+      "target": "node-61",
+      "sourceHandle": "left",
+      "targetHandle": "right",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-75",
+      "source": "node-61",
+      "target": "node-60",
+      "sourceHandle": "left",
+      "targetHandle": "right",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-76",
+      "source": "node-61",
+      "target": "node-62",
+      "sourceHandle": "left",
+      "targetHandle": "bottom",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-77",
+      "source": "node-62",
+      "target": "node-64",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-80",
+      "source": "node-49",
+      "target": "node-52",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-81",
+      "source": "node-52",
+      "target": "node-53",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-82",
+      "source": "node-54",
+      "target": "node-29",
+      "sourceHandle": "bottom",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-83",
+      "source": "node-22",
+      "target": "node-29",
+      "sourceHandle": "right",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-84",
+      "source": "node-53",
+      "target": "node-29",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-89",
+      "source": "node-60",
+      "target": "node-86",
+      "sourceHandle": "left",
+      "targetHandle": "right",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-98",
+      "source": "node-97",
+      "target": "node-29",
+      "sourceHandle": "bottom",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-101",
+      "source": "node-86",
+      "target": "node-85",
+      "sourceHandle": "left",
+      "targetHandle": "right",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-102",
+      "source": "node-85",
+      "target": "node-87",
+      "sourceHandle": "left",
+      "targetHandle": "right",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    }
+  ]
+}

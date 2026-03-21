@@ -52,10 +52,20 @@ export function getDefaultTEAConfig(): TEAConfig {
     // Overhead
     overhead_per_ton: d.overhead_costs.total_per_ton.value,
 
+    // Diesel drivetrain efficiency
+    eta_pump: d.diesel_drivetrain.eta_pump.value,
+    eta_drive: d.diesel_drivetrain.eta_drive.value,
+    eta_motor: d.diesel_drivetrain.eta_motor.value,
+
     // Uptake efficiencies
     co2_uptake_efficiency: d.uptake_efficiencies.co2.value,
     n_uptake_efficiency: d.uptake_efficiencies.nitrogen.value,
     p_uptake_efficiency: d.uptake_efficiencies.phosphorus.value,
+
+    // Maintenance rates
+    maintenance_rate_passive: d.maintenance_rates.passive.value,
+    maintenance_rate_mechanical: d.maintenance_rates.mechanical.value,
+    maintenance_rate_membrane: d.maintenance_rates.membrane.value,
 
     // Process parameters
     evaporation_rate_mm_day: d.process_parameters.evaporation_rate_mm_day.value,
@@ -63,6 +73,8 @@ export function getDefaultTEAConfig(): TEAConfig {
     harvest_hours_per_day: d.process_parameters.harvest_hours_per_day.value,
     dryer_inlet_water_content: d.process_parameters.dryer_inlet_water_content.value,
     dryer_outlet_water_content: d.process_parameters.dryer_outlet_water_content.value,
+    dryer_efficiency: d.process_parameters.dryer_efficiency.value,
+    dryer_operating_factor: d.process_parameters.dryer_operating_factor.value,
     silo_buffer_days: d.process_parameters.silo_buffer_days.value,
     filter3_efficiency: d.process_parameters.filter3_efficiency.value,
 
@@ -73,12 +85,28 @@ export function getDefaultTEAConfig(): TEAConfig {
     hopper_buffer_days: d.buffer_days.hoppers.value,
     filtrate_tank_buffer_days: d.buffer_days.filtrate_tank.value,
 
+    // Labor
+    labor: {
+      inputs: d.labor.inputs,
+      inoculum: d.labor.inoculum,
+      biomass: d.labor.biomass,
+      harvesting: d.labor.harvesting,
+      drying: d.labor.drying,
+    },
+
     // Inoculum
     inoculum_tiers: d.inoculum.tiers,
     inoculation_target_months: d.inoculum.target_months.value,
 
-    // Land price — use California as default
-    land_price_per_acre: 3010,
+    // Land
+    land_price_per_acre: (d.land.catalog.find((l: { location: string }) => l.location === d.land.selected_location) ?? d.land.catalog[0]).cost_per_acre,
+    land_buffer_fraction: d.land.buffer_fraction,
+    land_catalog: d.land.catalog,
+
+    // Construction & ramp-up
+    max_ponds_per_batch: d.construction.max_ponds_per_batch.value,
+    pond_build_weeks: d.construction.pond_build_weeks.value,
+    batch_test_weeks: d.construction.batch_test_weeks.value,
   };
 }
 

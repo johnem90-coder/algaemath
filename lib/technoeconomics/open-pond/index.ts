@@ -16,4 +16,6 @@ export type {
   MBSPCategoryBreakdown,
   PondGeometryTEA,
   NutrientBalance,
+  ConstructionTimeline,
+  ConstructionBatch,
 } from "../types";

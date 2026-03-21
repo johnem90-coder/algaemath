@@ -7,6 +7,7 @@ import type {
   NutrientBalance,
   SectionCost,
   EquipmentItem,
+  LaborRole,
 } from "../../types";
 import { electricityCost, dieselCost } from "../../common/energy";
 import { computeInstallationCost } from "../../common/installation";
@@ -16,7 +17,6 @@ import {
   sizePumpByFlow,
   sizeTank,
 } from "../../common/equipment-options";
-import laborData from "../data/labor-roles.json";
 
 export function computeHarvestingSection(
   config: TEAConfig,
@@ -26,6 +26,7 @@ export function computeHarvestingSection(
   const equipment: EquipmentItem[] = [];
   const active_days = config.active_days_yr;
   const harvest_hrs = config.harvest_hours_per_day;
+  const eta_chain = config.eta_pump * config.eta_drive * config.eta_motor;
 
   // Process parameters
   const n_harvest_systems = geometry.n_cols; // typically 1–2
@@ -43,7 +44,7 @@ export function computeHarvestingSection(
     const total_cost = option.unit_cost * units;
     const run_hrs_yr = run_hrs_day * active_days;
     const energy = option.energy_type === "diesel"
-      ? dieselCost(option.power_kW, run_hrs_yr * units, config.diesel_per_L)
+      ? dieselCost(option.power_kW, run_hrs_yr * units, config.diesel_per_L, eta_chain)
       : { liters: 0, cost: electricityCost(option.power_kW, run_hrs_yr * units, config.electricity_per_kWh).cost };
     equipment.push({
       id: "HAR-01", name: "Pump 3s", type: option.label, function: "Culture transfer to filters",
@@ -51,7 +52,7 @@ export function computeHarvestingSection(
       energy_type: option.energy_type,
       annual_energy_units: option.energy_type === "diesel" ? energy.liters : 0,
       annual_energy_cost: energy.cost,
-      maintenance_rate: 0.05, annual_maintenance_cost: total_cost * 0.05,
+      maintenance_rate: config.maintenance_rate_mechanical, annual_maintenance_cost: total_cost * config.maintenance_rate_mechanical,
     });
   }
 
@@ -69,7 +70,7 @@ export function computeHarvestingSection(
       id: "HAR-02", name: "Filter 2s", type: "Slant Screen", function: "Primary biomass separation",
       unit_cost, units_required: units, total_purchase_cost: total_cost,
       energy_type: "electricity", annual_energy_units: e.kWh, annual_energy_cost: e.cost,
-      maintenance_rate: 0.03, annual_maintenance_cost: total_cost * 0.03,
+      maintenance_rate: config.maintenance_rate_passive, annual_maintenance_cost: total_cost * config.maintenance_rate_passive,
     });
   }
 
@@ -85,7 +86,7 @@ export function computeHarvestingSection(
       id: "HAR-03", name: "Filter 3s", type: "Shaker Screen", function: "Biomass chunk breakup",
       unit_cost, units_required: units, total_purchase_cost: total_cost,
       energy_type: "electricity", annual_energy_units: e.kWh, annual_energy_cost: e.cost,
-      maintenance_rate: 0.03, annual_maintenance_cost: total_cost * 0.03,
+      maintenance_rate: config.maintenance_rate_mechanical, annual_maintenance_cost: total_cost * config.maintenance_rate_mechanical,
     });
   }
 
@@ -104,7 +105,7 @@ export function computeHarvestingSection(
       id: "HAR-04", name: "Filter 4s", type: "Vacuum Belt", function: "Wash & dewater biomass",
       unit_cost, units_required: units, total_purchase_cost: total_cost,
       energy_type: "electricity", annual_energy_units: e.kWh, annual_energy_cost: e.cost,
-      maintenance_rate: 0.07, annual_maintenance_cost: total_cost * 0.07,
+      maintenance_rate: config.maintenance_rate_membrane, annual_maintenance_cost: total_cost * config.maintenance_rate_membrane,
     });
   }
 
@@ -119,7 +120,7 @@ export function computeHarvestingSection(
       id: "HAR-05", name: "Tank 3s", type: "Cone Roof", function: "Filtrate holding",
       unit_cost: tank_opt.unit_cost, units_required: units, total_purchase_cost: total_cost,
       energy_type: "none", annual_energy_units: 0, annual_energy_cost: 0,
-      maintenance_rate: 0.03, annual_maintenance_cost: total_cost * 0.03,
+      maintenance_rate: config.maintenance_rate_passive, annual_maintenance_cost: total_cost * config.maintenance_rate_passive,
     });
   }
 
@@ -134,7 +135,7 @@ export function computeHarvestingSection(
     const total_cost = option.unit_cost * units;
     const run_hrs_yr = run_hrs_day * active_days;
     const energy = option.energy_type === "diesel"
-      ? dieselCost(option.power_kW, run_hrs_yr * units, config.diesel_per_L)
+      ? dieselCost(option.power_kW, run_hrs_yr * units, config.diesel_per_L, eta_chain)
       : { liters: 0, cost: electricityCost(option.power_kW, run_hrs_yr * units, config.electricity_per_kWh).cost };
     equipment.push({
       id: "HAR-06", name: "Pump 4s", type: option.label, function: "Return filtered water to ponds",
@@ -142,7 +143,7 @@ export function computeHarvestingSection(
       energy_type: option.energy_type,
       annual_energy_units: option.energy_type === "diesel" ? energy.liters : 0,
       annual_energy_cost: energy.cost,
-      maintenance_rate: 0.05, annual_maintenance_cost: total_cost * 0.05,
+      maintenance_rate: config.maintenance_rate_mechanical, annual_maintenance_cost: total_cost * config.maintenance_rate_mechanical,
     });
   }
 
@@ -152,7 +153,7 @@ export function computeHarvestingSection(
 
   const energy_cost = equipment.reduce((s, e) => s + e.annual_energy_cost, 0);
   const maintenance_cost = equipment.reduce((s, e) => s + e.annual_maintenance_cost, 0);
-  const labor_cost = laborData.sections.harvesting.total_annual_cost;
+  const labor_cost = config.labor.harvesting.reduce((s: number, r: LaborRole) => s + r.headcount * r.annual_salary, 0);
   const materials_cost = 0;
   const operating_cost = materials_cost + energy_cost + maintenance_cost + labor_cost;
 
