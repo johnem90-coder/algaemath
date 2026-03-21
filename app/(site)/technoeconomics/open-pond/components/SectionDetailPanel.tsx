@@ -17,7 +17,8 @@ const INSTALL_FACTORS = installationFactorsJson as unknown as Record<string, Ins
 
 export interface PanelSelection {
   sectionId: string; // e.g. "inputs", "harvesting", or "all"
-  costCategory: string; // e.g. "energy", "equipment_purchase", or "all"
+  costCategory: string; // e.g. "energy", "equipment_purchase", "equipment_detail", or "all"
+  equipmentNodeId?: string; // diagram node ID — when set, shows single equipment detail
 }
 
 const SECTION_ORDER = ["inputs", "inoculum", "biomass", "harvesting", "drying"];
@@ -78,10 +79,14 @@ const ENERGY_UNIT_LABELS: Record<string, string> = {
 
 // ── Render functions ────────────────────────────────────────────
 
-function renderEquipmentTable(section: SectionCost): ReactNode {
+function renderEquipmentTable(
+  section: SectionCost,
+  onEquipmentClick?: (sectionId: string, nodeId: string) => void,
+): ReactNode {
   if (section.equipment.length === 0) {
     return <p className="text-xs text-muted-foreground italic py-2">No equipment in this section.</p>;
   }
+  const clickable = !!onEquipmentClick;
   return (
     <table className="w-full text-sm border-collapse">
       <thead>
@@ -96,7 +101,11 @@ function renderEquipmentTable(section: SectionCost): ReactNode {
       </thead>
       <tbody className="font-mono text-xs">
         {section.equipment.map((eq) => (
-          <tr key={eq.id} className="border-b border-dashed">
+          <tr
+            key={eq.id}
+            className={`border-b border-dashed ${clickable && eq.diagramNodeId ? "cursor-pointer hover:bg-blue-50/60 transition-colors" : ""}`}
+            onClick={clickable && eq.diagramNodeId ? () => onEquipmentClick(section.section_id, eq.diagramNodeId!) : undefined}
+          >
             <td className="py-1.5 pr-3 font-sans text-xs text-muted-foreground">{eq.id}</td>
             <td className="py-1.5 pr-3 font-sans text-sm">{eq.name}</td>
             <td className="py-1.5 pr-3 font-sans text-xs text-muted-foreground">{eq.type}</td>
@@ -232,11 +241,15 @@ function renderMaterialsTable(section: SectionCost, result: TEAResult): ReactNod
   );
 }
 
-function renderEnergyTable(section: SectionCost): ReactNode {
+function renderEnergyTable(
+  section: SectionCost,
+  onEquipmentClick?: (sectionId: string, nodeId: string) => void,
+): ReactNode {
   const items = section.equipment.filter((e) => e.annual_energy_cost > 0);
   if (items.length === 0) {
     return <p className="text-xs text-muted-foreground italic py-2">No energy costs in this section.</p>;
   }
+  const clickable = !!onEquipmentClick;
   return (
     <table className="w-full text-sm border-collapse">
       <thead>
@@ -249,7 +262,11 @@ function renderEnergyTable(section: SectionCost): ReactNode {
       </thead>
       <tbody className="font-mono text-xs">
         {items.map((eq) => (
-          <tr key={eq.id} className="border-b border-dashed">
+          <tr
+            key={eq.id}
+            className={`border-b border-dashed ${clickable && eq.diagramNodeId ? "cursor-pointer hover:bg-blue-50/60 transition-colors" : ""}`}
+            onClick={clickable && eq.diagramNodeId ? () => onEquipmentClick(section.section_id, eq.diagramNodeId!) : undefined}
+          >
             <td className="py-1.5 pr-3 font-sans text-sm">{eq.name}</td>
             <td className="py-1.5 pr-3 font-sans text-xs text-muted-foreground capitalize">{eq.energy_type.replace("_", " ")}</td>
             <td className="py-1.5 pr-3 text-right whitespace-nowrap">{fmtNumber(eq.annual_energy_units, 0)} {ENERGY_UNIT_LABELS[eq.energy_type] ?? ""}</td>
@@ -265,11 +282,15 @@ function renderEnergyTable(section: SectionCost): ReactNode {
   );
 }
 
-function renderMaintenanceTable(section: SectionCost): ReactNode {
+function renderMaintenanceTable(
+  section: SectionCost,
+  onEquipmentClick?: (sectionId: string, nodeId: string) => void,
+): ReactNode {
   const items = section.equipment.filter((e) => e.annual_maintenance_cost > 0);
   if (items.length === 0) {
     return <p className="text-xs text-muted-foreground italic py-2">No maintenance costs in this section.</p>;
   }
+  const clickable = !!onEquipmentClick;
   return (
     <table className="w-full text-sm border-collapse">
       <thead>
@@ -281,7 +302,11 @@ function renderMaintenanceTable(section: SectionCost): ReactNode {
       </thead>
       <tbody className="font-mono text-xs">
         {items.map((eq) => (
-          <tr key={eq.id} className="border-b border-dashed">
+          <tr
+            key={eq.id}
+            className={`border-b border-dashed ${clickable && eq.diagramNodeId ? "cursor-pointer hover:bg-blue-50/60 transition-colors" : ""}`}
+            onClick={clickable && eq.diagramNodeId ? () => onEquipmentClick(section.section_id, eq.diagramNodeId!) : undefined}
+          >
             <td className="py-1.5 pr-3 font-sans text-sm">{eq.name}</td>
             <td className="py-1.5 pr-3 text-right">{fmtPercent(eq.maintenance_rate)}</td>
             <td className="py-1.5 text-right">{fmtDollarsLong(eq.annual_maintenance_cost)}</td>
@@ -361,12 +386,15 @@ function renderOperatingTable(section: SectionCost): ReactNode {
   );
 }
 
-function renderCapitalTable(section: SectionCost): ReactNode {
+function renderCapitalTable(
+  section: SectionCost,
+  onEquipmentClick?: (sectionId: string, nodeId: string) => void,
+): ReactNode {
   return (
     <div className="space-y-4">
       <div>
         <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Equipment</h5>
-        {renderEquipmentTable(section)}
+        {renderEquipmentTable(section, onEquipmentClick)}
       </div>
       <div>
         <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Installation, Engineering &amp; Other</h5>
@@ -416,16 +444,211 @@ function renderLandTable(result: TEAResult): ReactNode {
   );
 }
 
+// ── Individual equipment detail ──────────────────────────────────
+
+function renderEquipmentDetail(result: TEAResult, equipmentNodeId: string): ReactNode {
+  // Find the equipment item across all sections
+  let item: import("@/lib/technoeconomics/types").EquipmentItem | null = null;
+  let section: SectionCost | null = null;
+  for (const sec of Object.values(result.sections)) {
+    const found = sec.equipment.find((e) => e.diagramNodeId === equipmentNodeId);
+    if (found) { item = found; section = sec; break; }
+  }
+  if (!item || !section) {
+    return <p className="text-xs text-muted-foreground italic py-2">Equipment not found.</p>;
+  }
+
+  // Detect if this is a material source (no purchase cost, annual_energy_cost = material cost)
+  const isMaterialSource = item.total_purchase_cost === 0 && item.units_required === 0
+    && item.annual_energy_cost > 0 && item.energy_type === "none";
+
+  // Prorate installation costs proportionally to this item's purchase cost
+  const purchaseShare = section.equipment_purchase > 0
+    ? item.total_purchase_cost / section.equipment_purchase
+    : 0;
+  const installShare = section.install_engr_other * purchaseShare;
+  const totalCapex = item.total_purchase_cost + installShare;
+
+  // For material sources, the "energy cost" field stores annual material procurement cost
+  const materialCost = isMaterialSource ? item.annual_energy_cost : 0;
+  const energyCost = isMaterialSource ? 0 : item.annual_energy_cost;
+  const totalOpex = materialCost + energyCost + item.annual_maintenance_cost;
+
+  // Unit economics
+  const production = result.actual_production_tons_yr;
+  const lifetime = result.config.unit_lifetime_yrs;
+  const capexPerTon = totalCapex / (production * lifetime);
+  const opexPerTon = totalOpex / production;
+  const totalPerTon = capexPerTon + opexPerTon;
+  const mbsp = result.financials.mbsp;
+  const pctOfMbsp = mbsp > 0 ? (totalPerTon / mbsp) * 100 : 0;
+
+  return (
+    <div className="space-y-6">
+      {/* Identity */}
+      <div>
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          {isMaterialSource ? "Material Source" : "Equipment Details"}
+        </div>
+        <table className="w-full text-sm border-collapse">
+          <tbody className="text-xs">
+            <tr className="border-b border-dashed">
+              <td className="py-1.5 pr-3 text-muted-foreground">ID</td>
+              <td className="py-1.5 text-right font-mono">{item.id}</td>
+            </tr>
+            <tr className="border-b border-dashed">
+              <td className="py-1.5 pr-3 text-muted-foreground">Type</td>
+              <td className="py-1.5 text-right">{item.type}</td>
+            </tr>
+            <tr className="border-b border-dashed">
+              <td className="py-1.5 pr-3 text-muted-foreground">{isMaterialSource ? "Demand" : "Function"}</td>
+              <td className="py-1.5 text-right">{item.function}</td>
+            </tr>
+            <tr className="border-b border-dashed">
+              <td className="py-1.5 pr-3 text-muted-foreground">Section</td>
+              <td className="py-1.5 text-right">{SECTION_LABELS[section.section_id] ?? section.section_id}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* CAPEX — only for physical equipment */}
+      {!isMaterialSource && (
+        <div>
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Capital Cost</div>
+          <table className="w-full text-sm border-collapse">
+            <tbody className="font-mono text-xs">
+              <tr className="border-b border-dashed">
+                <td className="py-1.5 pr-3 font-sans text-muted-foreground">Unit cost</td>
+                <td className="py-1.5 text-right">{fmtDollarsLong(item.unit_cost)}</td>
+              </tr>
+              <tr className="border-b border-dashed">
+                <td className="py-1.5 pr-3 font-sans text-muted-foreground">Units required</td>
+                <td className="py-1.5 text-right">{fmtNumber(item.units_required)}</td>
+              </tr>
+              <tr className="border-b border-dashed">
+                <td className="py-1.5 pr-3 font-sans">Equipment purchase</td>
+                <td className="py-1.5 text-right">{fmtDollarsLong(item.total_purchase_cost)}</td>
+              </tr>
+              <tr className="border-b border-dashed">
+                <td className="py-1.5 pr-3 font-sans text-muted-foreground">
+                  Installation share ({fmtPercent(purchaseShare)})
+                </td>
+                <td className="py-1.5 text-right">{fmtDollarsLong(installShare)}</td>
+              </tr>
+              <tr className="border-t-2 font-semibold">
+                <td className="py-2 pr-3 font-sans">Total CAPEX</td>
+                <td className="py-2 text-right">{fmtDollarsLong(totalCapex)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Annual Cost */}
+      <div>
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          {isMaterialSource ? "Annual Procurement Cost" : "Annual Operating Cost"}
+        </div>
+        <table className="w-full text-sm border-collapse">
+          <tbody className="font-mono text-xs">
+            {/* Material source: show annual quantity and cost */}
+            {isMaterialSource && (
+              <>
+                <tr className="border-b border-dashed">
+                  <td className="py-1.5 pr-3 font-sans text-muted-foreground">Annual demand</td>
+                  <td className="py-1.5 text-right">{fmtNumber(item.annual_energy_units, 1)}</td>
+                </tr>
+                <tr className="border-t-2 font-semibold">
+                  <td className="py-2 pr-3 font-sans">Annual material cost</td>
+                  <td className="py-2 text-right">{fmtDollarsLong(materialCost)}/yr</td>
+                </tr>
+              </>
+            )}
+            {/* Regular equipment: show energy + maintenance */}
+            {!isMaterialSource && (
+              <>
+                {item.energy_type !== "none" && (
+                  <>
+                    <tr className="border-b border-dashed">
+                      <td className="py-1.5 pr-3 font-sans text-muted-foreground">Energy type</td>
+                      <td className="py-1.5 text-right capitalize">{item.energy_type.replace("_", " ")}</td>
+                    </tr>
+                    <tr className="border-b border-dashed">
+                      <td className="py-1.5 pr-3 font-sans text-muted-foreground">Annual consumption</td>
+                      <td className="py-1.5 text-right">
+                        {fmtNumber(item.annual_energy_units, 0)} {ENERGY_UNIT_LABELS[item.energy_type] ?? ""}
+                      </td>
+                    </tr>
+                    <tr className="border-b border-dashed">
+                      <td className="py-1.5 pr-3 font-sans">Energy cost</td>
+                      <td className="py-1.5 text-right">{fmtDollarsLong(energyCost)}/yr</td>
+                    </tr>
+                  </>
+                )}
+                <tr className="border-b border-dashed">
+                  <td className="py-1.5 pr-3 font-sans">
+                    Maintenance ({fmtPercent(item.maintenance_rate)})
+                  </td>
+                  <td className="py-1.5 text-right">{fmtDollarsLong(item.annual_maintenance_cost)}/yr</td>
+                </tr>
+                <tr className="border-t-2 font-semibold">
+                  <td className="py-2 pr-3 font-sans">Total OPEX</td>
+                  <td className="py-2 text-right">{fmtDollarsLong(totalOpex)}/yr</td>
+                </tr>
+              </>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Unit Economics */}
+      <div>
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Unit Economics</div>
+        <table className="w-full text-sm border-collapse">
+          <tbody className="font-mono text-xs">
+            {!isMaterialSource && (
+              <tr className="border-b border-dashed">
+                <td className="py-1.5 pr-3 font-sans text-muted-foreground">Annualized CAPEX</td>
+                <td className="py-1.5 text-right">{fmtDollarsLong(capexPerTon)}/ton</td>
+              </tr>
+            )}
+            <tr className="border-b border-dashed">
+              <td className="py-1.5 pr-3 font-sans text-muted-foreground">
+                {isMaterialSource ? "Material cost" : "Annual OPEX"}
+              </td>
+              <td className="py-1.5 text-right">{fmtDollarsLong(opexPerTon)}/ton</td>
+            </tr>
+            <tr className="border-t-2 font-semibold">
+              <td className="py-2 pr-3 font-sans">Total per ton</td>
+              <td className="py-2 text-right">{fmtDollarsLong(totalPerTon)}/ton</td>
+            </tr>
+            <tr className="border-b border-dashed">
+              <td className="py-1.5 pr-3 font-sans text-muted-foreground">Share of MBSP</td>
+              <td className="py-1.5 text-right">{pctOfMbsp.toFixed(1)}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 // ── Category → renderer mapping ─────────────────────────────────
 
-function renderCategory(category: string, section: SectionCost, result: TEAResult): ReactNode {
+function renderCategory(
+  category: string,
+  section: SectionCost,
+  result: TEAResult,
+  onEquipmentClick?: (sectionId: string, nodeId: string) => void,
+): ReactNode {
   switch (category) {
-    case "equipment_purchase": return renderEquipmentTable(section);
+    case "equipment_purchase": return renderEquipmentTable(section, onEquipmentClick);
     case "install_engr_other": return renderInstallationTable(section);
-    case "capital_cost": return renderCapitalTable(section);
+    case "capital_cost": return renderCapitalTable(section, onEquipmentClick);
     case "materials_cost": return renderMaterialsTable(section, result);
-    case "energy_cost": return renderEnergyTable(section);
-    case "maintenance_cost": return renderMaintenanceTable(section);
+    case "energy_cost": return renderEnergyTable(section, onEquipmentClick);
+    case "maintenance_cost": return renderMaintenanceTable(section, onEquipmentClick);
     case "labor_cost": return renderLaborTable(section, result);
     case "operating_cost": return renderOperatingTable(section);
     default: return null;
@@ -439,9 +662,10 @@ interface Props {
   isOpen: boolean;
   result: TEAResult;
   onToggle: () => void;
+  onEquipmentClick?: (sectionId: string, equipmentNodeId: string) => void;
 }
 
-export function SectionDetailPanel({ selection, isOpen, result, onToggle }: Props) {
+export function SectionDetailPanel({ selection, isOpen, result, onToggle, onEquipmentClick }: Props) {
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -470,12 +694,23 @@ export function SectionDetailPanel({ selection, isOpen, result, onToggle }: Prop
   const sectionLabel = selection ? (SECTION_LABELS[selection.sectionId] ?? selection.sectionId) : "";
   const categoryLabel = selection ? (CATEGORY_LABELS[selection.costCategory] ?? selection.costCategory) : "";
 
+  // Equipment detail mode
+  const isEquipmentDetail = selection?.costCategory === "equipment_detail" && selection?.equipmentNodeId;
+
   const title = selection
-    ? selection.sectionId === "all"
-      ? categoryLabel
-      : selection.costCategory === "all"
-        ? sectionLabel
-        : `${sectionLabel} — ${categoryLabel}`
+    ? isEquipmentDetail
+      ? (() => {
+          for (const sec of Object.values(result.sections)) {
+            const eq = sec.equipment.find((e) => e.diagramNodeId === selection.equipmentNodeId);
+            if (eq) return eq.name;
+          }
+          return "Equipment Detail";
+        })()
+      : selection.sectionId === "all"
+        ? categoryLabel
+        : selection.costCategory === "all"
+          ? sectionLabel
+          : `${sectionLabel} — ${categoryLabel}`
     : "Section Details";
 
   // ── Build panel body content ──
@@ -489,6 +724,9 @@ export function SectionDetailPanel({ selection, isOpen, result, onToggle }: Prop
         </p>
       </div>
     );
+  } else if (isEquipmentDetail) {
+    // Case 0: Individual equipment detail
+    body = renderEquipmentDetail(result, selection.equipmentNodeId!);
   } else if (selection.sectionId !== "all" && selection.costCategory === "all") {
     // Case 1: One section, all categories
     const section = result.sections[selection.sectionId];
@@ -497,7 +735,7 @@ export function SectionDetailPanel({ selection, isOpen, result, onToggle }: Prop
         {CATEGORY_ORDER.map((cat) => (
           <div key={cat}>
             <h4 className="text-sm font-medium mb-3">{CATEGORY_LABELS[cat]}</h4>
-            {renderCategory(cat, section, result)}
+            {renderCategory(cat, section, result, onEquipmentClick)}
           </div>
         ))}
       </div>
@@ -512,7 +750,7 @@ export function SectionDetailPanel({ selection, isOpen, result, onToggle }: Prop
           return (
             <div key={sid}>
               <h4 className="text-sm font-medium mb-3">{SECTION_LABELS[sid]}</h4>
-              {renderCategory(selection.costCategory, section, result)}
+              {renderCategory(selection.costCategory, section, result, onEquipmentClick)}
             </div>
           );
         })}
@@ -543,7 +781,7 @@ export function SectionDetailPanel({ selection, isOpen, result, onToggle }: Prop
               }
             >
               <h4 className="text-sm font-medium mb-3">{SECTION_LABELS[sid]}</h4>
-              {renderCategory(selection.costCategory, section, result)}
+              {renderCategory(selection.costCategory, section, result, onEquipmentClick)}
             </div>
           );
         })}

@@ -1,26 +1,21 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { detectSections, type DiagramNodeGeometry } from "@/lib/technoeconomics/common/section-detection";
 
 // ── Types ──────────────────────────────────────────────────────────
 
-interface DiagramNode {
-  id: string;
+interface DiagramNode extends DiagramNodeGeometry {
   type: string;
-  position: { x: number; y: number };
-  data: {
-    label: string;
-    fillColor: string;
-    borderColor: string;
+  data: DiagramNodeGeometry["data"] & {
     borderDashed?: boolean;
     textAlign?: "left" | "center" | "right";
     textColor?: string;
     fontBold?: boolean;
     fontItalic?: boolean;
+    equipmentTypeId?: string;
   };
   style?: { width?: number; height?: number };
-  width: number;
-  height: number;
 }
 
 interface DiagramEdge {
@@ -39,6 +34,7 @@ interface DiagramEdge {
 
 export interface DiagramData {
   name: string;
+  version?: number;
   nodes: DiagramNode[];
   edges: DiagramEdge[];
 }
@@ -47,8 +43,10 @@ interface Props {
   diagram: DiagramData;
   hoveredSection?: string | null;
   activeSection?: string | null;
+  activeEquipmentId?: string | null;
   onHoverSection?: (sectionId: string | null) => void;
   onSectionClick?: (sectionId: string) => void;
+  onEquipmentClick?: (nodeId: string) => void;
 }
 
 // ── Handle position helpers ────────────────────────────────────────
@@ -120,81 +118,7 @@ function buildSmoothStepPath(
   return roundedPath(pts, r);
 }
 
-// ── Section detection from diagram geometry ────────────────────────
-
-interface SectionInfo {
-  sectionId: string;
-  container: DiagramNode;
-  nodeIds: Set<string>;
-}
-
-function buildSectionMap(nodes: DiagramNode[]) {
-  const nodeToSection = new Map<string, string>();
-
-  // 1. Find section labels: nodes whose label matches "X Section"
-  const sectionLabels: { sectionId: string; node: DiagramNode }[] = [];
-  for (const n of nodes) {
-    const m = n.data.label.match(/^(.+?)\s+Section$/);
-    if (m) {
-      const sid = m[1].toLowerCase();
-      sectionLabels.push({ sectionId: sid, node: n });
-      nodeToSection.set(n.id, sid);
-    }
-  }
-
-  // 2. Find containers: empty-label, transparent fill, visible border
-  const containers = nodes.filter(
-    (n) => !n.data.label && n.data.fillColor === "transparent" && n.data.borderColor !== "none",
-  );
-
-  // 3. Match each label to its container (label sits at container bottom-left)
-  const sections: SectionInfo[] = [];
-  const usedContainers = new Set<string>();
-
-  for (const sl of sectionLabels) {
-    let best: DiagramNode | null = null;
-    let bestDist = Infinity;
-    for (const c of containers) {
-      if (usedContainers.has(c.id)) continue;
-      const yDist = Math.abs(c.position.y + c.height - sl.node.position.y);
-      const xDist = Math.abs(c.position.x - sl.node.position.x);
-      const dist = yDist + xDist * 0.1;
-      if (dist < bestDist && yDist < 50) {
-        bestDist = dist;
-        best = c;
-      }
-    }
-    if (best) {
-      usedContainers.add(best.id);
-      nodeToSection.set(best.id, sl.sectionId);
-      sections.push({
-        sectionId: sl.sectionId,
-        container: best,
-        nodeIds: new Set([best.id, sl.node.id]),
-      });
-    }
-  }
-
-  // 4. Assign remaining nodes by geometric containment
-  for (const n of nodes) {
-    if (nodeToSection.has(n.id)) continue;
-    const cx = n.position.x + n.width / 2;
-    const cy = n.position.y + n.height / 2;
-    for (const sec of sections) {
-      const c = sec.container;
-      if (
-        cx >= c.position.x && cx <= c.position.x + c.width &&
-        cy >= c.position.y && cy <= c.position.y + c.height
-      ) {
-        nodeToSection.set(n.id, sec.sectionId);
-        sec.nodeIds.add(n.id);
-        break;
-      }
-    }
-  }
-
-  return { sections, nodeToSection };
-}
+// Section detection is shared with the TEA engine via section-detection.ts
 
 // ── Node shape renderer ────────────────────────────────────────────
 
@@ -257,10 +181,13 @@ export function DiagramView({
   diagram,
   hoveredSection,
   activeSection,
+  activeEquipmentId,
   onHoverSection,
   onSectionClick,
+  onEquipmentClick,
 }: Props) {
   const { nodes, edges } = diagram;
+  const [hoveredEquipmentId, setHoveredEquipmentId] = useState<string | null>(null);
 
   const nodeMap = useMemo(() => {
     const m = new Map<string, DiagramNode>();
@@ -268,7 +195,7 @@ export function DiagramView({
     return m;
   }, [nodes]);
 
-  const { sections, nodeToSection } = useMemo(() => buildSectionMap(nodes), [nodes]);
+  const { sections, nodeToSection } = useMemo(() => detectSections(nodes), [nodes]);
 
   // Hover takes priority over active (panel) section
   const highlightedSection = hoveredSection || activeSection || null;
@@ -296,8 +223,8 @@ export function DiagramView({
   const pad = 30;
 
   // Container rect for the highlighted section (for blue overlay)
-  const highlightedContainer = highlightedSection
-    ? sections.find((s) => s.sectionId === highlightedSection)?.container ?? null
+  const highlightedBounds = highlightedSection
+    ? sections.find((s) => s.sectionId === highlightedSection)?.containerBounds ?? null
     : null;
 
   return (
@@ -345,7 +272,38 @@ export function DiagramView({
               onMouseEnter={() => onHoverSection?.(sec.sectionId)}
               onClick={() => onSectionClick?.(sec.sectionId)}
             >
-              {sectionNodes.map(renderNode)}
+              {sectionNodes.map((node) => {
+                const isEquipment = !!node.data.equipmentTypeId;
+                if (isEquipment && onEquipmentClick) {
+                  const isActive = activeEquipmentId === node.id;
+                  const isHovered = hoveredEquipmentId === node.id;
+                  return (
+                    <g
+                      key={node.id}
+                      style={{ cursor: "pointer" }}
+                      onMouseEnter={(e) => { e.stopPropagation(); setHoveredEquipmentId(node.id); }}
+                      onMouseLeave={() => setHoveredEquipmentId(null)}
+                      onClick={(e) => { e.stopPropagation(); onEquipmentClick(node.id); }}
+                    >
+                      {renderNode(node)}
+                      {(isActive || isHovered) && (
+                        <rect
+                          x={node.position.x - 2}
+                          y={node.position.y - 2}
+                          width={node.width + 4}
+                          height={node.height + 4}
+                          fill={isActive ? "rgba(37, 99, 235, 0.06)" : "rgba(37, 99, 235, 0.03)"}
+                          stroke="#2563eb"
+                          strokeWidth={isActive ? 2 : 1.5}
+                          rx={4}
+                          pointerEvents="none"
+                        />
+                      )}
+                    </g>
+                  );
+                }
+                return renderNode(node);
+              })}
             </g>
           );
         })}
@@ -358,12 +316,12 @@ export function DiagramView({
         )}
 
         {/* ── Highlight overlay on active section container ── */}
-        {highlightedContainer && (
+        {highlightedBounds && (
           <rect
-            x={highlightedContainer.position.x - 3}
-            y={highlightedContainer.position.y - 3}
-            width={highlightedContainer.width + 6}
-            height={highlightedContainer.height + 6}
+            x={highlightedBounds.x - 3}
+            y={highlightedBounds.y - 3}
+            width={highlightedBounds.w + 6}
+            height={highlightedBounds.h + 6}
             fill="rgba(59, 130, 246, 0.06)"
             stroke="#3b82f6"
             strokeWidth={2}

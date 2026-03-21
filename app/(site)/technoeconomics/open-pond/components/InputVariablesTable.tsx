@@ -53,10 +53,7 @@ export function InputVariablesTable({ result }: Props) {
     { label: "Unit Lifetime", value: `${c.unit_lifetime_yrs} yrs`, notes: "Facility operating lifetime" },
   ];
 
-  const growthInputs: Row[] = [
-    { label: "Growth Rate", value: `${c.effective_growth_rate_per_day} /day`, notes: "Effective net growth rate" },
-    { label: "Harvest Density", value: `${c.density_at_harvest_g_L} g/L`, notes: "Steady-state concentration" },
-  ];
+  // Growth rate and harvest density are now controlled by the top-level sliders
 
   const unitCosts: Row[] = [
     { label: "Electricity", value: `$${c.electricity_per_kWh}/kWh`, notes: "Hawaii 2022 commercial" },
@@ -173,7 +170,7 @@ export function InputVariablesTable({ result }: Props) {
   return (
     <div className="space-y-5">
       <CategoryTable title="System Inputs" rows={systemInputs} />
-      <CategoryTable title="Growth Inputs" rows={growthInputs} />
+      {/* Growth Inputs removed — now controlled by top-level sliders */}
       <CategoryTable title="Unit Costs" rows={unitCosts} />
       <CategoryTable title="Algae Composition" rows={algaeComposition} />
       <CategoryTable title="Financial Inputs" rows={financialInputs} />

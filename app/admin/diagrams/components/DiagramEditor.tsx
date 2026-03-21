@@ -18,6 +18,7 @@ import {
 import { nodeTypes, shapeDefaults, type ShapeType } from "./nodes";
 import type { ShapeNodeData } from "./nodes/RectangleNode";
 import Toolbar from "./Toolbar";
+import InspectorPanel from "./InspectorPanel";
 import { DiagramContext } from "./DiagramContext";
 
 const SNAP = 10;
@@ -223,8 +224,10 @@ function DiagramEditorInner() {
   // --- Handlers ---
   const deleteSelected = useCallback(() => {
     snapshot();
+    const deletedIds = new Set(nodesRef.current.filter((n) => n.selected).map((n) => n.id));
     setNodes((nds) => nds.filter((n) => !n.selected));
-    setEdges((eds) => eds.filter((e) => !e.selected));
+    // Remove selected edges AND any edges connected to deleted nodes
+    setEdges((eds) => eds.filter((e) => !e.selected && !deletedIds.has(e.source) && !deletedIds.has(e.target)));
   }, [snapshot, setNodes, setEdges]);
 
   const onConnect = useCallback(
@@ -283,6 +286,58 @@ function DiagramEditorInner() {
     },
     [snapshot, fillColor, borderColor, textAlign, textColor, screenToFlowPosition, setNodes]
   );
+
+  const handleAddSection = useCallback(() => {
+    snapshot();
+    const raw = screenToFlowPosition({
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+    });
+    const cx = snapTo(raw.x);
+    const cy = snapTo(raw.y);
+
+    // Container rectangle: transparent fill, gray dashed border, 600×400
+    const containerW = 600, containerH = 400;
+    const containerId = nextId();
+    const containerNode: Node<ShapeNodeData> = {
+      id: containerId,
+      type: "rectangle",
+      position: { x: cx - containerW / 2, y: cy - containerH / 2 },
+      data: {
+        label: "",
+        fillColor: "transparent",
+        borderColor: "#9ca3af",
+        borderDashed: true,
+        textAlign: "center",
+        textColor: "#111827",
+      },
+      style: { width: containerW, height: containerH },
+      width: containerW,
+      height: containerH,
+    };
+
+    // Section label: bold text, positioned below-left of container
+    const labelId = nextId();
+    const labelNode: Node<ShapeNodeData> = {
+      id: labelId,
+      type: "rectangle",
+      position: { x: cx - containerW / 2, y: cy + containerH / 2 },
+      data: {
+        label: "New Section",
+        fillColor: "transparent",
+        borderColor: "none",
+        textAlign: "left",
+        textColor: "#111827",
+        fontBold: true,
+      },
+      style: { width: 180, height: 30 },
+      width: 180,
+      height: 30,
+    };
+
+    // Container goes to back (inserted first), label after
+    setNodes((nds) => [containerNode, ...nds, labelNode]);
+  }, [snapshot, screenToFlowPosition, setNodes]);
 
   const handleFillColorChange = useCallback(
     (color: string) => {
@@ -422,6 +477,7 @@ function DiagramEditorInner() {
           height: h,
         };
       }),
+      version: 2,
       edges: edges.map((e) => ({
         id: e.id,
         source: e.source,
@@ -431,6 +487,7 @@ function DiagramEditorInner() {
         label: e.label,
         type: e.type,
         style: e.style,
+        data: e.data,
       })),
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], {
@@ -458,6 +515,7 @@ function DiagramEditorInner() {
               ...e,
               style: { strokeWidth: 2, stroke: EDGE_STROKE, ...e.style },
               markerEnd: EDGE_MARKER_BASE,
+              data: e.data,
             }))
           );
           // Reset counter past any loaded IDs
@@ -538,32 +596,44 @@ function DiagramEditorInner() {
         onMoveToBack={handleMoveToBack}
         onMoveToFront={handleMoveToFront}
       />
-      <div style={{ width: "100%", height: "calc(100vh - 49px)" }}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onEdgeDoubleClick={onEdgeDoubleClick}
-          onNodeDragStart={snapshotOnDragStart}
-          onNodeDragStop={onDragStop}
-          onSelectionDragStart={snapshotOnDragStart}
-          onSelectionDragStop={onDragStop}
-          nodeTypes={nodeTypes}
-          defaultEdgeOptions={defaultEdgeOptions}
-          connectionMode={ConnectionMode.Loose}
-          snapToGrid
-          snapGrid={[SNAP, SNAP]}
-          fitView
-          deleteKeyCode={null}
-        >
-          <Background gap={SNAP} />
-          <MiniMap
-            position="bottom-right"
-            style={{ width: 160, height: 120 }}
+      <div style={{ display: "flex", width: "100%", height: "calc(100vh - 49px)" }}>
+        <div style={{ flex: 1 }}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onEdgeDoubleClick={onEdgeDoubleClick}
+            onNodeDragStart={snapshotOnDragStart}
+            onNodeDragStop={onDragStop}
+            onSelectionDragStart={snapshotOnDragStart}
+            onSelectionDragStop={onDragStop}
+            nodeTypes={nodeTypes}
+            defaultEdgeOptions={defaultEdgeOptions}
+            connectionMode={ConnectionMode.Loose}
+            snapToGrid
+            snapGrid={[SNAP, SNAP]}
+            fitView
+            deleteKeyCode={null}
+          >
+            <Background gap={SNAP} />
+            <MiniMap
+              position="bottom-right"
+              style={{ width: 160, height: 120 }}
+            />
+          </ReactFlow>
+        </div>
+        <div style={{ width: 256, flexShrink: 0 }}>
+          <InspectorPanel
+            nodes={nodes}
+            edges={edges}
+            setNodes={setNodes}
+            setEdges={setEdges}
+            snapshot={snapshot}
+            addSection={handleAddSection}
           />
-        </ReactFlow>
+        </div>
       </div>
     </div>
     </DiagramContext.Provider>

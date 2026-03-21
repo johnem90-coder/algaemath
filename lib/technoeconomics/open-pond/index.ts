@@ -2,6 +2,8 @@
 // Follows the pattern of lib/simulation/simple-outdoor/index.ts
 
 export { runTEA } from "./engine";
+export { runTEAFromDiagram } from "./engine-diagram";
+export type { EnrichedDiagram, EnrichedDiagramNode, EnrichedDiagramEdge } from "./engine-diagram";
 export { getDefaultTEAConfig, DEFAULT_TEA_CONFIG } from "./config";
 export type {
   TEAConfig,

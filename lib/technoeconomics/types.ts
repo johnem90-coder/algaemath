@@ -177,6 +177,7 @@ export interface NutrientBalance {
 
 export interface EquipmentItem {
   id: string; // 'INP-01', 'BIO-01', etc.
+  diagramNodeId?: string; // Diagram node ID (for linking diagram clicks to equipment)
   name: string;
   type: string; // 'Cone Roof', 'Vortex Impeller', etc.
   function: string;
