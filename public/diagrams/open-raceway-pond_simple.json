@@ -1,11 +1,11 @@
 {
   "name": "open-raceway-pond_simple",
-  "created": "2026-03-20T03:56:06.291Z",
-  "modified": "2026-03-20T03:56:06.291Z",
+  "created": "2026-03-21T10:33:13.055Z",
+  "modified": "2026-03-21T10:33:13.055Z",
   "viewport": {
-    "x": 11.01501470084213,
-    "y": -232.70521057996507,
-    "zoom": 0.7027413172002754
+    "x": -63.65979481912086,
+    "y": -246.81920990089634,
+    "zoom": 0.7578582832551992
   },
   "nodes": [
     {
@@ -45,26 +45,6 @@
       },
       "width": 1200,
       "height": 410
-    },
-    {
-      "id": "node-97",
-      "type": "chamferedRect",
-      "position": {
-        "x": 1630,
-        "y": 690
-      },
-      "data": {
-        "label": "CO2 Tanks",
-        "fillColor": "#fef9c3",
-        "borderColor": "#ca8a04",
-        "textAlign": "center"
-      },
-      "style": {
-        "width": 160,
-        "height": 50
-      },
-      "width": 160,
-      "height": 50
     },
     {
       "id": "node-88",
@@ -132,8 +112,10 @@
       },
       "data": {
         "label": "Mix Tank 1s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "mix-tank",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -151,8 +133,10 @@
       },
       "data": {
         "label": "Hopper 1s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "hopper-kno3",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -170,8 +154,10 @@
       },
       "data": {
         "label": "Hopper 2s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "hopper-dap",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -189,46 +175,10 @@
       },
       "data": {
         "label": "Hopper 3s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
-      },
-      "style": {
-        "width": 160,
-        "height": 50
-      },
-      "width": 160,
-      "height": 50
-    },
-    {
-      "id": "node-11",
-      "type": "rectangle",
-      "position": {
-        "x": 1030,
-        "y": 780
-      },
-      "data": {
-        "label": "Tank 2s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
-      },
-      "style": {
-        "width": 160,
-        "height": 50
-      },
-      "width": 160,
-      "height": 50
-    },
-    {
-      "id": "node-12",
-      "type": "rectangle",
-      "position": {
-        "x": 830,
-        "y": 780
-      },
-      "data": {
-        "label": "Filter 1s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "hopper-micro",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -246,27 +196,10 @@
       },
       "data": {
         "label": "Pump 3s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
-      },
-      "style": {
-        "width": 160,
-        "height": 50
-      },
-      "width": 160,
-      "height": 50
-    },
-    {
-      "id": "node-23",
-      "type": "roundedRect",
-      "position": {
-        "x": 630,
-        "y": 780
-      },
-      "data": {
-        "label": "Pump 1s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "water-pump",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -284,8 +217,10 @@
       },
       "data": {
         "label": "Pump 2s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "water-pump",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -293,25 +228,6 @@
       },
       "width": 160,
       "height": 50
-    },
-    {
-      "id": "node-29",
-      "type": "pill",
-      "position": {
-        "x": 1600,
-        "y": 1030
-      },
-      "data": {
-        "label": "Production Ponds",
-        "fillColor": "#dcfce7",
-        "borderColor": "#16a34a"
-      },
-      "style": {
-        "width": 220,
-        "height": 70
-      },
-      "width": 220,
-      "height": 70
     },
     {
       "id": "node-31",
@@ -323,7 +239,9 @@
       "data": {
         "label": "Nitrogen",
         "fillColor": "#ffedd5",
-        "borderColor": "#ca8a04"
+        "borderColor": "#ca8a04",
+        "equipmentTypeId": "material-source",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -342,7 +260,9 @@
       "data": {
         "label": "Phosphorus",
         "fillColor": "#ffedd5",
-        "borderColor": "#ca8a04"
+        "borderColor": "#ca8a04",
+        "equipmentTypeId": "material-source",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -361,26 +281,9 @@
       "data": {
         "label": "Micronutrients",
         "fillColor": "#ffedd5",
-        "borderColor": "#ca8a04"
-      },
-      "style": {
-        "width": 160,
-        "height": 50
-      },
-      "width": 160,
-      "height": 50
-    },
-    {
-      "id": "node-35",
-      "type": "rectangle",
-      "position": {
-        "x": 630,
-        "y": 690
-      },
-      "data": {
-        "label": "Tank 1s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "borderColor": "#ca8a04",
+        "equipmentTypeId": "material-source",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -398,8 +301,14 @@
       },
       "data": {
         "label": "Inoculation Pond As",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#dcfce7",
+        "borderColor": "#16a34a",
+        "equipmentTypeId": "inoculum-pond",
+        "equipmentParams": {
+          "tierIndex": 0
+        },
+        "fontBold": true,
+        "textColor": "#111827"
       },
       "style": {
         "width": 160,
@@ -417,8 +326,14 @@
       },
       "data": {
         "label": "Inoculation Pond Bs",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#dcfce7",
+        "borderColor": "#16a34a",
+        "equipmentTypeId": "inoculum-pond",
+        "equipmentParams": {
+          "tierIndex": 1
+        },
+        "fontBold": true,
+        "textColor": "#111827"
       },
       "style": {
         "width": 160,
@@ -436,8 +351,14 @@
       },
       "data": {
         "label": "Inoculation Pond Cs",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#dcfce7",
+        "borderColor": "#16a34a",
+        "equipmentTypeId": "inoculum-pond",
+        "equipmentParams": {
+          "tierIndex": 2
+        },
+        "fontBold": true,
+        "textColor": "#111827"
       },
       "style": {
         "width": 160,
@@ -456,45 +377,9 @@
       "data": {
         "label": "Source Water",
         "fillColor": "#dbeafe",
-        "borderColor": "#2563eb"
-      },
-      "style": {
-        "width": 160,
-        "height": 50
-      },
-      "width": 160,
-      "height": 50
-    },
-    {
-      "id": "node-60",
-      "type": "rectangle",
-      "position": {
-        "x": 1310,
-        "y": 1300
-      },
-      "data": {
-        "label": "Tank 5s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
-      },
-      "style": {
-        "width": 160,
-        "height": 50
-      },
-      "width": 160,
-      "height": 50
-    },
-    {
-      "id": "node-61",
-      "type": "rectangle",
-      "position": {
-        "x": 1530,
-        "y": 1300
-      },
-      "data": {
-        "label": "Filter 2s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "borderColor": "#2563eb",
+        "equipmentTypeId": "material-source",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -512,8 +397,10 @@
       },
       "data": {
         "label": "Tank 4s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "cone-roof-tank",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -531,8 +418,10 @@
       },
       "data": {
         "label": "Tank 3s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "cone-roof-tank",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -550,8 +439,10 @@
       },
       "data": {
         "label": "Pump 6s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "water-pump",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -569,8 +460,10 @@
       },
       "data": {
         "label": "Pump 5s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "water-pump",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -588,8 +481,10 @@
       },
       "data": {
         "label": "Pump 4s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "water-pump",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -607,8 +502,10 @@
       },
       "data": {
         "label": "Dryer 1s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "spray-dryer",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -626,8 +523,10 @@
       },
       "data": {
         "label": "Pump 7s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "sludge-pump",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -645,8 +544,10 @@
       },
       "data": {
         "label": "Silo 1s",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280"
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "dry-bulk-silo",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -759,8 +660,178 @@
       },
       "width": 130,
       "height": 40
+    },
+    {
+      "id": "node-109",
+      "type": "rectangle",
+      "position": {
+        "x": 830,
+        "y": 780
+      },
+      "data": {
+        "label": "Filter 1s",
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "uf-filter",
+        "fontBold": true
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-114",
+      "type": "roundedRect",
+      "position": {
+        "x": 630,
+        "y": 780
+      },
+      "data": {
+        "label": "Pump 1s",
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "water-pump",
+        "fontBold": true
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-117",
+      "type": "rectangle",
+      "position": {
+        "x": 630,
+        "y": 690
+      },
+      "data": {
+        "label": "Tank 1s",
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "cone-roof-tank",
+        "fontBold": true
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-120",
+      "type": "rectangle",
+      "position": {
+        "x": 1030,
+        "y": 780
+      },
+      "data": {
+        "label": "Tank 2s",
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "cone-roof-tank",
+        "fontBold": true
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-123",
+      "type": "pill",
+      "position": {
+        "x": 1600,
+        "y": 1030
+      },
+      "data": {
+        "label": "Production Ponds",
+        "fillColor": "#dcfce7",
+        "borderColor": "#16a34a",
+        "equipmentTypeId": "raceway-pond",
+        "fontBold": true
+      },
+      "style": {
+        "width": 220,
+        "height": 70
+      },
+      "width": 220,
+      "height": 70
+    },
+    {
+      "id": "node-128",
+      "type": "rectangle",
+      "position": {
+        "x": 1530,
+        "y": 1300
+      },
+      "data": {
+        "label": "Filter 2s",
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "vacuum-belt",
+        "fontBold": true
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-133",
+      "type": "chamferedRect",
+      "position": {
+        "x": 1630,
+        "y": 690
+      },
+      "data": {
+        "label": "CO2 Source",
+        "fillColor": "#fef9c3",
+        "borderColor": "#ca8a04",
+        "textAlign": "center",
+        "equipmentTypeId": "material-source",
+        "fontBold": true
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
+    },
+    {
+      "id": "node-134",
+      "type": "rectangle",
+      "position": {
+        "x": 1630,
+        "y": 780
+      },
+      "data": {
+        "label": "CO2 Tanks",
+        "fillColor": "#f3f4f6",
+        "borderColor": "#6b7280",
+        "equipmentTypeId": "co2-pressure-vessel",
+        "fontBold": true
+      },
+      "style": {
+        "width": 160,
+        "height": 50
+      },
+      "width": 160,
+      "height": 50
     }
   ],
+  "version": 2,
   "edges": [
     {
       "id": "edge-37",
@@ -772,6 +843,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "raw-water"
       }
     },
     {
@@ -784,19 +858,8 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
-      }
-    },
-    {
-      "id": "edge-39",
-      "source": "node-12",
-      "target": "node-11",
-      "sourceHandle": "right",
-      "targetHandle": "left",
-      "type": "smoothstep",
-      "style": {
-        "strokeWidth": 2,
-        "stroke": "#374151"
-      }
+      },
+      "data": {}
     },
     {
       "id": "edge-40",
@@ -808,6 +871,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "filtered-water"
       }
     },
     {
@@ -820,6 +886,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "micro-supply"
       }
     },
     {
@@ -832,6 +901,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "dap-supply"
       }
     },
     {
@@ -844,6 +916,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "kno3-supply"
       }
     },
     {
@@ -856,6 +931,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "filtered-water"
       }
     },
     {
@@ -868,6 +946,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "kno3-supply"
       }
     },
     {
@@ -880,6 +961,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "dap-supply"
       }
     },
     {
@@ -892,6 +976,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "micro-supply"
       }
     },
     {
@@ -904,6 +991,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "nutrient-solution"
       }
     },
     {
@@ -964,6 +1054,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "culture"
       }
     },
     {
@@ -976,6 +1069,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "culture"
       }
     },
     {
@@ -988,6 +1084,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "culture"
       }
     },
     {
@@ -1024,6 +1123,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "filtrate-return"
       }
     },
     {
@@ -1036,6 +1138,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "inoculum"
       }
     },
     {
@@ -1048,6 +1153,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "inoculum"
       }
     },
     {
@@ -1072,6 +1180,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "nutrient-solution"
       }
     },
     {
@@ -1084,6 +1195,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "inoculum"
       }
     },
     {
@@ -1092,18 +1206,6 @@
       "target": "node-86",
       "sourceHandle": "left",
       "targetHandle": "right",
-      "type": "smoothstep",
-      "style": {
-        "strokeWidth": 2,
-        "stroke": "#374151"
-      }
-    },
-    {
-      "id": "edge-98",
-      "source": "node-97",
-      "target": "node-29",
-      "sourceHandle": "bottom",
-      "targetHandle": "top",
       "type": "smoothstep",
       "style": {
         "strokeWidth": 2,
@@ -1120,6 +1222,9 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "biomass-slurry"
       }
     },
     {
@@ -1132,6 +1237,306 @@
       "style": {
         "strokeWidth": 2,
         "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "dry-product"
+      }
+    },
+    {
+      "id": "edge-104",
+      "source": "node-12",
+      "target": "node-103",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-105",
+      "source": "node-103",
+      "target": "node-11",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-106",
+      "source": "node-61",
+      "target": "node-86",
+      "sourceHandle": "left",
+      "targetHandle": "right",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-107",
+      "source": "node-12",
+      "target": "node-11",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-110",
+      "source": "node-109",
+      "target": "node-11",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "filtered-water"
+      }
+    },
+    {
+      "id": "edge-111",
+      "source": "node-23",
+      "target": "node-109",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-115",
+      "source": "node-35",
+      "target": "node-114",
+      "sourceHandle": "bottom",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      }
+    },
+    {
+      "id": "edge-116",
+      "source": "node-114",
+      "target": "node-109",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "raw-water"
+      }
+    },
+    {
+      "id": "edge-118",
+      "source": "node-58",
+      "target": "node-117",
+      "sourceHandle": "bottom",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "raw-water"
+      }
+    },
+    {
+      "id": "edge-119",
+      "source": "node-117",
+      "target": "node-114",
+      "sourceHandle": "bottom",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "raw-water"
+      }
+    },
+    {
+      "id": "edge-121",
+      "source": "node-109",
+      "target": "node-120",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "filtered-water"
+      }
+    },
+    {
+      "id": "edge-122",
+      "source": "node-120",
+      "target": "node-24",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "filtered-water"
+      }
+    },
+    {
+      "id": "edge-125",
+      "source": "node-53",
+      "target": "node-123",
+      "sourceHandle": "right",
+      "targetHandle": "left",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "inoculum"
+      }
+    },
+    {
+      "id": "edge-126",
+      "source": "node-64",
+      "target": "node-123",
+      "sourceHandle": "top",
+      "targetHandle": "bottom",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "filtrate-return"
+      }
+    },
+    {
+      "id": "edge-127",
+      "source": "node-123",
+      "target": "node-66",
+      "sourceHandle": "right",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "culture"
+      }
+    },
+    {
+      "id": "edge-129",
+      "source": "node-128",
+      "target": "node-62",
+      "sourceHandle": "left",
+      "targetHandle": "bottom",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "filtrate-return"
+      }
+    },
+    {
+      "id": "edge-130",
+      "source": "node-128",
+      "target": "node-86",
+      "sourceHandle": "left",
+      "targetHandle": "right",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "biomass-slurry"
+      }
+    },
+    {
+      "id": "edge-131",
+      "source": "node-65",
+      "target": "node-128",
+      "sourceHandle": "left",
+      "targetHandle": "right",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "culture"
+      }
+    },
+    {
+      "id": "edge-132",
+      "source": "node-22",
+      "target": "node-123",
+      "sourceHandle": "right",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "nutrient-solution"
+      }
+    },
+    {
+      "id": "edge-135",
+      "source": "node-133",
+      "target": "node-134",
+      "sourceHandle": "bottom",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "co2-supply"
+      }
+    },
+    {
+      "id": "edge-137",
+      "source": "node-134",
+      "target": "node-123",
+      "sourceHandle": "bottom",
+      "targetHandle": "top",
+      "type": "smoothstep",
+      "style": {
+        "strokeWidth": 2,
+        "stroke": "#374151"
+      },
+      "data": {
+        "streamType": "co2-supply"
       }
     }
   ]

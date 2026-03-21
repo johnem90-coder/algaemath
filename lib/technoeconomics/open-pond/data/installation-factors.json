@@ -9,12 +9,11 @@
     "section_id": "inputs",
     "has_installation_factors": true,
     "installation": {
-      "process_piping":        { "value": 0.00, "low": 0.00, "high": 0.10 },
-      "instrumentation":       { "value": 0.00, "low": 0.00, "high": 0.10 },
-      "insulation":            { "value": 0.00, "low": 0.00, "high": 0.01 },
-      "electrical":            { "value": 0.00, "low": 0.00, "high": 0.05 },
-      "buildings":             { "value": 0.00, "low": 0.00, "high": 0.10 },
-      "yard_improvement":      { "value": 0.00, "low": 0.00, "high": 0.05 },
+      "process_piping":        { "value": 0.35, "low": 0.30, "high": 0.40 },
+      "instrumentation":       { "value": 0.275, "low": 0.20, "high": 0.35 },
+      "insulation":            { "value": 0.02, "low": 0.01, "high": 0.03 },
+      "electrical":            { "value": 0.125, "low": 0.10, "high": 0.15 },
+      "buildings":             { "value": 0.275, "low": 0.10, "high": 0.45 },
       "auxiliary_facilities":  { "value": 0.35, "low": 0.20, "high": 0.50 }
     },
     "indirect": {
@@ -48,7 +47,6 @@
       "insulation":            { "value": 0.02, "low": 0.01, "high": 0.03 },
       "electrical":            { "value": 0.125, "low": 0.10, "high": 0.15 },
       "buildings":             { "value": 0.275, "low": 0.10, "high": 0.45 },
-      "yard_improvement":      { "value": 0.10, "low": 0.05, "high": 0.15 },
       "auxiliary_facilities":  { "value": 0.35, "low": 0.20, "high": 0.50 }
     },
     "indirect": {
@@ -71,7 +69,6 @@
       "insulation":            { "value": 0.02, "low": 0.01, "high": 0.03 },
       "electrical":            { "value": 0.125, "low": 0.10, "high": 0.15 },
       "buildings":             { "value": 0.275, "low": 0.10, "high": 0.45 },
-      "yard_improvement":      { "value": 0.10, "low": 0.05, "high": 0.15 },
       "auxiliary_facilities":  { "value": 0.35, "low": 0.20, "high": 0.50 }
     },
     "indirect": {

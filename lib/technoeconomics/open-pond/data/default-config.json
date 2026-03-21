@@ -127,6 +127,9 @@
       { "title": "Drying Maintenance Supervisors", "headcount": 1, "annual_salary": 146000 },
       { "title": "Administrators", "headcount": 1, "annual_salary": 73000 },
       { "title": "Operators", "headcount": 4, "annual_salary": 73000 }
+    ],
+    "land": [
+      { "title": "Grounds Keepers", "headcount": 2, "annual_salary": 52000 }
     ]
   },
 
@@ -142,6 +145,7 @@
   "land": {
     "selected_location": "California",
     "buffer_fraction": 0.20,
+    "maintenance_rate": 0.05,
     "catalog": [
       { "location": "California", "land_type": "Pasture", "cost_per_acre": 3010 },
       { "location": "Arizona", "land_type": "Farm", "cost_per_acre": 3800 },

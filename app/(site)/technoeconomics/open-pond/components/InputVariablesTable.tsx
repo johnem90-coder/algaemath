@@ -53,10 +53,7 @@ export function InputVariablesTable({ result }: Props) {
     { label: "Unit Lifetime", value: `${c.unit_lifetime_yrs} yrs`, notes: "Facility operating lifetime" },
   ];
 
-  const growthInputs: Row[] = [
-    { label: "Growth Rate", value: `${c.effective_growth_rate_per_day} /day`, notes: "Effective net growth rate" },
-    { label: "Harvest Density", value: `${c.density_at_harvest_g_L} g/L`, notes: "Steady-state concentration" },
-  ];
+  // Growth rate and harvest density are now controlled by the top-level sliders
 
   const unitCosts: Row[] = [
     { label: "Electricity", value: `$${c.electricity_per_kWh}/kWh`, notes: "Hawaii 2022 commercial" },
@@ -148,32 +145,35 @@ export function InputVariablesTable({ result }: Props) {
     })),
   ];
 
-  // Labor breakdown: section header + individual roles
-  const laborSections = ["inputs", "inoculum", "biomass", "harvesting", "drying"] as const;
-  const laborBySectionElements = laborSections.map((section) => {
-    const roles = c.labor[section];
-    const headcount = roles.reduce((sum, r) => sum + r.headcount, 0);
-    const totalCost = roles.reduce((sum, r) => sum + r.headcount * r.annual_salary, 0);
-    const sectionLabel = section.charAt(0).toUpperCase() + section.slice(1);
-    const rows: Row[] = [
-      ...roles.map((r) => ({
-        label: r.title,
-        value: `${r.headcount}`,
-        notes: `$${(r.annual_salary / 1000).toFixed(0)}k/yr each`,
-      })),
-      {
-        label: `${sectionLabel} Total`,
-        value: `${headcount} staff`,
-        notes: `$${(totalCost / 1000).toFixed(0)}k/yr`,
-      },
-    ];
-    return { sectionLabel, rows };
+  // Unified labor table — all sections in one table, role names indicate workplace
+  const laborSections = ["biomass", "harvesting", "inputs", "inoculum", "drying", "land"] as const;
+  const allLaborRows: Row[] = [];
+  let totalHeadcount = 0;
+  let totalLaborCost = 0;
+  for (const section of laborSections) {
+    const roles = (c.labor as Record<string, typeof c.labor.inputs>)[section] ?? [];
+    for (const r of roles) {
+      if (r.headcount > 0) {
+        allLaborRows.push({
+          label: r.title,
+          value: `${r.headcount}`,
+          notes: `$${(r.annual_salary / 1000).toFixed(0)}k/yr each`,
+        });
+        totalHeadcount += r.headcount;
+        totalLaborCost += r.headcount * r.annual_salary;
+      }
+    }
+  }
+  allLaborRows.push({
+    label: "Total",
+    value: `${totalHeadcount} staff`,
+    notes: `$${(totalLaborCost / 1000).toFixed(0)}k/yr`,
   });
 
   return (
     <div className="space-y-5">
       <CategoryTable title="System Inputs" rows={systemInputs} />
-      <CategoryTable title="Growth Inputs" rows={growthInputs} />
+      {/* Growth Inputs removed — now controlled by top-level sliders */}
       <CategoryTable title="Unit Costs" rows={unitCosts} />
       <CategoryTable title="Algae Composition" rows={algaeComposition} />
       <CategoryTable title="Financial Inputs" rows={financialInputs} />
@@ -186,9 +186,7 @@ export function InputVariablesTable({ result }: Props) {
       <CategoryTable title="Construction" rows={construction} />
       <CategoryTable title="Land" rows={land} />
       <CategoryTable title="Inoculum" rows={inoculum} />
-      {laborBySectionElements.map(({ sectionLabel, rows }) => (
-        <CategoryTable key={sectionLabel} title={`Labor — ${sectionLabel}`} rows={rows} />
-      ))}
+      <CategoryTable title="Labor" rows={allLaborRows} />
     </div>
   );
 }

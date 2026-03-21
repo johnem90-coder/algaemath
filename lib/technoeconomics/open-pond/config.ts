@@ -92,6 +92,7 @@ export function getDefaultTEAConfig(): TEAConfig {
       biomass: d.labor.biomass,
       harvesting: d.labor.harvesting,
       drying: d.labor.drying,
+      land: d.labor.land,
     },
 
     // Inoculum
@@ -101,6 +102,7 @@ export function getDefaultTEAConfig(): TEAConfig {
     // Land
     land_price_per_acre: (d.land.catalog.find((l: { location: string }) => l.location === d.land.selected_location) ?? d.land.catalog[0]).cost_per_acre,
     land_buffer_fraction: d.land.buffer_fraction,
+    land_maintenance_rate: d.land.maintenance_rate,
     land_catalog: d.land.catalog,
 
     // Construction & ramp-up

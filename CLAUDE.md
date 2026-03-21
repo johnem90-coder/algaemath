@@ -96,24 +96,55 @@ Inline SVG with `useId()`-based gradient IDs. Proportional aspect ratio: `drawW`
 Main orchestrator with collapsible sections, state for all sliders, weather data loading. All three sections fully wired with simulation data, envelope bands, dynamic axes, and Under the Hood sub-sections with model selector pills and 3-column chart grids.
 
 ## TEA Engine Architecture
-- **Engine**: `lib/technoeconomics/open-pond/engine.ts` — `runTEA(configOverrides?)` pure function, config → TEAResult
-- **Types**: `lib/technoeconomics/types.ts` — TEAConfig (80+ params), TEAResult, SectionCost, ConstructionTimeline, AnnualCashFlow, etc.
+- **Original engine**: `lib/technoeconomics/open-pond/engine.ts` — `runTEA(configOverrides?)` pure function, config → TEAResult. Hardcoded 5 sections with fixed equipment lists.
+- **Diagram-driven engine**: `lib/technoeconomics/open-pond/engine-diagram.ts` — `runTEAFromDiagram(diagram, configOverrides?)` reads enriched diagram JSON, sizes equipment dynamically via the equipment registry, produces the same TEAResult. Used when diagram has `version: 2`.
+- **Equipment registry**: `lib/technoeconomics/common/equipment-registry.ts` — 17 equipment types (including `material-source`) with sizing functions, cost models, energy types, maintenance classes, `passThrough` flag, and stream I/O definitions.
+- **Stream types**: `lib/technoeconomics/common/stream-types.ts` — 12 stream types (raw-water, culture, biomass-slurry, etc.) with `computeGlobalFlows()` for pre-computing flow rates from config/geometry/nutrients.
+- **Section detection**: `lib/technoeconomics/common/section-detection.ts` — shared utility (extracted from DiagramView) for detecting sections from diagram geometry. Used by both frontend and engine.
+- **Types**: `lib/technoeconomics/types.ts` — TEAConfig (80+ params), TEAResult, SectionCost, EquipmentItem (with optional `diagramNodeId`), etc.
 - **Config**: `lib/technoeconomics/open-pond/config.ts` + `data/default-config.json` — default config with JSON → flat TEAConfig parsing
-- **Sections**: `lib/technoeconomics/open-pond/sections/` — inputs, inoculum, biomass, harvesting, drying (each independent)
-- **Common**: `lib/technoeconomics/common/` — geometry, nutrient-balance, financials (NPV/IRR/MBSP/DCF), construction (batched timeline + ramp-up), constants, energy, cost-escalation, installation
+- **Original sections**: `lib/technoeconomics/open-pond/sections/` — inputs, inoculum, biomass, harvesting, drying (kept as reference; diagram engine replaces them)
+- **Common**: `lib/technoeconomics/common/` — geometry, nutrient-balance, financials (NPV/IRR/MBSP/DCF), construction (batched timeline + ramp-up), constants, energy, cost-escalation, installation, equipment-options (sizing functions + catalogs), labor (dynamic scaling)
+- **Labor**: `lib/technoeconomics/common/labor.ts` — `computeLabor(nPonds, landAcres)` scales headcounts with facility size. Biomass/Harvesting: base staff + 1 operator per 10 ponds, +1 maint supervisor at 40/80. Inputs/Inoculum/Drying: no labor at 10 ponds, roles added at 20/30/40/50 thresholds. Land: min 1 grounds keeper, +1 per 20 acres.
 - **Construction model**: Fully sequential batches of up to 10 ponds; each pond = 1 week build + 4 weeks batch test. CAPEX staged per batch. Production ramps up as batches complete.
-- **Frontend**: `app/(site)/technoeconomics/open-pond/components/` — OpenPondTEA (main), FinancialOverviewTable, SectionsOverviewTable (clickable cells with hover linking, including land), DiagramView (pure SVG process flow with section detection + highlighting), CostContributionTable, LifetimeValueChart (Recharts, quarterly), CashFlowTable, SensitivityTable, SectionDetailPanel (right slide-in, two-axis navigation by section or category with highlight+scroll), InputCostsPanel (left slide-in "System Inputs"), InputVariablesTable (all ~80 config params by category), formatters
+- **Frontend**: `app/(site)/technoeconomics/open-pond/components/` — OpenPondTEA (main, 4 sliders), DiagramView, SectionDetailPanel, FinancialOverviewTable (3 MiniTables: Project Scale, Capital & Operating, Key Metrics), CostContributionTable (section % of MBSP with overhead + taxes & finance = 100%), LifetimeValueChart, SensitivityTable, SectionsOverviewTable, InputCostsPanel, InputVariablesTable (unified single labor table), formatters
+- **Financial Overview layout**: 3-column row — Project Scale (20%), Cost Contribution (30%), 10-Year Lifetime Value chart (50%). Cost Contribution includes all sections + Overhead + Taxes & Finance rows summing to 100% of MBSP.
+
+## TEA Diagram-Driven Architecture
+- **Enriched diagram JSON** (`version: 2`): nodes carry `equipmentTypeId` + `equipmentParams`, edges carry `streamType` + optional `splitFraction`
+- **Equipment types define outputs**: `passThrough` equipment (tanks, pumps) mirrors input stream; transforming equipment (filters, dryers) has specific output streams. Multi-output equipment (slant screen) lists multiple output streams.
+- **Material sources**: `material-source` equipment type for input nodes (Source Water, CO2, Nitrogen, etc.) — computes annual procurement cost from nutrient balance. Clickable in diagram with procurement cost detail view.
+- **Filter split model**: Filters use `outputWaterContentPct` parameter instead of raw split fractions. Mass balance auto-computes volume split between slurry and filtrate based on culture concentration.
+- **Flow resolution**: Global flow rates pre-computed from config/geometry/nutrients. Edge `splitFraction` scales the base rate. Engine resolves incoming flows per-node from connected edges.
+- **Installation costs**: Prorated per equipment item proportionally to purchase cost. Multipliers scale linearly with facility size (10 ponds → high values, 100 ponds → low values, using `low`/`high` from `installation-factors.json`). Sections with `hasInstallationFactors` equipment get 3-tier installation; pond sections skip (NREL fully installed). Yard improvement removed from installation factors — now an annual maintenance cost on land.
+- **Land as a section**: Land is a proper section with equipment (purchase cost), maintenance (yard improvement at `land_maintenance_rate`), and labor (grounds keepers). Appears as a regular row in Sections Overview. Config: `land_maintenance_rate` (default 0.05), `labor.land`.
+
+## TEA Slider Controls
+- 4 vertical sliders (desktop) / horizontal sliders (mobile): Density (0.20–1.00 g/L), Growth Rate (0.05–0.30 /day), Facility Size (10–100 ponds), Sale Price ($1–100/kg)
+- First two are biological parameters styled in green (emerald) with "at harvest" label
+- Density + Growth Rate + Facility Size trigger full TEA recalculation via `useMemo`
+- Sale Price only affects LifetimeValueChart (no TEA re-run)
 
 ## TEA Slide-in Panel Pattern
 - Panels use `fixed` positioning with `translate-x` transitions for open/close
 - Tab attached to panel edge (overlaps border by 1px to hide seam), `writing-mode: vertical-rl`
-- Right panel (Economic Details): max `min(50vw, 640px)`, two-axis navigation — click section name for all categories, click column header for all sections, click specific cell for all sections with highlight+scroll to that section. Renders detailed tables per category (equipment, installation with multipliers, materials, energy, maintenance, labor). Land included in capital_cost views.
-- Left panel (System Inputs): max `min(30vw, 420px)`, shows all ~80 TEA config parameters organized into 15 categories including labor breakdowns by section with individual roles
+- Right panel (Economic Details): max `min(50vw, 640px)`, **two-level hierarchy**: Level 1 = section view (tables by category), Level 2 = equipment detail (slides in from right with back arrow to parent section). Equipment detail shows: identity + capacity/rating, CAPEX (purchase + prorated installation), OPEX with full energy calculation chain (power kW → hrs/day × days = hrs/yr → consumption/unit/day × units × days = total → unit price → cost), maintenance, unit economics ($/ton, % of MBSP). Material source rows in Materials table are also clickable. Sections separated by `divide-y-2 divide-dashed divide-gray-500`.
+- Left panel (System Inputs): max `min(30vw, 420px)`, shows TEA config parameters organized by category (growth inputs removed — now controlled by top-level sliders)
 - Backdrop (`bg-black/30`) closes panel on click; Escape key also closes
-- When right panel is open, the Process Flow diagram section gets `position: relative; z-index: 45` (above backdrop z-40, below panel z-50) and `paddingRight: min(50vw, 640px)` with transition, keeping the diagram visible and interactive. Clicking a section in the diagram updates the panel content.
+- When right panel is open, both Process Flow diagram and Sections Overview table get `z-index: 45` and `paddingRight: min(50vw, 640px)` with transition, keeping them visible and interactive. Sections Overview hides Total CAPEX and Total OPEX columns in compact mode.
 
-## Diagram Embedding Pattern
-- Admin editor saves diagrams as JSON to `public/diagrams/`; public pages render them via `DiagramView` as pure SVG (no React Flow dependency)
-- `DiagramView` auto-detects sections from the diagram geometry: finds nodes with labels matching "X Section", matches them to nearby container rectangles, then assigns remaining nodes by geometric containment
-- Shared `hoveredSection` state links DiagramView ↔ SectionsOverviewTable bidirectionally (hover a table row → diagram highlights, hover a diagram section → table row highlights)
-- Section node IDs match TEA engine section IDs: inputs, inoculum, biomass, harvesting, drying
+## Diagram Embedding & Interaction Pattern
+- Admin editor saves enriched diagrams as JSON (version 2) to `public/diagrams/`; public pages render them via `DiagramView` as pure SVG
+- **Section detection** (`section-detection.ts`): shared utility finds "X Section" label nodes, matches to transparent-bordered container rectangles, assigns remaining nodes by geometric containment
+- **Section-level interaction**: hover/click section in diagram → grey dim overlay on section contents, section label re-rendered above dim for visibility. Sections Overview table rows highlight in sync (grey `bg-gray-100/80`). Column headers in table also highlight their entire column on hover/click.
+- **Equipment-level interaction**: hover → grey dim on parent section + white-backed equipment "reveals" through dim with dark grey border; click → opens equipment detail (L2) in Economic Details panel. Equipment and material rows in all panel tables are clickable with blue hover highlight. Highlight also activates the parent section row in Sections Overview.
+- **Admin inspector panel** (`InspectorPanel.tsx`): right-side panel in diagram editor for assigning equipment types to nodes, stream types to edges, section management (rename, create new), and filter water content parameters
+
+## Admin Diagram Editor TEA Features
+- **Inspector panel** (256px right side): shows context-aware UI based on selection — section label (name editor), section container (matched section), equipment node (type dropdown, params, connections), edge (stream type, split fraction)
+- **Equipment type dropdown**: grouped by category (Sources, Tanks, Pumps, Filters, etc.) from `EQUIPMENT_REGISTRY`
+- **Connections section**: inputs shown read-only (derived from upstream); outputs restricted to equipment's defined output streams; auto-assignment on equipment type change
+- **Filter water content**: for filter nodes with multiple outputs, user enters output slurry water content %; system auto-computes volume split fractions via mass balance
+- **Section management**: "New Section" button creates container rectangle + label node; section labels editable to rename sections
+- **Edge save**: includes `data` field (streamType, splitFraction) in JSON; diagram saved with `version: 2`
+- **Orphan cleanup**: deleting nodes also removes connected edges

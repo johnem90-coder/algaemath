@@ -13,6 +13,9 @@ export type ShapeNodeData = {
   textColor?: string;
   fontBold?: boolean;
   fontItalic?: boolean;
+  // TEA equipment metadata (optional — only on equipment nodes)
+  equipmentTypeId?: string;
+  equipmentParams?: Record<string, number | string>;
 };
 
 function RectangleNode({ id, data, selected }: NodeProps<Node<ShapeNodeData>>) {

@@ -195,7 +195,7 @@ export function computeInputsSection(
 
   // ── Aggregation ────────────────────────────────────────────
   const equipment_purchase = equipment.reduce((s, e) => s + e.total_purchase_cost, 0);
-  const installation_breakdown = computeInstallationCost(equipment_purchase, "inputs");
+  const installation_breakdown = computeInstallationCost(equipment_purchase, "inputs", geometry.n_ponds);
 
   const materials_cost =
     nutrients.co2_tons_yr * config.co2_per_ton +
