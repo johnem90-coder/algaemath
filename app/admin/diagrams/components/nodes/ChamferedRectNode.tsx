@@ -6,7 +6,7 @@ import type { ShapeNodeData } from "./RectangleNode";
 import { DiagramContext } from "../DiagramContext";
 
 function ChamferedRectNode({ id, data, selected, width, height }: NodeProps<Node<ShapeNodeData>>) {
-  const { snapGrid, onResizeStart, onResizeDelta } = useContext(DiagramContext);
+  const { onResizeStart, onResizeDelta } = useContext(DiagramContext);
   const rsW = useRef(0);
   const rsH = useRef(0);
   const [editing, setEditing] = useState(false);
@@ -50,7 +50,6 @@ function ChamferedRectNode({ id, data, selected, width, height }: NodeProps<Node
         isVisible={!!selected}
         minWidth={80}
         minHeight={40}
-        snapGrid={[snapGrid, snapGrid]}
         onResizeStart={(_, p) => { rsW.current = p.width; rsH.current = p.height; onResizeStart(id, p.width, p.height); }}
         onResize={(_, p) => onResizeDelta(id, p.width - rsW.current, p.height - rsH.current)}
       />
