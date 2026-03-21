@@ -292,7 +292,8 @@ function sizeConeRoofTank(entry: EquipmentTypeEntry, ctx: SizingContext): Equipm
 
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: "Cone Roof",
-    function: "Storage tank",
+    function: `Storage: ${bufferDays} day buffer @ ${dailyDemand.toFixed(0)} m³/day`,
+    capacity: `${option.capacity_m3.toLocaleString()} m³`,
     unit_cost: option.unit_cost, units_required: units, total_purchase_cost: total_cost,
     energy_type: "none", annual_energy_units: 0, annual_energy_cost: 0,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
@@ -355,9 +356,12 @@ function sizeWaterPump(entry: EquipmentTypeEntry, ctx: SizingContext): Equipment
 
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: option.label,
-    function: "Water transfer pump",
+    function: `Transfer: ${daily_flow_m3.toFixed(0)} m³/day`,
+    capacity: `${option.available_flow_Ls} L/s`,
     unit_cost: option.unit_cost, units_required: units, total_purchase_cost: total_cost,
     energy_type: option.energy_type,
+    power_kW: option.power_kW,
+    run_hrs_yr: run_hrs_yr,
     annual_energy_units, annual_energy_cost,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
   };
@@ -378,9 +382,13 @@ function sizeUfFilter(_entry: EquipmentTypeEntry, ctx: SizingContext): Equipment
 
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: "Ultrafiltration",
-    function: "Water purification",
+    function: `Purification: ${(nutrients.water_m3_day).toFixed(0)} m³/day`,
+    capacity: `${option.capacity_GPD.toLocaleString()} GPD`,
     unit_cost: option.unit_cost, units_required: units, total_purchase_cost: total_cost,
-    energy_type: "electricity", annual_energy_units: e.kWh, annual_energy_cost: e.cost,
+    energy_type: "electricity",
+    power_kW: option.power_kW,
+    run_hrs_yr: run_hrs_yr,
+    annual_energy_units: e.kWh, annual_energy_cost: e.cost,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
   };
 }
@@ -395,7 +403,8 @@ function sizeKno3Hopper(_entry: EquipmentTypeEntry, ctx: SizingContext): Equipme
   const total_cost = option.unit_cost * units;
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: "Dry Storage",
-    function: "KNO₃ storage",
+    function: `KNO₃: ${(nutrients.kno3_tons_day * 1000).toFixed(1)} kg/day`,
+    capacity: `${option.capacity_gal} gal`,
     unit_cost: option.unit_cost, units_required: units, total_purchase_cost: total_cost,
     energy_type: "none", annual_energy_units: 0, annual_energy_cost: 0,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
@@ -412,7 +421,8 @@ function sizeDapHopper(_entry: EquipmentTypeEntry, ctx: SizingContext): Equipmen
   const total_cost = option.unit_cost * units;
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: "Dry Storage",
-    function: "DAP storage",
+    function: `DAP: ${(nutrients.dap_tons_day * 1000).toFixed(1)} kg/day`,
+    capacity: `${option.capacity_gal} gal`,
     unit_cost: option.unit_cost, units_required: units, total_purchase_cost: total_cost,
     energy_type: "none", annual_energy_units: 0, annual_energy_cost: 0,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
@@ -429,7 +439,8 @@ function sizeMicroHopper(_entry: EquipmentTypeEntry, ctx: SizingContext): Equipm
   const total_cost = option.unit_cost * units;
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: "Dry Storage",
-    function: "Micronutrient storage",
+    function: `Micronutrients: ${(nutrients.micro_tons_day * 1000).toFixed(2)} kg/day`,
+    capacity: `${option.capacity_gal} gal`,
     unit_cost: option.unit_cost, units_required: units, total_purchase_cost: total_cost,
     energy_type: "none", annual_energy_units: 0, annual_energy_cost: 0,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
@@ -447,9 +458,13 @@ function sizeMixTankEquip(_entry: EquipmentTypeEntry, ctx: SizingContext): Equip
   const e = electricityCost(option.propeller_power_kW, run_hrs_yr * units, config.electricity_per_kWh);
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: "Cone + Propeller",
-    function: "Nutrient dissolving",
+    function: `Nutrient dissolving (1 per ${2} ponds)`,
+    capacity: `${option.capacity_gal} gal`,
     unit_cost, units_required: units, total_purchase_cost: total_cost,
-    energy_type: "electricity", annual_energy_units: e.kWh, annual_energy_cost: e.cost,
+    energy_type: "electricity",
+    power_kW: option.propeller_power_kW,
+    run_hrs_yr: run_hrs_yr,
+    annual_energy_units: e.kWh, annual_energy_cost: e.cost,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
   };
 }
@@ -468,9 +483,13 @@ function sizeCo2PressureVessel(_entry: EquipmentTypeEntry, ctx: SizingContext): 
   const e = electricityCost(power_kW, run_hrs_yr * units, config.electricity_per_kWh);
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: "Pressure Vessel",
-    function: "Liquid CO₂ storage",
+    function: `CO₂ storage: ${config.co2_tank_buffer_days} day buffer`,
+    capacity: `${tank_capacity} m³`,
     unit_cost, units_required: units, total_purchase_cost: total_cost,
-    energy_type: "electricity", annual_energy_units: e.kWh, annual_energy_cost: e.cost,
+    energy_type: "electricity",
+    power_kW: power_kW,
+    run_hrs_yr: run_hrs_yr,
+    annual_energy_units: e.kWh, annual_energy_cost: e.cost,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
   };
 }
@@ -486,9 +505,11 @@ function sizeRacewayPond(_entry: EquipmentTypeEntry, ctx: SizingContext): Equipm
   const energy_cost = total_energy_kWh * config.electricity_per_kWh;
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: "Open Raceway Pond",
-    function: "Main algae cultivation — paddlewheel-mixed racetrack",
+    function: "Paddlewheel-mixed racetrack",
+    capacity: `${config.pond_size_acres} acres (${(config.pond_size_acres * 4046.86).toFixed(0)} m²)`,
     unit_cost, units_required: n_ponds, total_purchase_cost: total_cost,
-    energy_type: "electricity", annual_energy_units: total_energy_kWh, annual_energy_cost: energy_cost,
+    energy_type: "electricity",
+    annual_energy_units: total_energy_kWh, annual_energy_cost: energy_cost,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
   };
 }
@@ -527,6 +548,7 @@ function sizeInoculumPond(_entry: EquipmentTypeEntry, ctx: SizingContext): Equip
     id: ctx.equipmentId, name: ctx.nodeLabel,
     type: `Open Raceway Pond (${tier_acres} acre)`,
     function: `Inoculum tier — ${tier.name}`,
+    capacity: `${tier_acres} acres`,
     unit_cost, units_required: ponds_per_tier, total_purchase_cost: total_cost,
     energy_type: "electricity", annual_energy_units: total_energy_kWh, annual_energy_cost: energy_cost,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
@@ -555,9 +577,13 @@ function sizeSlantScreen(_entry: EquipmentTypeEntry, ctx: SizingContext): Equipm
 
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: "Slant Screen",
-    function: "Primary biomass separation",
+    function: `Separation: ${inlet_flow_m3_hr.toFixed(1)} m³/hr inlet`,
+    capacity: `${available_m3_hr} m³/hr`,
     unit_cost, units_required: units, total_purchase_cost: total_cost,
-    energy_type: "electricity", annual_energy_units: e.kWh, annual_energy_cost: e.cost,
+    energy_type: "electricity",
+    power_kW,
+    run_hrs_yr: harvest_hrs * active_days,
+    annual_energy_units: e.kWh, annual_energy_cost: e.cost,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
   };
 }
@@ -582,9 +608,12 @@ function sizeShakerScreen(_entry: EquipmentTypeEntry, ctx: SizingContext): Equip
 
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: "Shaker Screen",
-    function: "Biomass chunk breakup",
+    function: "Biomass chunk breakup (matched to upstream filter)",
     unit_cost, units_required: units, total_purchase_cost: total_cost,
-    energy_type: "electricity", annual_energy_units: e.kWh, annual_energy_cost: e.cost,
+    energy_type: "electricity",
+    power_kW,
+    run_hrs_yr: harvest_hrs * active_days,
+    annual_energy_units: e.kWh, annual_energy_cost: e.cost,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
   };
 }
@@ -612,9 +641,13 @@ function sizeVacuumBelt(_entry: EquipmentTypeEntry, ctx: SizingContext): Equipme
 
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: "Vacuum Belt",
-    function: "Wash & dewater biomass",
+    function: `Dewatering: ${post_filter3_flow.toFixed(1)} m³/hr post-filter`,
+    capacity: `${available_m3_hr} m³/hr`,
     unit_cost, units_required: units, total_purchase_cost: total_cost,
-    energy_type: "electricity", annual_energy_units: e.kWh, annual_energy_cost: e.cost,
+    energy_type: "electricity",
+    power_kW,
+    run_hrs_yr: harvest_hrs * active_days,
+    annual_energy_units: e.kWh, annual_energy_cost: e.cost,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
   };
 }
@@ -638,9 +671,13 @@ function sizeSludgePumpEquip(_entry: EquipmentTypeEntry, ctx: SizingContext): Eq
 
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: option.label,
-    function: "Slurry transfer to dryer",
+    function: `Slurry transfer: ${slurry_flow_m3_hr.toFixed(1)} m³/hr`,
+    capacity: `${option.available_m3_hr} m³/hr`,
     unit_cost: option.unit_cost, units_required: units, total_purchase_cost: total_cost,
-    energy_type: "electricity", annual_energy_units: e.kWh, annual_energy_cost: e.cost,
+    energy_type: "electricity",
+    power_kW: option.power_kW,
+    run_hrs_yr: harvest_hrs * active_days,
+    annual_energy_units: e.kWh, annual_energy_cost: e.cost,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
   };
 }
@@ -670,9 +707,12 @@ function sizeSprayDryer(_entry: EquipmentTypeEntry, ctx: SizingContext): Equipme
 
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: "Spray Dryer",
-    function: "Evaporate water from slurry to dry powder",
+    function: `Evaporation: ${evap_per_dryer.toFixed(0)} kg/hr water removal`,
+    capacity: `${evap_per_dryer.toFixed(0)} kg/hr evap`,
     unit_cost, units_required: units, total_purchase_cost: total_cost,
-    energy_type: "natural_gas", annual_energy_units: annual_gas_cuft, annual_energy_cost: gas_cost,
+    energy_type: "natural_gas",
+    run_hrs_yr: harvest_hrs * active_days,
+    annual_energy_units: annual_gas_cuft, annual_energy_cost: gas_cost,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,
   };
 }
@@ -691,7 +731,8 @@ function sizeDryBulkSilo(_entry: EquipmentTypeEntry, ctx: SizingContext): Equipm
 
   return {
     id: ctx.equipmentId, name: ctx.nodeLabel, type: "Dry Bulk Storage",
-    function: "Finished product storage",
+    function: `Product storage: ${config.silo_buffer_days} day buffer`,
+    capacity: `${silo_capacity_tons} tons`,
     unit_cost, units_required: units, total_purchase_cost: total_cost,
     energy_type: "none", annual_energy_units: 0, annual_energy_cost: 0,
     maintenance_rate: mRate, annual_maintenance_cost: total_cost * mRate,

@@ -114,7 +114,8 @@ Main orchestrator with collapsible sections, state for all sliders, weather data
 - **Material sources**: `material-source` equipment type for input nodes (Source Water, CO2, Nitrogen, etc.) — computes annual procurement cost from nutrient balance. Clickable in diagram with procurement cost detail view.
 - **Filter split model**: Filters use `outputWaterContentPct` parameter instead of raw split fractions. Mass balance auto-computes volume split between slurry and filtrate based on culture concentration.
 - **Flow resolution**: Global flow rates pre-computed from config/geometry/nutrients. Edge `splitFraction` scales the base rate. Engine resolves incoming flows per-node from connected edges.
-- **Installation costs**: Prorated per equipment item proportionally to purchase cost. Sections with `hasInstallationFactors` equipment get 3-tier installation; pond sections skip (NREL fully installed).
+- **Installation costs**: Prorated per equipment item proportionally to purchase cost. Multipliers scale linearly with facility size (10 ponds → high values, 100 ponds → low values, using `low`/`high` from `installation-factors.json`). Sections with `hasInstallationFactors` equipment get 3-tier installation; pond sections skip (NREL fully installed). Yard improvement removed from installation factors — now an annual maintenance cost on land.
+- **Land as a section**: Land is a proper section with equipment (purchase cost), maintenance (yard improvement at `land_maintenance_rate`), and labor (grounds keepers). Appears as a regular row in Sections Overview. Config: `land_maintenance_rate` (default 0.05), `labor.land`.
 
 ## TEA Slider Controls
 - 4 vertical sliders (desktop) / horizontal sliders (mobile): Density (0.20–1.00 g/L), Growth Rate (0.05–0.30 /day), Facility Size (10–100 ponds), Sale Price ($1–100/kg)
@@ -125,16 +126,16 @@ Main orchestrator with collapsible sections, state for all sliders, weather data
 ## TEA Slide-in Panel Pattern
 - Panels use `fixed` positioning with `translate-x` transitions for open/close
 - Tab attached to panel edge (overlaps border by 1px to hide seam), `writing-mode: vertical-rl`
-- Right panel (Economic Details): max `min(50vw, 640px)`, three navigation modes — section view, category view, and **equipment detail view** (click any equipment in diagram or table row). Equipment detail shows: identity, CAPEX (purchase + prorated installation), OPEX (energy + maintenance), unit economics ($/ton, % of MBSP). Material sources show annual procurement cost instead.
+- Right panel (Economic Details): max `min(50vw, 640px)`, **two-level hierarchy**: Level 1 = section view (tables by category), Level 2 = equipment detail (slides in from right with back arrow to parent section). Equipment detail shows: identity + capacity/rating, CAPEX (purchase + prorated installation), OPEX with full energy calculation chain (power kW → hrs/day × days = hrs/yr → consumption/unit/day × units × days = total → unit price → cost), maintenance, unit economics ($/ton, % of MBSP). Material source rows in Materials table are also clickable. Sections separated by `divide-y-2 divide-dashed divide-gray-500`.
 - Left panel (System Inputs): max `min(30vw, 420px)`, shows TEA config parameters organized by category (growth inputs removed — now controlled by top-level sliders)
 - Backdrop (`bg-black/30`) closes panel on click; Escape key also closes
-- When right panel is open, the Process Flow diagram section gets `position: relative; z-index: 45` (above backdrop z-40, below panel z-50) and `paddingRight: min(50vw, 640px)` with transition, keeping the diagram visible and interactive.
+- When right panel is open, both Process Flow diagram and Sections Overview table get `z-index: 45` and `paddingRight: min(50vw, 640px)` with transition, keeping them visible and interactive. Sections Overview hides Total CAPEX and Total OPEX columns in compact mode.
 
 ## Diagram Embedding & Interaction Pattern
 - Admin editor saves enriched diagrams as JSON (version 2) to `public/diagrams/`; public pages render them via `DiagramView` as pure SVG
 - **Section detection** (`section-detection.ts`): shared utility finds "X Section" label nodes, matches to transparent-bordered container rectangles, assigns remaining nodes by geometric containment
-- **Section-level interaction**: hover section in diagram ↔ table row highlights bidirectionally; click section → opens Economic Details panel
-- **Equipment-level interaction**: hover equipment node → blue highlight ring; click → opens equipment detail in Economic Details panel with CAPEX/OPEX/unit economics. Equipment rows in panel tables are also clickable.
+- **Section-level interaction**: hover/click section in diagram → grey dim overlay on section contents, section label re-rendered above dim for visibility. Sections Overview table rows highlight in sync (grey `bg-gray-100/80`). Column headers in table also highlight their entire column on hover/click.
+- **Equipment-level interaction**: hover → grey dim on parent section + white-backed equipment "reveals" through dim with dark grey border; click → opens equipment detail (L2) in Economic Details panel. Equipment and material rows in all panel tables are clickable with blue hover highlight. Highlight also activates the parent section row in Sections Overview.
 - **Admin inspector panel** (`InspectorPanel.tsx`): right-side panel in diagram editor for assigning equipment types to nodes, stream types to edges, section management (rename, create new), and filter water content parameters
 
 ## Admin Diagram Editor TEA Features

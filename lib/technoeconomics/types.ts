@@ -91,11 +91,13 @@ export interface TEAConfig {
     biomass: LaborRole[];
     harvesting: LaborRole[];
     drying: LaborRole[];
+    land: LaborRole[];
   };
 
   // Land
   land_price_per_acre: number;
   land_buffer_fraction: number; // extra land beyond pond footprint (default 0.20)
+  land_maintenance_rate: number; // annual maintenance fraction for yard/grounds (default 0.05)
   land_catalog: LandOption[];
 
   // Construction & ramp-up
@@ -184,7 +186,10 @@ export interface EquipmentItem {
   unit_cost: number; // $/unit (in analysis year)
   units_required: number;
   total_purchase_cost: number;
+  capacity?: string; // human-readable capacity/rating (e.g., "700 m³", "5.0 L/s", "30 m³/hr")
   energy_type: "electricity" | "diesel" | "natural_gas" | "none";
+  power_kW?: number; // per-unit power rating (kW)
+  run_hrs_yr?: number; // annual operating hours (per unit)
   annual_energy_units: number; // kWh, L, or cuft
   annual_energy_cost: number;
   maintenance_rate: number; // 0.03, 0.05, or 0.07

@@ -4,7 +4,7 @@
 // Usage: const result = runTEA();           // with defaults
 //        const result = runTEA({ ... });    // with overrides
 
-import type { TEAConfig, TEAResult, SectionCost } from "../types";
+import type { TEAConfig, TEAResult, SectionCost, EquipmentItem, InstallationBreakdown, LaborRole } from "../types";
 import { computeTEAPondGeometry } from "../common/geometry";
 import { computeNutrientBalance } from "../common/nutrient-balance";
 import { computeConstructionTimeline } from "../common/construction";
@@ -58,11 +58,39 @@ export function runTEA(configOverrides?: Partial<TEAConfig>): TEAResult {
   const rollup = computeCostRollup(sections);
   const resources = computeResourceTotals(sections, nutrients);
 
-  // 5b. Land cost — based on pond footprint + buffer
+  // 5b. Land as a proper section — equipment (purchase), maintenance (yard), labor
   const land_pond_footprint_acres = Math.ceil(geometry.A_land_acres);
   const land_total_acres = Math.ceil(land_pond_footprint_acres * (1 + config.land_buffer_fraction));
   const land_cost = land_total_acres * config.land_price_per_acre;
-  const total_capex_with_land = rollup.total_capex + land_cost;
+  const land_maintenance = land_cost * config.land_maintenance_rate;
+  const land_labor_cost = config.labor.land.reduce((s: number, r: LaborRole) => s + r.headcount * r.annual_salary, 0);
+  const land_equipment: EquipmentItem[] = [{
+    id: "LND-01", name: `Land (${land_total_acres} acres)`, type: "Real Estate",
+    function: `${land_pond_footprint_acres} acre footprint + ${Math.round(config.land_buffer_fraction * 100)}% buffer`,
+    unit_cost: config.land_price_per_acre, units_required: land_total_acres,
+    total_purchase_cost: land_cost,
+    energy_type: "none", annual_energy_units: 0, annual_energy_cost: 0,
+    maintenance_rate: config.land_maintenance_rate,
+    annual_maintenance_cost: land_maintenance,
+  }];
+  const land_operating = land_maintenance + land_labor_cost;
+  const emptyInstallation: InstallationBreakdown = {
+    installation_factors: {}, installation_total: 0,
+    indirect_factors: {}, indirect_total: 0,
+    other_factors: {}, other_total: 0, grand_total: 0,
+  };
+  sections.land = {
+    section_id: "land", section_name: "Land",
+    capital_cost: land_cost, equipment_purchase: land_cost,
+    install_engr_other: 0, installation_breakdown: emptyInstallation,
+    operating_cost: land_operating, materials_cost: 0,
+    energy_cost: 0, maintenance_cost: land_maintenance,
+    labor_cost: land_labor_cost, equipment: land_equipment,
+  };
+
+  // Re-compute rollup now that land is a section
+  const fullRollup = computeCostRollup(sections);
+  const total_capex_with_land = fullRollup.total_capex;
 
   // 5c. Construction timeline — staged batches with build + test
   const construction = computeConstructionTimeline(geometry.n_ponds, config);
@@ -70,7 +98,7 @@ export function runTEA(configOverrides?: Partial<TEAConfig>): TEAResult {
   // 6. Financial analysis
   const tax_rate = computeTaxRate(config.federal_tax_rate, config.state_tax_rate);
   const overhead_annual = config.overhead_per_ton * geometry.Q_actual_tons_yr;
-  const aoc = rollup.total_opex + overhead_annual;
+  const aoc = fullRollup.total_opex + overhead_annual;
 
   const financialParams: Omit<CashFlowParams, "sale_price"> = {
     total_capex: total_capex_with_land,
@@ -113,16 +141,6 @@ export function runTEA(configOverrides?: Partial<TEAConfig>): TEAResult {
 
   // MBSP breakdowns
   const mbsp_by_section = computeMBSPBreakdown(sections, geometry.Q_actual_tons_yr, config.unit_lifetime_yrs, mbsp);
-  // Add land as its own entry
-  const land_capex_per_ton = land_cost / (geometry.Q_actual_tons_yr * config.unit_lifetime_yrs);
-  mbsp_by_section.push({
-    section_id: "land",
-    section_name: `Land (${land_total_acres} acres)`,
-    capex_per_ton: land_capex_per_ton,
-    opex_per_ton: 0,
-    total_per_ton: land_capex_per_ton,
-    percent_of_mbsp: mbsp > 0 ? (land_capex_per_ton / mbsp) * 100 : 0,
-  });
   const mbsp_by_category = computeMBSPCategoryBreakdown(
     total_capex_with_land,
     aoc,
@@ -150,7 +168,7 @@ export function runTEA(configOverrides?: Partial<TEAConfig>): TEAResult {
 
     // Cost totals
     total_capex: total_capex_with_land,
-    total_annual_opex: rollup.total_opex,
+    total_annual_opex: fullRollup.total_opex,
     total_annual_overhead: overhead_annual,
     total_annual_cost: aoc,
 

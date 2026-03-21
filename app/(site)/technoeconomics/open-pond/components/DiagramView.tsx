@@ -163,7 +163,7 @@ function renderNode(node: DiagramNode) {
       {label && (
         <text
           x={textX} y={y + h / 2} dy="0.35em" textAnchor={anchor}
-          fill={textColor || "#1f2937"} fontSize={12}
+          fill={textColor || "#1f2937"} fontSize={16}
           fontWeight={fontBold ? 700 : 400}
           fontStyle={fontItalic ? "italic" : "normal"}
           fontFamily="system-ui, -apple-system, sans-serif"
@@ -197,8 +197,11 @@ export function DiagramView({
 
   const { sections, nodeToSection } = useMemo(() => detectSections(nodes), [nodes]);
 
-  // Hover takes priority over active (panel) section
-  const highlightedSection = hoveredSection || activeSection || null;
+  // Derive section from hovered/active equipment, falling back to explicit section props
+  const equipmentSectionId = (hoveredEquipmentId && nodeToSection.get(hoveredEquipmentId))
+    || (activeEquipmentId && nodeToSection.get(activeEquipmentId))
+    || null;
+  const highlightedSection = hoveredSection || equipmentSectionId || activeSection || null;
 
   // Group nodes by section
   const { sectionGroups, unassigned } = useMemo(() => {
@@ -242,7 +245,7 @@ export function DiagramView({
           </marker>
         </defs>
 
-        {/* ── Edges ── */}
+        {/* ── Layer 1: Edges ── */}
         {edges.map((edge) => {
           const srcNode = nodeMap.get(edge.source);
           const tgtNode = nodeMap.get(edge.target);
@@ -262,7 +265,7 @@ export function DiagramView({
           );
         })}
 
-        {/* ── Section node groups (interactive) ── */}
+        {/* ── Layer 2: All nodes (plain, no highlights) ── */}
         {sections.map((sec) => {
           const sectionNodes = sectionGroups[sec.sectionId] || [];
           return (
@@ -275,8 +278,6 @@ export function DiagramView({
               {sectionNodes.map((node) => {
                 const isEquipment = !!node.data.equipmentTypeId;
                 if (isEquipment && onEquipmentClick) {
-                  const isActive = activeEquipmentId === node.id;
-                  const isHovered = hoveredEquipmentId === node.id;
                   return (
                     <g
                       key={node.id}
@@ -286,19 +287,6 @@ export function DiagramView({
                       onClick={(e) => { e.stopPropagation(); onEquipmentClick(node.id); }}
                     >
                       {renderNode(node)}
-                      {(isActive || isHovered) && (
-                        <rect
-                          x={node.position.x - 2}
-                          y={node.position.y - 2}
-                          width={node.width + 4}
-                          height={node.height + 4}
-                          fill={isActive ? "rgba(37, 99, 235, 0.06)" : "rgba(37, 99, 235, 0.03)"}
-                          stroke="#2563eb"
-                          strokeWidth={isActive ? 2 : 1.5}
-                          rx={4}
-                          pointerEvents="none"
-                        />
-                      )}
                     </g>
                   );
                 }
@@ -307,29 +295,70 @@ export function DiagramView({
             </g>
           );
         })}
-
-        {/* ── Unassigned nodes ── */}
         {unassigned.length > 0 && (
           <g>
             {unassigned.map(renderNode)}
           </g>
         )}
 
-        {/* ── Highlight overlay on active section container ── */}
+        {/* ── Layer 3: Section dim overlay (grey, on top — dims section contents) ── */}
         {highlightedBounds && (
-          <rect
-            x={highlightedBounds.x - 3}
-            y={highlightedBounds.y - 3}
-            width={highlightedBounds.w + 6}
-            height={highlightedBounds.h + 6}
-            fill="rgba(59, 130, 246, 0.06)"
-            stroke="#3b82f6"
-            strokeWidth={2}
-            rx={6}
-            ry={6}
-            pointerEvents="none"
-          />
+          <>
+            <rect
+              x={highlightedBounds.x - 3}
+              y={highlightedBounds.y - 3}
+              width={highlightedBounds.w + 6}
+              height={highlightedBounds.h + 6}
+              fill="rgba(107, 114, 128, 0.12)"
+              stroke="#6b7280"
+              strokeWidth={2}
+              rx={6}
+              ry={6}
+              pointerEvents="none"
+            />
+            {/* Re-render section label on top of dim so it stays readable */}
+            {(() => {
+              const sec = sections.find((s) => s.sectionId === highlightedSection);
+              if (!sec) return null;
+              const labelNode = nodes.find(
+                (n) => sec.nodeIds.has(n.id) && /Section$/.test(n.data.label)
+              );
+              return labelNode ? renderNode(labelNode) : null;
+            })()}
+          </>
         )}
+
+        {/* ── Layer 4: Equipment highlight — "reveals" through the dim overlay ── */}
+        {(() => {
+          const highlightId = activeEquipmentId || hoveredEquipmentId;
+          if (!highlightId) return null;
+          const node = nodeMap.get(highlightId);
+          if (!node) return null;
+          const isActive = activeEquipmentId === highlightId;
+          return (
+            <g
+              style={{ cursor: "pointer" }}
+              onMouseEnter={(e) => { e.stopPropagation(); setHoveredEquipmentId(highlightId); }}
+              onMouseLeave={() => setHoveredEquipmentId(null)}
+              onClick={(e) => { e.stopPropagation(); onEquipmentClick?.(highlightId); }}
+            >
+              {/* White backing to punch through the dim overlay */}
+              <rect
+                x={node.position.x - 4}
+                y={node.position.y - 4}
+                width={node.width + 8}
+                height={node.height + 8}
+                fill="white"
+                stroke="#374151"
+                strokeWidth={isActive ? 2.5 : 2}
+                rx={5}
+                pointerEvents="none"
+              />
+              {/* Re-render the node on top with original colors */}
+              {renderNode(node)}
+            </g>
+          );
+        })()}
       </svg>
     </div>
   );

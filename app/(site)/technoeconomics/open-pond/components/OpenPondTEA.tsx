@@ -120,6 +120,16 @@ export default function OpenPondTEA() {
     setPanelSelection({ sectionId, costCategory: "equipment_detail", equipmentNodeId: nodeId });
   }, []);
 
+  // Handle panel navigation (back/forward)
+  const handlePanelSelectionChange = useCallback((sel: PanelSelection) => {
+    setPanelSelection(sel);
+    if (sel.costCategory === "equipment_detail" && sel.equipmentNodeId) {
+      setSelectedEquipmentNodeId(sel.equipmentNodeId);
+    } else {
+      setSelectedEquipmentNodeId(null);
+    }
+  }, []);
+
   return (
     <div className="space-y-12">
       {/* ── Top Section: Sliders + Facility Animation Placeholder ── */}
@@ -318,7 +328,7 @@ export default function OpenPondTEA() {
         }}
       >
         <h2 className="text-xl font-medium tracking-tight mb-4">
-          Process Flow
+          Process Flow <span className="text-xs font-normal text-muted-foreground">(click any equipment for detailed breakdown)</span>
         </h2>
         <DiagramView
           diagram={diagramData as React.ComponentProps<typeof DiagramView>["diagram"]}
@@ -332,18 +342,24 @@ export default function OpenPondTEA() {
       </section>
 
       {/* ── Sections Overview (interactive) ── */}
-      <section>
-        <h2 className="text-xl font-medium tracking-tight mb-1">
-          Sections Overview
+      <section
+        className="relative transition-[padding] duration-300 ease-out"
+        style={{
+          zIndex: panelOpen ? 45 : undefined,
+          paddingRight: panelOpen ? "min(50vw, 640px)" : undefined,
+        }}
+      >
+        <h2 className="text-xl font-medium tracking-tight mb-4">
+          Sections Overview <span className="text-xs font-normal text-muted-foreground">(click any cell for detailed breakdown)</span>
         </h2>
-        <p className="text-xs text-muted-foreground mb-4">
-          Click any cell to view detailed breakdown
-        </p>
         <SectionsOverviewTable
           result={result}
           onCellClick={handleCellClick}
           hoveredSection={hoveredSection}
+          activeSection={panelOpen ? panelSelection?.sectionId ?? null : null}
+          activeEquipmentNodeId={panelOpen ? selectedEquipmentNodeId : null}
           onHoverSection={handleHoverSection}
+          compact={panelOpen}
         />
       </section>
 
@@ -383,6 +399,7 @@ export default function OpenPondTEA() {
         result={result}
         onToggle={togglePanel}
         onEquipmentClick={handlePanelEquipmentClick}
+        onSelectionChange={handlePanelSelectionChange}
       />
     </div>
   );

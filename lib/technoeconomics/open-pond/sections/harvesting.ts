@@ -149,7 +149,7 @@ export function computeHarvestingSection(
 
   // ── Aggregation ────────────────────────────────────────────
   const equipment_purchase = equipment.reduce((s, e) => s + e.total_purchase_cost, 0);
-  const installation_breakdown = computeInstallationCost(equipment_purchase, "harvesting");
+  const installation_breakdown = computeInstallationCost(equipment_purchase, "harvesting", geometry.n_ponds);
 
   const energy_cost = equipment.reduce((s, e) => s + e.annual_energy_cost, 0);
   const maintenance_cost = equipment.reduce((s, e) => s + e.annual_maintenance_cost, 0);

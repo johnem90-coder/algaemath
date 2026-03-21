@@ -221,7 +221,7 @@ export function runTEAFromDiagram(
 
     let installation_breakdown: InstallationBreakdown;
     if (hasInstallation) {
-      installation_breakdown = computeInstallationCost(equipment_purchase, sectionId);
+      installation_breakdown = computeInstallationCost(equipment_purchase, sectionId, geometry.n_ponds);
     } else {
       installation_breakdown = EMPTY_INSTALLATION;
     }
@@ -268,15 +268,36 @@ export function runTEAFromDiagram(
     };
   }
 
-  // 8. Cost rollup
-  const rollup = computeCostRollup(sections);
-  const resources = computeResourceTotals(sections, nutrients);
-
-  // 9. Land cost
+  // 8. Land as a proper section
   const land_pond_footprint_acres = Math.ceil(geometry.A_land_acres);
   const land_total_acres = Math.ceil(land_pond_footprint_acres * (1 + config.land_buffer_fraction));
   const land_cost = land_total_acres * config.land_price_per_acre;
-  const total_capex_with_land = rollup.total_capex + land_cost;
+  const land_maintenance = land_cost * config.land_maintenance_rate;
+  const land_labor_roles: import("../types").LaborRole[] = (config.labor as Record<string, import("../types").LaborRole[]>).land ?? [];
+  const land_labor_cost = land_labor_roles.reduce((s, r) => s + r.headcount * r.annual_salary, 0);
+  sections.land = {
+    section_id: "land", section_name: "Land",
+    capital_cost: land_cost, equipment_purchase: land_cost,
+    install_engr_other: 0,
+    installation_breakdown: EMPTY_INSTALLATION,
+    operating_cost: land_maintenance + land_labor_cost,
+    materials_cost: 0, energy_cost: 0,
+    maintenance_cost: land_maintenance, labor_cost: land_labor_cost,
+    equipment: [{
+      id: "LND-01", name: `Land (${land_total_acres} acres)`, type: "Real Estate",
+      function: `${land_pond_footprint_acres} acre footprint + ${Math.round(config.land_buffer_fraction * 100)}% buffer`,
+      unit_cost: config.land_price_per_acre, units_required: land_total_acres,
+      total_purchase_cost: land_cost,
+      energy_type: "none", annual_energy_units: 0, annual_energy_cost: 0,
+      maintenance_rate: config.land_maintenance_rate,
+      annual_maintenance_cost: land_maintenance,
+    }],
+  };
+
+  // 9. Cost rollup (includes land section now)
+  const rollup = computeCostRollup(sections);
+  const resources = computeResourceTotals(sections, nutrients);
+  const total_capex_with_land = rollup.total_capex;
 
   // 10. Construction timeline
   const construction = computeConstructionTimeline(geometry.n_ponds, config);
@@ -317,15 +338,6 @@ export function runTEAFromDiagram(
 
   const sensitivity = computeSensitivityTable(financialParams);
   const mbsp_by_section = computeMBSPBreakdown(sections, geometry.Q_actual_tons_yr, config.unit_lifetime_yrs, mbsp);
-  const land_capex_per_ton = land_cost / (geometry.Q_actual_tons_yr * config.unit_lifetime_yrs);
-  mbsp_by_section.push({
-    section_id: "land",
-    section_name: `Land (${land_total_acres} acres)`,
-    capex_per_ton: land_capex_per_ton,
-    opex_per_ton: 0,
-    total_per_ton: land_capex_per_ton,
-    percent_of_mbsp: mbsp > 0 ? (land_capex_per_ton / mbsp) * 100 : 0,
-  });
   const mbsp_by_category = computeMBSPCategoryBreakdown(
     total_capex_with_land, aoc, config.overhead_per_ton,
     geometry.Q_actual_tons_yr, config.unit_lifetime_yrs

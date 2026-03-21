@@ -1,11 +1,11 @@
 {
   "name": "open-raceway-pond_simple",
-  "created": "2026-03-21T08:47:19.130Z",
-  "modified": "2026-03-21T08:47:19.130Z",
+  "created": "2026-03-21T10:33:13.055Z",
+  "modified": "2026-03-21T10:33:13.055Z",
   "viewport": {
-    "x": 3.4785375706226205,
-    "y": -76.51624512614762,
-    "zoom": 0.7027413172002754
+    "x": -63.65979481912086,
+    "y": -246.81920990089634,
+    "zoom": 0.7578582832551992
   },
   "nodes": [
     {
@@ -112,9 +112,10 @@
       },
       "data": {
         "label": "Mix Tank 1s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "mix-tank"
+        "equipmentTypeId": "mix-tank",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -132,9 +133,10 @@
       },
       "data": {
         "label": "Hopper 1s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "hopper-kno3"
+        "equipmentTypeId": "hopper-kno3",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -152,9 +154,10 @@
       },
       "data": {
         "label": "Hopper 2s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "hopper-dap"
+        "equipmentTypeId": "hopper-dap",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -172,9 +175,10 @@
       },
       "data": {
         "label": "Hopper 3s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "hopper-micro"
+        "equipmentTypeId": "hopper-micro",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -192,9 +196,10 @@
       },
       "data": {
         "label": "Pump 3s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "water-pump"
+        "equipmentTypeId": "water-pump",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -212,9 +217,10 @@
       },
       "data": {
         "label": "Pump 2s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "water-pump"
+        "equipmentTypeId": "water-pump",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -234,7 +240,8 @@
         "label": "Nitrogen",
         "fillColor": "#ffedd5",
         "borderColor": "#ca8a04",
-        "equipmentTypeId": "material-source"
+        "equipmentTypeId": "material-source",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -254,7 +261,8 @@
         "label": "Phosphorus",
         "fillColor": "#ffedd5",
         "borderColor": "#ca8a04",
-        "equipmentTypeId": "material-source"
+        "equipmentTypeId": "material-source",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -274,7 +282,8 @@
         "label": "Micronutrients",
         "fillColor": "#ffedd5",
         "borderColor": "#ca8a04",
-        "equipmentTypeId": "material-source"
+        "equipmentTypeId": "material-source",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -292,12 +301,14 @@
       },
       "data": {
         "label": "Inoculation Pond As",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280",
+        "fillColor": "#dcfce7",
+        "borderColor": "#16a34a",
         "equipmentTypeId": "inoculum-pond",
         "equipmentParams": {
           "tierIndex": 0
-        }
+        },
+        "fontBold": true,
+        "textColor": "#111827"
       },
       "style": {
         "width": 160,
@@ -315,12 +326,14 @@
       },
       "data": {
         "label": "Inoculation Pond Bs",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280",
+        "fillColor": "#dcfce7",
+        "borderColor": "#16a34a",
         "equipmentTypeId": "inoculum-pond",
         "equipmentParams": {
           "tierIndex": 1
-        }
+        },
+        "fontBold": true,
+        "textColor": "#111827"
       },
       "style": {
         "width": 160,
@@ -338,12 +351,14 @@
       },
       "data": {
         "label": "Inoculation Pond Cs",
-        "fillColor": "#ffffff",
-        "borderColor": "#6b7280",
+        "fillColor": "#dcfce7",
+        "borderColor": "#16a34a",
         "equipmentTypeId": "inoculum-pond",
         "equipmentParams": {
           "tierIndex": 2
-        }
+        },
+        "fontBold": true,
+        "textColor": "#111827"
       },
       "style": {
         "width": 160,
@@ -363,7 +378,8 @@
         "label": "Source Water",
         "fillColor": "#dbeafe",
         "borderColor": "#2563eb",
-        "equipmentTypeId": "material-source"
+        "equipmentTypeId": "material-source",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -381,9 +397,10 @@
       },
       "data": {
         "label": "Tank 4s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "cone-roof-tank"
+        "equipmentTypeId": "cone-roof-tank",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -401,9 +418,10 @@
       },
       "data": {
         "label": "Tank 3s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "cone-roof-tank"
+        "equipmentTypeId": "cone-roof-tank",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -421,9 +439,10 @@
       },
       "data": {
         "label": "Pump 6s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "water-pump"
+        "equipmentTypeId": "water-pump",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -441,9 +460,10 @@
       },
       "data": {
         "label": "Pump 5s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "water-pump"
+        "equipmentTypeId": "water-pump",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -461,9 +481,10 @@
       },
       "data": {
         "label": "Pump 4s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "water-pump"
+        "equipmentTypeId": "water-pump",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -481,9 +502,10 @@
       },
       "data": {
         "label": "Dryer 1s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "spray-dryer"
+        "equipmentTypeId": "spray-dryer",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -501,9 +523,10 @@
       },
       "data": {
         "label": "Pump 7s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "sludge-pump"
+        "equipmentTypeId": "sludge-pump",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -521,9 +544,10 @@
       },
       "data": {
         "label": "Silo 1s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "dry-bulk-silo"
+        "equipmentTypeId": "dry-bulk-silo",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -646,9 +670,10 @@
       },
       "data": {
         "label": "Filter 1s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "uf-filter"
+        "equipmentTypeId": "uf-filter",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -666,9 +691,10 @@
       },
       "data": {
         "label": "Pump 1s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "water-pump"
+        "equipmentTypeId": "water-pump",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -686,9 +712,10 @@
       },
       "data": {
         "label": "Tank 1s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "cone-roof-tank"
+        "equipmentTypeId": "cone-roof-tank",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -706,9 +733,10 @@
       },
       "data": {
         "label": "Tank 2s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "cone-roof-tank"
+        "equipmentTypeId": "cone-roof-tank",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -728,7 +756,8 @@
         "label": "Production Ponds",
         "fillColor": "#dcfce7",
         "borderColor": "#16a34a",
-        "equipmentTypeId": "raceway-pond"
+        "equipmentTypeId": "raceway-pond",
+        "fontBold": true
       },
       "style": {
         "width": 220,
@@ -746,9 +775,10 @@
       },
       "data": {
         "label": "Filter 2s",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "vacuum-belt"
+        "equipmentTypeId": "vacuum-belt",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -769,7 +799,8 @@
         "fillColor": "#fef9c3",
         "borderColor": "#ca8a04",
         "textAlign": "center",
-        "equipmentTypeId": "material-source"
+        "equipmentTypeId": "material-source",
+        "fontBold": true
       },
       "style": {
         "width": 160,
@@ -787,9 +818,10 @@
       },
       "data": {
         "label": "CO2 Tanks",
-        "fillColor": "#ffffff",
+        "fillColor": "#f3f4f6",
         "borderColor": "#6b7280",
-        "equipmentTypeId": "co2-pressure-vessel"
+        "equipmentTypeId": "co2-pressure-vessel",
+        "fontBold": true
       },
       "style": {
         "width": 160,
