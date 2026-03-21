@@ -5,7 +5,8 @@
 // Usage: const result = runTEAFromDiagram(diagramData);
 //        const result = runTEAFromDiagram(diagramData, { desired_output_tons_yr: 1200 });
 
-import type { TEAConfig, TEAResult, SectionCost, EquipmentItem, InstallationBreakdown, LaborRole } from "../types";
+import type { TEAConfig, TEAResult, SectionCost, EquipmentItem, InstallationBreakdown } from "../types";
+import { computeLabor } from "../common/labor";
 import { computeTEAPondGeometry } from "../common/geometry";
 import { computeNutrientBalance } from "../common/nutrient-balance";
 import { computeConstructionTimeline } from "../common/construction";
@@ -137,7 +138,13 @@ export function runTEAFromDiagram(
   // 3. Nutrient balance
   const nutrients = computeNutrientBalance(config, geometry);
 
-  // 4. Detect sections from diagram geometry
+  // 4. Compute land acres + dynamic labor (needed before section processing)
+  const land_pond_footprint_acres = Math.ceil(geometry.A_land_acres);
+  const land_total_acres = Math.ceil(land_pond_footprint_acres * (1 + config.land_buffer_fraction));
+  const dynamicLabor = computeLabor(geometry.n_ponds, land_total_acres);
+  const configWithLabor: TEAConfig = { ...config, labor: dynamicLabor as TEAConfig["labor"] };
+
+  // 5. Detect sections from diagram geometry
   const { sections: detectedSections, nodeToSection } = detectSections(diagram.nodes);
 
   // 5. Compute global flow rates
@@ -241,7 +248,7 @@ export function runTEAFromDiagram(
     const maintenance_cost = sizedEquipment.reduce((s, e) => s + e.annual_maintenance_cost, 0);
 
     // Labor from config
-    const laborRoles: LaborRole[] = (config.labor as Record<string, LaborRole[]>)[sectionId] ?? [];
+    const laborRoles = (dynamicLabor as Record<string, import("../types").LaborRole[]>)[sectionId] ?? [];
     const labor_cost = laborRoles.reduce((s, r) => s + r.headcount * r.annual_salary, 0);
 
     const operating_cost = materials_cost + energy_cost + maintenance_cost + labor_cost;
@@ -268,13 +275,10 @@ export function runTEAFromDiagram(
     };
   }
 
-  // 8. Land as a proper section
-  const land_pond_footprint_acres = Math.ceil(geometry.A_land_acres);
-  const land_total_acres = Math.ceil(land_pond_footprint_acres * (1 + config.land_buffer_fraction));
+  // 8. Land as a proper section (land_pond_footprint_acres and land_total_acres computed above)
   const land_cost = land_total_acres * config.land_price_per_acre;
   const land_maintenance = land_cost * config.land_maintenance_rate;
-  const land_labor_roles: import("../types").LaborRole[] = (config.labor as Record<string, import("../types").LaborRole[]>).land ?? [];
-  const land_labor_cost = land_labor_roles.reduce((s, r) => s + r.headcount * r.annual_salary, 0);
+  const land_labor_cost = dynamicLabor.land.reduce((s, r) => s + r.headcount * r.annual_salary, 0);
   sections.land = {
     section_id: "land", section_name: "Land",
     capital_cost: land_cost, equipment_purchase: land_cost,
@@ -363,7 +367,7 @@ export function runTEAFromDiagram(
     resources,
     geometry,
     nutrients,
-    config,
+    config: configWithLabor,
     construction,
     financials: {
       mbsp, npv, irr,

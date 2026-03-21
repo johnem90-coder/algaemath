@@ -6,7 +6,6 @@ import { runTEAFromDiagram, type EnrichedDiagram } from "@/lib/technoeconomics/o
 import { ACRES_TO_M2 } from "@/lib/technoeconomics/common/constants";
 import { Slider } from "@/components/ui/slider";
 import { SectionsOverviewTable } from "./SectionsOverviewTable";
-import { CashFlowTable } from "./CashFlowTable";
 import { SensitivityTable } from "./SensitivityTable";
 import { FinancialOverviewTable } from "./FinancialOverviewTable";
 import { CostContributionTable } from "./CostContributionTable";
@@ -299,17 +298,20 @@ export default function OpenPondTEA() {
         </div>
       </section>
 
-      {/* ── Financial Overview + Lifetime Value Chart ── */}
+      {/* ── Financial Overview + Cost Contribution + Lifetime Value Chart ── */}
       <section>
         <h2 className="text-xl font-medium tracking-tight mb-4">
           Financial Overview
         </h2>
-        <div className="flex flex-col lg:flex-row gap-8 items-stretch">
-          <div className="lg:w-[35%] shrink-0">
+        <div className="flex flex-col lg:flex-row gap-4 items-stretch">
+          <div className="lg:w-[20%] shrink-0">
             <FinancialOverviewTable result={result} />
           </div>
-          <div className="lg:w-[65%] min-h-[280px] relative">
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">
+          <div className="lg:w-[30%] shrink-0">
+            <CostContributionTable result={result} />
+          </div>
+          <div className="lg:w-[50%] min-h-[280px] relative">
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">
               10-Year Lifetime Value (at ${effectiveSalePrice}/kg)
             </h3>
             <div className="absolute left-0 right-0 bottom-0" style={{ top: "1.75rem" }}>
@@ -363,14 +365,6 @@ export default function OpenPondTEA() {
         />
       </section>
 
-      {/* ── Cost Contribution by Section ── */}
-      <section>
-        <h2 className="text-xl font-medium tracking-tight mb-4">
-          Cost Contribution by Section
-        </h2>
-        <CostContributionTable result={result} />
-      </section>
-
       {/* ── Revenue Sensitivity ── */}
       <section>
         <h2 className="text-xl font-medium tracking-tight mb-4">
@@ -379,13 +373,7 @@ export default function OpenPondTEA() {
         <SensitivityTable result={result} />
       </section>
 
-      {/* ── Cash Flow Schedule ── */}
-      <section>
-        <h2 className="text-xl font-medium tracking-tight mb-4">
-          Annual Cash Flow Schedule
-        </h2>
-        <CashFlowTable result={result} />
-      </section>
+
 
       {/* ── Slide-in panels ── */}
       <InputCostsPanel

@@ -8,6 +8,7 @@ import type { TEAConfig, TEAResult, SectionCost, EquipmentItem, InstallationBrea
 import { computeTEAPondGeometry } from "../common/geometry";
 import { computeNutrientBalance } from "../common/nutrient-balance";
 import { computeConstructionTimeline } from "../common/construction";
+import { computeLabor } from "../common/labor";
 import {
   computeTaxRate,
   computeCashFlows,
@@ -45,25 +46,31 @@ export function runTEA(configOverrides?: Partial<TEAConfig>): TEAResult {
   // 3. Nutrient balance
   const nutrients = computeNutrientBalance(config, geometry);
 
-  // 4. Section engines
+  // 4. Compute land acres (needed for dynamic labor)
+  const land_pond_footprint_acres = Math.ceil(geometry.A_land_acres);
+  const land_total_acres = Math.ceil(land_pond_footprint_acres * (1 + config.land_buffer_fraction));
+
+  // 4b. Dynamic labor — scales with facility size
+  const dynamicLabor = computeLabor(geometry.n_ponds, land_total_acres);
+  const configWithLabor: TEAConfig = { ...config, labor: dynamicLabor as TEAConfig["labor"] };
+
+  // 5. Section engines (use config with dynamic labor)
   const sections: Record<string, SectionCost> = {
-    inputs: computeInputsSection(config, geometry, nutrients),
-    inoculum: computeInoculumSection(config, geometry),
-    biomass: computeBiomassSection(config, geometry),
-    harvesting: computeHarvestingSection(config, geometry, nutrients),
-    drying: computeDryingSection(config, geometry),
+    inputs: computeInputsSection(configWithLabor, geometry, nutrients),
+    inoculum: computeInoculumSection(configWithLabor, geometry),
+    biomass: computeBiomassSection(configWithLabor, geometry),
+    harvesting: computeHarvestingSection(configWithLabor, geometry, nutrients),
+    drying: computeDryingSection(configWithLabor, geometry),
   };
 
-  // 5. Cost rollup
+  // 6. Cost rollup
   const rollup = computeCostRollup(sections);
   const resources = computeResourceTotals(sections, nutrients);
 
-  // 5b. Land as a proper section — equipment (purchase), maintenance (yard), labor
-  const land_pond_footprint_acres = Math.ceil(geometry.A_land_acres);
-  const land_total_acres = Math.ceil(land_pond_footprint_acres * (1 + config.land_buffer_fraction));
+  // 6b. Land as a proper section — equipment (purchase), maintenance (yard), labor
   const land_cost = land_total_acres * config.land_price_per_acre;
   const land_maintenance = land_cost * config.land_maintenance_rate;
-  const land_labor_cost = config.labor.land.reduce((s: number, r: LaborRole) => s + r.headcount * r.annual_salary, 0);
+  const land_labor_cost = dynamicLabor.land.reduce((s: number, r: LaborRole) => s + r.headcount * r.annual_salary, 0);
   const land_equipment: EquipmentItem[] = [{
     id: "LND-01", name: `Land (${land_total_acres} acres)`, type: "Real Estate",
     function: `${land_pond_footprint_acres} acre footprint + ${Math.round(config.land_buffer_fraction * 100)}% buffer`,
@@ -177,7 +184,7 @@ export function runTEA(configOverrides?: Partial<TEAConfig>): TEAResult {
     resources,
     geometry,
     nutrients,
-    config,
+    config: configWithLabor,
 
     // Construction
     construction,
