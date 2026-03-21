@@ -313,7 +313,8 @@ export default function DepthDiagram({ depthMm }: { depthMm: number }) {
   }, [depthMm]);
 
   const volumeL = Math.round(4.4 * 1.4 * (depthMm / 1000) * 1000); // approx liters
-  const volumeKL = Math.round(volumeL / 1000);
+  const volumeKL = volumeL / 1000;
+  const volumeLabel = volumeKL >= 20 ? Math.round(volumeKL).toLocaleString() : volumeKL.toFixed(1);
 
   /* ── 2D Cross-Section SVG ── */
   const crossSection = (() => {
@@ -420,10 +421,72 @@ export default function DepthDiagram({ depthMm }: { depthMm: number }) {
 
         <div style={{ position: "absolute", top: 8, right: 8, zIndex: 10 }}>
           <span style={{ color: "#555", fontSize: 11, fontFamily: "monospace", fontWeight: 600 }}>
-            Volume: {volumeKL.toLocaleString()} kL
+            Volume: {volumeLabel} kL
           </span>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Standalone cross-section + dimension diagram for use outside the 3D component */
+export function DepthCrossSection({ depthMm }: { depthMm: number }) {
+  const uid = useId();
+  const svgW = 220;
+  const margin = { top: 32, bottom: 10, left: 12, right: 12 };
+  const drawW = svgW - margin.left - margin.right;
+  const pxPerMm = drawW / 600;
+  const depthPx = depthMm * pxPerMm;
+  const maxDepthPx = 500 * pxPerMm;
+  const sunCx = svgW / 2;
+  const sunCy = 14;
+  const sunR = 5;
+  const surfaceYSvg = margin.top + 6;
+  const bottomYSvg = surfaceYSvg + depthPx;
+  const contentBottomAt500 = surfaceYSvg + maxDepthPx + 18;
+  const numRays = 8;
+  const rayPositions: number[] = [];
+  for (let i = 0; i < numRays; i++) {
+    rayPositions.push(margin.left + (drawW / (numRays + 1)) * (i + 1));
+  }
+
+  return (
+    <div className="flex flex-row items-center justify-center gap-2">
+      <svg viewBox={`0 0 ${svgW} ${contentBottomAt500}`} style={{ width: 180 }} preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id={`depth-mob-${uid}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#f9b501" />
+            <stop offset="100%" stopColor="#5a9a4a" />
+          </linearGradient>
+        </defs>
+        <g>
+          <text x={margin.left} y={sunCy - 2} textAnchor="start" fill="#555" fontSize={10} fontWeight="700" letterSpacing={2} fontFamily="monospace" style={{ textTransform: "uppercase" as const }}>
+            Cross-Section
+          </text>
+          <circle cx={sunCx} cy={sunCy + 12} r={sunR} fill="#F9B501" />
+          {rayPositions.map((px, i) => (
+            <line key={`ray-${i}`} x1={sunCx} y1={sunCy + 12 + sunR} x2={px} y2={surfaceYSvg - 2} stroke="#F9B501" strokeWidth={0.5} opacity={0.3} />
+          ))}
+          <rect x={margin.left} y={surfaceYSvg} width={drawW} height={depthPx} rx={3} fill={`url(#depth-mob-${uid})`} opacity={0.9} />
+          <line x1={margin.left} y1={surfaceYSvg} x2={margin.left} y2={bottomYSvg} stroke="#5a9a4a" strokeWidth={3} />
+          <line x1={svgW - margin.right} y1={surfaceYSvg} x2={svgW - margin.right} y2={bottomYSvg} stroke="#5a9a4a" strokeWidth={3} />
+          <line x1={margin.left} y1={bottomYSvg} x2={svgW - margin.right} y2={bottomYSvg} stroke="#5a9a4a" strokeWidth={2} />
+          <text x={svgW / 2} y={bottomYSvg + 5} textAnchor="middle" fill="#666" fontSize={11} fontWeight="600" fontFamily="monospace" dominantBaseline="hanging">
+            {depthMm}mm depth
+          </text>
+        </g>
+      </svg>
+      <svg viewBox="0 0 206 66" style={{ width: 160, flexShrink: 0 }}>
+        <rect x="4" y="4" width="168" height="22" rx="11" fill="none" stroke="#888" strokeWidth="1.2" />
+        <line x1="180" y1="4" x2="180" y2="26" stroke="#888" strokeWidth="0.7" />
+        <line x1="177" y1="4" x2="183" y2="4" stroke="#888" strokeWidth="0.7" />
+        <line x1="177" y1="26" x2="183" y2="26" stroke="#888" strokeWidth="0.7" />
+        <text x="196" y="19" textAnchor="middle" fill="#666" fontSize="8" fontFamily="monospace">1.4m</text>
+        <line x1="4" y1="37" x2="172" y2="37" stroke="#888" strokeWidth="0.7" />
+        <line x1="4" y1="34" x2="4" y2="40" stroke="#888" strokeWidth="0.7" />
+        <line x1="172" y1="34" x2="172" y2="40" stroke="#888" strokeWidth="0.7" />
+        <text x="88" y="52" textAnchor="middle" fill="#666" fontSize="9" fontFamily="monospace">4.4m</text>
+      </svg>
     </div>
   );
 }
