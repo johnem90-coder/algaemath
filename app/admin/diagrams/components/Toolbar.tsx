@@ -34,6 +34,8 @@ const BORDER_COLORS = [
   { label: "Red", value: "#dc2626" },
 ];
 
+type ColorPanel = "text" | "fill" | "border" | null;
+
 interface ToolbarProps {
   diagramName: string;
   onNameChange: (name: string) => void;
@@ -49,6 +51,7 @@ interface ToolbarProps {
   onDeleteSelected: () => void;
   onMoveToBack: () => void;
   onMoveToFront: () => void;
+  onRotate: (delta: 90 | -90) => void;
   dashed: boolean;
   onDashedChange: (value: boolean) => void;
   borderDashed: boolean;
@@ -61,6 +64,7 @@ interface ToolbarProps {
   onFontBoldChange: (value: boolean) => void;
   fontItalic: boolean;
   onFontItalicChange: (value: boolean) => void;
+  onGeneratePondGrid?: () => void;
 }
 
 const shapes: { type: ShapeType; label: string; icon: React.ReactNode }[] = [
@@ -100,10 +104,58 @@ const shapes: { type: ShapeType; label: string; icon: React.ReactNode }[] = [
       </svg>
     ),
   },
+  {
+    type: "diamond",
+    label: "Diamond",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <polygon points="8,1 15,8 8,15 1,8" />
+      </svg>
+    ),
+  },
+  {
+    type: "triangle",
+    label: "Triangle",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <polygon points="8,2 15,14 1,14" />
+      </svg>
+    ),
+  },
 ];
 
 function Separator() {
   return <div className="mx-1 h-6 w-px bg-border" />;
+}
+
+function ColorSwatch({
+  value,
+  active,
+  onClick,
+  label,
+  isTransparent,
+}: {
+  value: string;
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  isTransparent?: boolean;
+}) {
+  return (
+    <button
+      title={label}
+      onClick={onClick}
+      className="h-5 w-5 rounded border"
+      style={{
+        backgroundColor: isTransparent ? "#ffffff" : value,
+        backgroundImage: isTransparent
+          ? "linear-gradient(to bottom right, transparent calc(50% - 1px), #ef4444 calc(50% - 1px), #ef4444 calc(50% + 1px), transparent calc(50% + 1px))"
+          : undefined,
+        outline: active ? "2px solid #2563eb" : "none",
+        outlineOffset: 1,
+      }}
+    />
+  );
 }
 
 export default function Toolbar({
@@ -118,7 +170,7 @@ export default function Toolbar({
   onLoad,
   onExportSVG,
   onAddShape,
-  onDeleteSelected,
+  onDeleteSelected: _onDeleteSelected,
   onMoveToBack,
   onMoveToFront,
   dashed,
@@ -133,12 +185,15 @@ export default function Toolbar({
   onFontBoldChange,
   fontItalic,
   onFontItalicChange,
+  onRotate,
+  onGeneratePondGrid,
 }: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileMenuOpen, setFileMenuOpen] = useState(false);
   const [fileMenuPos, setFileMenuPos] = useState({ top: 0, left: 0 });
   const fileButtonRef = useRef<HTMLButtonElement>(null);
   const fileMenuRef = useRef<HTMLDivElement>(null);
+  const [colorPanel, setColorPanel] = useState<ColorPanel>(null);
 
   useEffect(() => {
     if (!fileMenuOpen) return;
@@ -172,6 +227,16 @@ export default function Toolbar({
     },
     [onLoad]
   );
+
+  const toggleColorPanel = (panel: ColorPanel) =>
+    setColorPanel((cur) => (cur === panel ? null : panel));
+
+  const dashActive = dashed || borderDashed;
+  const handleDashToggle = () => {
+    const next = !dashActive;
+    onDashedChange(next);
+    onBorderDashedChange(next);
+  };
 
   return (
     <div className="flex items-center gap-2 border-b bg-white px-3 py-2 shadow-sm overflow-x-auto">
@@ -262,26 +327,15 @@ export default function Toolbar({
 
       <Separator />
 
-      {/* Dash edge (selected edges) */}
+      {/* Dash edge/border (combined) */}
       <Button
         variant="outline"
         size="sm"
-        onClick={() => onDashedChange(!dashed)}
-        style={dashed ? { background: "#dbeafe", borderColor: "#2563eb" } : {}}
-        title="Toggle dashed on selected edges"
+        onClick={handleDashToggle}
+        style={dashActive ? { background: "#dbeafe", borderColor: "#2563eb" } : {}}
+        title="Toggle dashed on selected edges and node borders"
       >
-        Dash edge
-      </Button>
-
-      {/* Dash border (selected nodes) */}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => onBorderDashedChange(!borderDashed)}
-        style={borderDashed ? { background: "#dbeafe", borderColor: "#2563eb" } : {}}
-        title="Toggle dashed border on selected nodes"
-      >
-        Dash border
+        Dash
       </Button>
 
       <Separator />
@@ -325,95 +379,113 @@ export default function Toolbar({
       >
         <span style={{ fontStyle: "italic", fontSize: 13 }}>I</span>
       </Button>
-      <div className="flex items-center gap-1.5">
-        <span className="text-xs text-muted-foreground">Text</span>
-        <div className="flex gap-0.5">
-          {TEXT_COLORS.map((c) => (
-            <button
-              key={c.value}
-              title={c.label}
-              onClick={() => onTextColorChange(c.value)}
-              className="h-5 w-5 rounded border"
-              style={{
-                backgroundColor: c.value,
-                outline: textColor === c.value ? "2px solid #2563eb" : "none",
-                outlineOffset: 1,
-              }}
-            />
-          ))}
-          <input
-            type="color"
-            value={textColor}
-            onChange={(e) => onTextColorChange(e.target.value)}
-            className="h-5 w-5 cursor-pointer rounded border p-0"
-            title="Custom text color"
-          />
-        </div>
-      </div>
 
       <Separator />
 
-      {/* Fill color */}
-      <div className="flex items-center gap-1.5">
-        <span className="text-xs text-muted-foreground">Fill</span>
-        <div className="flex gap-0.5">
-          {FILL_COLORS.map((c) => (
-            <button
-              key={c.value}
-              title={c.label}
-              onClick={() => onFillColorChange(c.value)}
-              className="h-5 w-5 rounded border"
-              style={{
-                backgroundColor: c.value === "transparent" ? "#ffffff" : c.value,
-                backgroundImage: c.value === "transparent"
-                  ? "linear-gradient(to bottom right, transparent calc(50% - 1px), #ef4444 calc(50% - 1px), #ef4444 calc(50% + 1px), transparent calc(50% + 1px))"
-                  : undefined,
-                outline: fillColor === c.value ? "2px solid #2563eb" : "none",
-                outlineOffset: 1,
-              }}
+      {/* Color panel toggles */}
+      {(["text", "fill", "border"] as const).map((panel) => (
+        <Button
+          key={panel}
+          variant="outline"
+          size="sm"
+          onClick={() => toggleColorPanel(panel)}
+          style={colorPanel === panel ? { background: "#dbeafe", borderColor: "#2563eb" } : {}}
+          title={`${panel.charAt(0).toUpperCase() + panel.slice(1)} color`}
+        >
+          {panel.charAt(0).toUpperCase() + panel.slice(1)}
+        </Button>
+      ))}
+
+      {/* Active color panel swatches */}
+      {colorPanel === "text" && (
+        <>
+          <Separator />
+          <div className="flex gap-0.5 items-center">
+            {TEXT_COLORS.map((c) => (
+              <ColorSwatch
+                key={c.value}
+                value={c.value}
+                label={c.label}
+                active={textColor === c.value}
+                onClick={() => onTextColorChange(c.value)}
+              />
+            ))}
+            <input
+              type="color"
+              value={textColor}
+              onChange={(e) => onTextColorChange(e.target.value)}
+              className="h-5 w-5 cursor-pointer rounded border p-0"
+              title="Custom text color"
             />
-          ))}
-          <input
-            type="color"
-            value={fillColor}
-            onChange={(e) => onFillColorChange(e.target.value)}
-            className="h-5 w-5 cursor-pointer rounded border p-0"
-            title="Custom fill color"
-          />
-        </div>
-      </div>
+          </div>
+        </>
+      )}
+
+      {colorPanel === "fill" && (
+        <>
+          <Separator />
+          <div className="flex gap-0.5 items-center">
+            {FILL_COLORS.map((c) => (
+              <ColorSwatch
+                key={c.value}
+                value={c.value}
+                label={c.label}
+                active={fillColor === c.value}
+                onClick={() => onFillColorChange(c.value)}
+                isTransparent={c.value === "transparent"}
+              />
+            ))}
+            <input
+              type="color"
+              value={fillColor}
+              onChange={(e) => onFillColorChange(e.target.value)}
+              className="h-5 w-5 cursor-pointer rounded border p-0"
+              title="Custom fill color"
+            />
+          </div>
+        </>
+      )}
+
+      {colorPanel === "border" && (
+        <>
+          <Separator />
+          <div className="flex gap-0.5 items-center">
+            {BORDER_COLORS.map((c) => (
+              <ColorSwatch
+                key={c.value}
+                value={c.value}
+                label={c.label}
+                active={borderColor === c.value}
+                onClick={() => onBorderColorChange(c.value)}
+                isTransparent={c.value === "none"}
+              />
+            ))}
+            <input
+              type="color"
+              value={borderColor}
+              onChange={(e) => onBorderColorChange(e.target.value)}
+              className="h-5 w-5 cursor-pointer rounded border p-0"
+              title="Custom border color"
+            />
+          </div>
+        </>
+      )}
 
       <Separator />
 
-      {/* Border color */}
-      <div className="flex items-center gap-1.5">
-        <span className="text-xs text-muted-foreground">Border</span>
-        <div className="flex gap-0.5">
-          {BORDER_COLORS.map((c) => (
-            <button
-              key={c.value}
-              title={c.label}
-              onClick={() => onBorderColorChange(c.value)}
-              className="h-5 w-5 rounded border"
-              style={{
-                backgroundColor: c.value === "none" ? "#ffffff" : c.value,
-                backgroundImage: c.value === "none"
-                  ? "linear-gradient(to bottom right, transparent calc(50% - 1px), #ef4444 calc(50% - 1px), #ef4444 calc(50% + 1px), transparent calc(50% + 1px))"
-                  : undefined,
-                outline: borderColor === c.value ? "2px solid #2563eb" : "none",
-                outlineOffset: 1,
-              }}
-            />
-          ))}
-          <input
-            type="color"
-            value={borderColor}
-            onChange={(e) => onBorderColorChange(e.target.value)}
-            className="h-5 w-5 cursor-pointer rounded border p-0"
-            title="Custom border color"
-          />
-        </div>
-      </div>
+      {/* Rotate */}
+      <Button variant="outline" size="icon-sm" onClick={() => onRotate(-90)} title="Rotate 90° counter-clockwise">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M2 7a5 5 0 1 0 5-5H4" />
+          <polyline points="4,0 4,4 8,4" transform="scale(-1,1) translate(-8,0)" />
+        </svg>
+      </Button>
+      <Button variant="outline" size="icon-sm" onClick={() => onRotate(90)} title="Rotate 90° clockwise">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 7a5 5 0 1 1-5-5h3" />
+          <polyline points="10,0 10,4 6,4" />
+        </svg>
+      </Button>
 
       <Separator />
 
@@ -425,12 +497,15 @@ export default function Toolbar({
         To front
       </Button>
 
-      <Separator />
-
-      {/* Delete */}
-      <Button variant="destructive" size="sm" onClick={onDeleteSelected}>
-        Delete
-      </Button>
+      {/* Generate pond grid */}
+      {onGeneratePondGrid && (
+        <>
+          <Separator />
+          <Button variant="outline" size="sm" onClick={onGeneratePondGrid} title="Auto-place 100 raceway pond pills in a 2-column grid">
+            Pond Grid
+          </Button>
+        </>
+      )}
     </div>
   );
 }

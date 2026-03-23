@@ -119,6 +119,7 @@ export function runTEA(configOverrides?: Partial<TEAConfig>): TEAResult {
     salvage_value_fraction: config.salvage_value_fraction,
     construction,
     n_ponds: geometry.n_ponds,
+    overhead_per_ton: config.overhead_per_ton,
   };
 
   // MBSP — sale price where NPV = 0
@@ -143,8 +144,11 @@ export function runTEA(configOverrides?: Partial<TEAConfig>): TEAResult {
   const payback_simple = computePaybackSimple(tci, avg_annual_fcf);
   const payback_discounted = computePaybackDiscounted(cash_flows);
 
+  // Capital intensity — CAPEX per unit of annual production capacity
+  const capital_intensity = total_capex_with_land / geometry.Q_actual_tons_yr;
+
   // Sensitivity table
-  const sensitivity = computeSensitivityTable(financialParams);
+  const sensitivity = computeSensitivityTable(financialParams, undefined, mbsp);
 
   // MBSP breakdowns
   const mbsp_by_section = computeMBSPBreakdown(sections, geometry.Q_actual_tons_yr, config.unit_lifetime_yrs, mbsp);
@@ -196,6 +200,7 @@ export function runTEA(configOverrides?: Partial<TEAConfig>): TEAResult {
       irr,
       payback_simple_years: payback_simple,
       payback_discounted_years: payback_discounted,
+      capital_intensity,
       discount_rate: config.discount_rate,
       tax_rate,
       depreciation_method: config.depreciation_method,

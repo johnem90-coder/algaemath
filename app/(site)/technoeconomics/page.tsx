@@ -12,7 +12,7 @@ const analyses = [
     href: "/technoeconomics/open-pond",
     title: "Open Raceway Pond",
     description:
-      "Large-scale outdoor Spirulina cultivation in racetrack ponds with paddlewheel mixing. NREL-based cost correlations, 5-section equipment model, DCF financial analysis.",
+      "Large-scale outdoor Spirulina cultivation in racetrack ponds with paddlewheel mixing. Equipment-level cost model.",
     badge: "Open Pond",
   },
   {

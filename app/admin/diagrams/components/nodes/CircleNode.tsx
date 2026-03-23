@@ -26,8 +26,8 @@ function CircleNode({ data, selected }: NodeProps<Node<ShapeNodeData>>) {
     <>
       <NodeResizer
         isVisible={!!selected}
-        minWidth={60}
-        minHeight={60}
+        minWidth={20}
+        minHeight={20}
         keepAspectRatio
       />
       <Handle type="source" position={Position.Top} id="top" />

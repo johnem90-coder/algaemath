@@ -127,7 +127,7 @@ function renderInstallationTable(section: SectionCost): ReactNode {
   if (bd.grand_total === 0) {
     return (
       <p className="text-xs text-muted-foreground italic py-2">
-        NREL costs are fully installed — no additional installation factors apply.
+        Pond costs are fully installed — no additional installation factors apply.
       </p>
     );
   }

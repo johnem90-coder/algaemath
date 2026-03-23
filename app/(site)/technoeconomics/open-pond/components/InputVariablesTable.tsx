@@ -56,8 +56,8 @@ export function InputVariablesTable({ result }: Props) {
   // Growth rate and harvest density are now controlled by the top-level sliders
 
   const unitCosts: Row[] = [
-    { label: "Electricity", value: `$${c.electricity_per_kWh}/kWh`, notes: "Hawaii 2022 commercial" },
-    { label: "Natural Gas", value: `$${c.natural_gas_per_cuft}/cuft`, notes: "Hawaii 2022/2023 industrial" },
+    { label: "Electricity", value: `$${c.electricity_per_kWh}/kWh`, notes: "Commercial rate estimate" },
+    { label: "Natural Gas", value: `$${c.natural_gas_per_cuft}/cuft`, notes: "Industrial rate estimate" },
     { label: "Diesel", value: `$${c.diesel_per_L.toFixed(2)}/L`, notes: "May 2022" },
     { label: "CO\u2082", value: `$${c.co2_per_ton}/ton`, notes: "DAC-sourced estimate" },
     { label: "KNO\u2083", value: `$${c.kno3_per_ton}/ton`, notes: "Volatile commodity" },
@@ -75,10 +75,10 @@ export function InputVariablesTable({ result }: Props) {
   ];
 
   const financialInputs: Row[] = [
-    { label: "Federal Tax Rate", value: `${(c.federal_tax_rate * 100).toFixed(0)}%`, notes: "US 2023" },
-    { label: "State Tax Rate", value: `${(c.state_tax_rate * 100).toFixed(1)}%`, notes: "Hawaii 2023" },
+    { label: "Federal Tax Rate", value: `${(c.federal_tax_rate * 100).toFixed(0)}%`, notes: "US federal corporate rate" },
+    { label: "State Tax Rate", value: `${(c.state_tax_rate * 100).toFixed(1)}%`, notes: "State income tax rate" },
     { label: "Discount Rate", value: `${(c.discount_rate * 100).toFixed(0)}%`, notes: "For NPV/DCF" },
-    { label: "Depreciation", value: c.depreciation_method, notes: "7-year MACRS default" },
+    { label: "Depreciation", value: c.depreciation_method, notes: "15-year MACRS for infrastructure" },
     { label: "Working Capital", value: `${(c.working_capital_fraction * 100).toFixed(0)}%`, notes: "Fraction of CAPEX" },
     { label: "Salvage Value", value: `${(c.salvage_value_fraction * 100).toFixed(0)}%`, notes: "End-of-life fraction" },
   ];
@@ -145,31 +145,6 @@ export function InputVariablesTable({ result }: Props) {
     })),
   ];
 
-  // Unified labor table — all sections in one table, role names indicate workplace
-  const laborSections = ["biomass", "harvesting", "inputs", "inoculum", "drying", "land"] as const;
-  const allLaborRows: Row[] = [];
-  let totalHeadcount = 0;
-  let totalLaborCost = 0;
-  for (const section of laborSections) {
-    const roles = (c.labor as Record<string, typeof c.labor.inputs>)[section] ?? [];
-    for (const r of roles) {
-      if (r.headcount > 0) {
-        allLaborRows.push({
-          label: r.title,
-          value: `${r.headcount}`,
-          notes: `$${(r.annual_salary / 1000).toFixed(0)}k/yr each`,
-        });
-        totalHeadcount += r.headcount;
-        totalLaborCost += r.headcount * r.annual_salary;
-      }
-    }
-  }
-  allLaborRows.push({
-    label: "Total",
-    value: `${totalHeadcount} staff`,
-    notes: `$${(totalLaborCost / 1000).toFixed(0)}k/yr`,
-  });
-
   return (
     <div className="space-y-5">
       <CategoryTable title="System Inputs" rows={systemInputs} />
@@ -186,7 +161,6 @@ export function InputVariablesTable({ result }: Props) {
       <CategoryTable title="Construction" rows={construction} />
       <CategoryTable title="Land" rows={land} />
       <CategoryTable title="Inoculum" rows={inoculum} />
-      <CategoryTable title="Labor" rows={allLaborRows} />
     </div>
   );
 }

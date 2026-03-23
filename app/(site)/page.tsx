@@ -30,6 +30,13 @@ const sections = [
       'Explore how pond geometry affects growth dynamics with auto-running simulations over repeating weather profiles.',
     badge: 'Design',
   },
+  {
+    href: '/technoeconomics',
+    title: 'Techno-Economics',
+    description:
+      'Cost analysis and economic viability calculators for algae cultivation systems.',
+    badge: 'TEA',
+  },
   // ── Row 2: Coming soon ─────────────────────────────────────
   {
     href: '/complex-simulators',
@@ -53,14 +60,6 @@ const sections = [
     description:
       'Curve-fitting tools for light-response, temperature-response, and nutrient-uptake data.',
     badge: 'Experiments',
-    soon: true,
-  },
-  {
-    href: '/technoeconomics',
-    title: 'Techno-Economics',
-    description:
-      'Cost analysis and economic viability calculators for algae cultivation systems.',
-    badge: 'TEA',
     soon: true,
   },
 ];

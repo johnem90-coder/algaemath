@@ -140,7 +140,7 @@ export function LifetimeValueChart({ result, salePricePerKg }: Props) {
                   ? "Cumulative Revenue"
                   : name === "expenditure"
                     ? "Cumulative Expenditure"
-                    : "NPV (DCF)";
+                    : "NPV";
               return [formatMillions(v), label];
             }}
             labelFormatter={(label) => {
@@ -158,22 +158,22 @@ export function LifetimeValueChart({ result, salePricePerKg }: Props) {
                 ? "Cumulative Revenue"
                 : value === "expenditure"
                   ? "Cumulative Expenditure"
-                  : "NPV (DCF)"
+                  : "NPV"
             }
           />
           <ReferenceLine y={0} stroke="#333" strokeWidth={0.5} />
           <Line
             type="monotone"
-            dataKey="revenue"
-            stroke="hsl(145, 60%, 45%)"
+            dataKey="expenditure"
+            stroke="hsl(0, 70%, 55%)"
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}
           />
           <Line
             type="monotone"
-            dataKey="expenditure"
-            stroke="hsl(0, 70%, 55%)"
+            dataKey="revenue"
+            stroke="hsl(145, 60%, 45%)"
             strokeWidth={2}
             dot={false}
             isAnimationActive={false}

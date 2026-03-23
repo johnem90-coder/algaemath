@@ -48,10 +48,10 @@ function ChamferedRectNode({ id, data, selected, width, height }: NodeProps<Node
     <>
       <NodeResizer
         isVisible={!!selected}
-        minWidth={80}
-        minHeight={40}
+        minWidth={20}
+        minHeight={20}
         onResizeStart={(_, p) => { rsW.current = p.width; rsH.current = p.height; onResizeStart(id, p.width, p.height); }}
-        onResize={(_, p) => onResizeDelta(id, p.width - rsW.current, p.height - rsH.current)}
+        onResize={(_, p) => onResizeDelta(id, p.width - rsW.current, p.height - rsH.current, p.width, p.height)}
       />
       <Handle type="source" position={Position.Top} id="top" />
       <Handle type="source" position={Position.Right} id="right" />
@@ -87,7 +87,8 @@ function ChamferedRectNode({ id, data, selected, width, height }: NodeProps<Node
             display: "flex",
             alignItems: "center",
             justifyContent: data.textAlign === "left" ? "flex-start" : data.textAlign === "right" ? "flex-end" : "center",
-            padding: "8px 12px",
+            padding: "4px 6px",
+            overflow: "hidden",
           }}
         >
           {editing ? (
@@ -101,7 +102,7 @@ function ChamferedRectNode({ id, data, selected, width, height }: NodeProps<Node
               style={{ textAlign: data.textAlign || "center", color: data.textColor, fontWeight: data.fontBold ? "bold" : undefined, fontStyle: data.fontItalic ? "italic" : undefined }}
             />
           ) : (
-            <span className="select-none text-sm" style={{ textAlign: data.textAlign || "center", width: "100%", color: data.textColor, fontWeight: data.fontBold ? "bold" : undefined, fontStyle: data.fontItalic ? "italic" : undefined }}>{label}</span>
+            <span className="select-none text-sm" style={{ textAlign: data.textAlign || "center", width: "100%", color: data.textColor, fontWeight: data.fontBold ? "bold" : undefined, fontStyle: data.fontItalic ? "italic" : undefined, overflowWrap: "break-word", minWidth: 0 }}>{label}</span>
           )}
         </div>
       </div>

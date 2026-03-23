@@ -9,7 +9,7 @@ import type {
   SectionCost,
   ConstructionTimeline,
 } from "../types";
-import { MACRS_7 } from "./constants";
+import { MACRS_7, MACRS_15 } from "./constants";
 import {
   productionFractionForYear,
   capexFractionForYear,
@@ -26,6 +26,11 @@ export function computeTaxRate(federal: number, state: number): number {
 function macrsDepreciation(capex: number, year: number): number {
   if (year < 1 || year > MACRS_7.length) return 0;
   return capex * MACRS_7[year - 1];
+}
+
+function macrs15Depreciation(capex: number, year: number): number {
+  if (year < 1 || year > MACRS_15.length) return 0;
+  return capex * MACRS_15[year - 1];
 }
 
 function straightLineDepreciation(
@@ -48,11 +53,12 @@ export interface CashFlowParams {
   discount_rate: number;
   tax_rate: number;
   lifetime: number;
-  depreciation_method: "MACRS-7" | "straight-line";
+  depreciation_method: "MACRS-7" | "MACRS-15" | "straight-line";
   working_capital_fraction: number;
   salvage_value_fraction: number;
   construction?: ConstructionTimeline; // optional — if omitted, all CAPEX in year 0, full production from year 1
   n_ponds?: number; // needed when construction is provided
+  overhead_per_ton?: number; // $/ton — used to compute gross_margin (excl. overhead) in sensitivity rows
 }
 
 export function computeCashFlows(params: CashFlowParams): AnnualCashFlow[] {
@@ -134,6 +140,8 @@ export function computeCashFlows(params: CashFlowParams): AnnualCashFlow[] {
     const depreciation =
       depreciation_method === "MACRS-7"
         ? macrsDepreciation(total_capex, t)
+        : depreciation_method === "MACRS-15"
+        ? macrs15Depreciation(total_capex, t)
         : straightLineDepreciation(total_capex, salvage, lifetime, t);
 
     const taxable_income = gross_profit - depreciation;
@@ -267,11 +275,14 @@ export function computePaybackDiscounted(
 
 export function computeSensitivityTable(
   params: Omit<CashFlowParams, "sale_price">,
-  priceRange?: number[]
+  priceRange?: number[],
+  mbsp?: number
 ): SensitivityRow[] {
   const prices = priceRange ?? [
     10000, 15000, 20000, 25000, 30000, 40000, 50000, 75000, 100000,
   ];
+
+  const tci = params.total_capex * (1 + params.working_capital_fraction);
 
   return prices.map((sale_price) => {
     const flows = computeCashFlows({ ...params, sale_price });
@@ -283,7 +294,40 @@ export function computeSensitivityTable(
     const net_income = year1?.net_income ?? 0;
     const net_profit_margin = revenue > 0 ? net_income / revenue : 0;
 
-    return { sale_price, revenue, gross_profit, net_income, net_profit_margin, npv };
+    // ── New metrics ──
+    const ebitda = gross_profit; // No interest in this model; EBITDA = Revenue - OPEX
+    const ebitda_margin = revenue > 0 ? ebitda / revenue : 0;
+
+    // Gross margin excludes overhead (overhead_per_ton is optional, default 0)
+    const overhead = (params.overhead_per_ton ?? 0) * params.q_actual;
+    const direct_opex = params.annual_opex - overhead;
+    const gross_margin = revenue > 0 ? (revenue - direct_opex) / revenue : 0;
+
+    const roi = tci > 0 ? net_income / tci : 0;
+
+    const breakeven_utilization = mbsp != null && sale_price > 0 ? mbsp / sale_price : 0;
+
+    // DOL = EBITDA / EBIT; EBIT = EBITDA - avg annual depreciation (straight-line equivalent)
+    const avg_dep = params.total_capex / params.lifetime;
+    const ebit = ebitda - avg_dep;
+    const dol = ebit > 0 ? ebitda / ebit : (ebit < 0 ? -Infinity : Infinity);
+
+    const irr = computeIRR(flows);
+
+    // Simple payback: TCI / avg steady-state FCF
+    const steadyFCFs = flows
+      .filter((cf) => cf.year > 0 && cf.production_fraction >= 1)
+      .map((cf) => cf.free_cash_flow);
+    const avgFCF = steadyFCFs.length > 0
+      ? steadyFCFs.reduce((s, v) => s + v, 0) / steadyFCFs.length
+      : flows.filter((cf) => cf.year > 0).reduce((s, cf) => s + cf.free_cash_flow, 0) / (flows.length - 1);
+    const payback_simple_years = avgFCF > 0 ? tci / avgFCF : Infinity;
+
+    return {
+      sale_price, revenue, gross_profit, net_income, net_profit_margin, npv, irr,
+      payback_simple_years,
+      ebitda, ebitda_margin, gross_margin, roi, breakeven_utilization, dol,
+    };
   });
 }
 

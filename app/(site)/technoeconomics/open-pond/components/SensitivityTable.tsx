@@ -19,16 +19,19 @@ export function SensitivityTable({ result }: Props) {
             <th className="py-2 pr-4 font-medium">Sale Price ($/ton)</th>
             <th className="py-2 pr-4 font-medium text-right">Revenue</th>
             <th className="py-2 pr-4 font-medium text-right">Gross Profit</th>
-            <th className="py-2 pr-4 font-medium text-right">Net Income (Yr 1)</th>
+            <th className="py-2 pr-4 font-medium text-right">Gross Margin</th>
+            <th className="py-2 pr-4 font-medium text-right">Net Profit</th>
             <th className="py-2 pr-4 font-medium text-right">Net Margin</th>
             <th className="py-2 font-medium text-right">NPV</th>
           </tr>
         </thead>
         <tbody className="font-mono text-xs">
           {rows.map((row) => {
-            const isNearMBSP =
-              Math.abs(row.sale_price - mbsp) <=
-              Math.min(...rows.map((r) => Math.abs(r.sale_price - mbsp))) + 1;
+            // Highlight the first row whose sale price strictly exceeds the MBSP.
+            const firstAbove = rows.find((r) => r.sale_price > mbsp);
+            const isNearMBSP = firstAbove
+              ? row.sale_price === firstAbove.sale_price
+              : row.sale_price === rows[rows.length - 1].sale_price;
             return (
               <tr
                 key={row.sale_price}
@@ -53,6 +56,9 @@ export function SensitivityTable({ result }: Props) {
                   {fmtDollarsLong(row.gross_profit)}
                 </td>
                 <td className="py-1.5 pr-4 text-right">
+                  {fmtPercent(row.gross_margin)}
+                </td>
+                <td className="py-1.5 pr-4 text-right">
                   {fmtDollarsLong(row.net_income)}
                 </td>
                 <td className="py-1.5 pr-4 text-right">
@@ -73,7 +79,7 @@ export function SensitivityTable({ result }: Props) {
         </tbody>
       </table>
       <p className="mt-2 text-xs text-muted-foreground">
-        Row highlighted nearest MBSP (${mbsp.toLocaleString("en-US", { maximumFractionDigits: 0 })}/ton) — the sale price where NPV = 0.
+        Row highlighted is the first sale price above MBSP (${mbsp.toLocaleString("en-US", { maximumFractionDigits: 0 })}/ton) — the breakeven selling price.
       </p>
     </div>
   );

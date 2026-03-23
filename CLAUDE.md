@@ -17,16 +17,17 @@ AlgaeMath is a Next.js (App Router) site with interactive tools for algae cultiv
 - **Touch handling**: Add `touch-pan-y` to chart containers to prevent horizontal page scrolling when interacting with charts. Add `overflow-x-hidden` on body.
 - **SVG viewBox cropping**: For complex SVG visualizations, use separate SVGs with different viewBox crops for mobile vs desktop. Extract render functions to avoid content duplication.
 - **Breakpoints used**: `sm:` (640px) for header nav, `md:` (768px) for explorations/simulators, `lg:` (1024px) for equations grid and growth model panels.
+- **Mobile block pattern**: Pages not yet optimized for mobile use `md:hidden` / `hidden md:block` siblings in `page.tsx` to show a "not available on mobile" message instead of a broken layout. Currently applied to `/technoeconomics/open-pond`.
 
 ## Pages & Key Components
 All public pages live under `app/(site)/` (URL paths unchanged):
-- `/` — Home page with logo + 2×4 grid of page cards (row 1: active, row 2: coming soon). Max width `6xl`, cards `lg:grid-cols-4`.
+- `/` — Home page with logo + 2×4 grid of page cards. Active pages: Core Concepts, Equations, Simulators, Explorations, Techno-Economics. Cards `lg:grid-cols-4`.
 - `/core-concepts` — 7 interactive visualizers (growth rate, light, temp, nutrient, combined, attenuation, absorption)
 - `/equations` — 5 equation sections with model cards (light, temp, nutrient, pH, attenuation)
 - `/simple-simulators/open-pond` — Open pond simulator with 3D canvas, world map, growth model panels
 - `/explorations` — Design explorer with three collapsible sections: Variable Depth, Layered Light Distribution, Light-Guide Panels. Each has a 3D Three.js pond animation, 2D SVG cross-section, dimension diagram, and Recharts charts — all fully wired with simulation data.
-- `/technoeconomics` — TEA index page with reactor type cards
-- `/technoeconomics/open-pond` — Open pond TEA with interactive sliders (facility size, sale price), financial overview table + lifetime value chart, process flow diagram (static SVG with interactive section highlighting), clickable sections overview with right slide-in detail panel, cost contribution, sensitivity, cash flow schedule, left slide-in System Inputs panel
+- `/technoeconomics` — TEA index page with reactor type cards (Open Raceway Pond active; Flat Panel PBR, Tubular PBR coming soon)
+- `/technoeconomics/open-pond` — Open pond TEA with interactive sliders (facility size, sale price), financial overview table + lifetime value chart, process flow diagram (static SVG with interactive section highlighting), facility bird's-eye diagram (live SVG updated by facility size slider), clickable sections overview with right slide-in detail panel, cost contribution, sensitivity, cash flow schedule, left slide-in System Inputs panel. **Desktop only** — mobile shows a blocking message.
 - `/complex-simulators` — (coming soon) Full-system simulations with PID-controlled equipment
 - `/sensors` — (coming soon) Concepts and mathematics behind optical density sensing, PAM fluorimetry, etc.
 
@@ -38,9 +39,10 @@ Admin pages live under `app/admin/` (no SiteHeader/footer, not in nav):
 - `npm run dev -- --webpack` — Start dev server with webpack (required when working on `/admin/diagrams` — Turbopack panics on that route due to a known bug with `@xyflow/react`)
 - `npm run build` — Production build
 - `npm run lint` — ESLint
+- `npm run generate-facility` — Slice facility master diagram into per-pond-count JSON files (runs `scripts/generate-facility-diagrams.mjs`)
 
 ## Important Files
-- `components/layout/SiteHeader.tsx` — Header with inline SVG logo + mobile hamburger menu. Nav includes active + coming-soon pages.
+- `components/layout/SiteHeader.tsx` — Header with inline SVG logo + mobile hamburger menu. Nav order: Core Concepts, Equations, Simulators, Explorations, Economics, then coming-soon items.
 - `app/layout.tsx` — Root layout (html/body/fonts only — no SiteHeader)
 - `app/(site)/layout.tsx` — Public site layout (SiteHeader + footer + Analytics)
 - `app/admin/layout.tsx` — Admin layout (bare, no site chrome; loads `/xyflow-style.css` via `<link>`)
@@ -50,7 +52,12 @@ Admin pages live under `app/admin/` (no SiteHeader/footer, not in nav):
 - `public/robots.txt` — Disallows `/admin/` from search crawlers
 - `public/xyflow-style.css` — React Flow CSS served as static asset (avoids Turbopack resolution bug)
 - `public/diagrams/` — Diagram JSON files exported from the admin editor, embedded as static SVGs on public pages
+- `public/diagrams/open-raceway-pond-process-flow.json` — Process flow diagram (static import in OpenPondTEA.tsx)
+- `public/diagrams/open-raceway-pond-facility.json` — Facility master diagram (input to `generate-facility` script)
+- `public/diagrams/facility/open-raceway-pond-facility-{N}.json` — Per-pond-count slices (N = 10, 12, …, 120); fetched at runtime by FacilityView
+- `scripts/generate-facility-diagrams.mjs` — Reads facility master, partitions pond nodes vs context nodes, writes 56 slice files with embedded `fullViewBox`
 - `app/(site)/technoeconomics/open-pond/components/DiagramView.tsx` — Pure SVG renderer for diagram JSON (no React Flow dependency); auto-detects sections via geometry, interactive hover/click linking with SectionsOverviewTable and Economic Details panel
+- `app/(site)/technoeconomics/open-pond/components/FacilityView.tsx` — Pure SVG renderer for facility bird's-eye slices; crossfade transition between pond counts; word-wrapping with `<tspan>` + `<clipPath>`; uses `fullViewBox` from slice JSON for fixed scale
 
 ## Explorations Page Architecture
 
@@ -107,7 +114,7 @@ Main orchestrator with collapsible sections, state for all sliders, weather data
 - **Common**: `lib/technoeconomics/common/` — geometry, nutrient-balance, financials (NPV/IRR/MBSP/DCF), construction (batched timeline + ramp-up), constants, energy, cost-escalation, installation, equipment-options (sizing functions + catalogs), labor (dynamic scaling)
 - **Labor**: `lib/technoeconomics/common/labor.ts` — `computeLabor(nPonds, landAcres)` scales headcounts with facility size. Biomass/Harvesting: base staff + 1 operator per 10 ponds, +1 maint supervisor at 40/80. Inputs/Inoculum/Drying: no labor at 10 ponds, roles added at 20/30/40/50 thresholds. Land: min 1 grounds keeper, +1 per 20 acres.
 - **Construction model**: Fully sequential batches of up to 10 ponds; each pond = 1 week build + 4 weeks batch test. CAPEX staged per batch. Production ramps up as batches complete.
-- **Frontend**: `app/(site)/technoeconomics/open-pond/components/` — OpenPondTEA (main, 4 sliders), DiagramView, SectionDetailPanel, FinancialOverviewTable (3 MiniTables: Project Scale, Capital & Operating, Key Metrics), CostContributionTable (section % of MBSP with overhead + taxes & finance = 100%), LifetimeValueChart, SensitivityTable, SectionsOverviewTable, InputCostsPanel, InputVariablesTable (unified single labor table), formatters
+- **Frontend**: `app/(site)/technoeconomics/open-pond/components/` — OpenPondTEA (main), DiagramView, FacilityView, SectionDetailPanel, FinancialOverviewTable (3 MiniTables: Project Scale, Capital & Operating, Key Metrics), CostContributionTable (section % of MBSP with overhead + taxes & finance = 100%), LifetimeValueChart, SensitivityTable (highlights first row above MBSP), SectionsOverviewTable, InputCostsPanel, InputVariablesTable (all categories except Labor), formatters
 - **Financial Overview layout**: 3-column row — Project Scale (20%), Cost Contribution (30%), 10-Year Lifetime Value chart (50%). Cost Contribution includes all sections + Overhead + Taxes & Finance rows summing to 100% of MBSP.
 
 ## TEA Diagram-Driven Architecture
@@ -116,20 +123,27 @@ Main orchestrator with collapsible sections, state for all sliders, weather data
 - **Material sources**: `material-source` equipment type for input nodes (Source Water, CO2, Nitrogen, etc.) — computes annual procurement cost from nutrient balance. Clickable in diagram with procurement cost detail view.
 - **Filter split model**: Filters use `outputWaterContentPct` parameter instead of raw split fractions. Mass balance auto-computes volume split between slurry and filtrate based on culture concentration.
 - **Flow resolution**: Global flow rates pre-computed from config/geometry/nutrients. Edge `splitFraction` scales the base rate. Engine resolves incoming flows per-node from connected edges.
-- **Installation costs**: Prorated per equipment item proportionally to purchase cost. Multipliers scale linearly with facility size (10 ponds → high values, 100 ponds → low values, using `low`/`high` from `installation-factors.json`). Sections with `hasInstallationFactors` equipment get 3-tier installation; pond sections skip (NREL fully installed). Yard improvement removed from installation factors — now an annual maintenance cost on land.
+- **Installation costs**: Prorated per equipment item proportionally to purchase cost. Multipliers scale linearly with facility size (10 ponds → high values, 100 ponds → low values, using `low`/`high` from `installation-factors.json`). Sections with `hasInstallationFactors` equipment get 3-tier installation; pond sections are fully installed (no additional factors). Yard improvement removed from installation factors — now an annual maintenance cost on land.
 - **Land as a section**: Land is a proper section with equipment (purchase cost), maintenance (yard improvement at `land_maintenance_rate`), and labor (grounds keepers). Appears as a regular row in Sections Overview. Config: `land_maintenance_rate` (default 0.05), `labor.land`.
 
 ## TEA Slider Controls
-- 4 vertical sliders (desktop) / horizontal sliders (mobile): Density (0.20–1.00 g/L), Growth Rate (0.05–0.30 /day), Facility Size (10–100 ponds), Sale Price ($1–100/kg)
+- 4 vertical sliders (desktop) / horizontal sliders (mobile): Density (0.20–1.00 g/L), Growth Rate (0.05–0.30 /day), Facility Size (10–120 ponds, step 2), Sale Price ($1–100/kg)
 - First two are biological parameters styled in green (emerald) with "at harvest" label
 - Density + Growth Rate + Facility Size trigger full TEA recalculation via `useMemo`
 - Sale Price only affects LifetimeValueChart (no TEA re-run)
+
+## TEA Facility Bird's-Eye Diagram
+- **FacilityView.tsx**: fetches `/diagrams/facility/open-raceway-pond-facility-{N}.json` when `nPonds` changes (N clamped to [10, 120], even steps). Crossfades between slices — old SVG stays visible while new one fades in (120ms) via CSS `@keyframes facilityFadeIn`, then old is removed on `animationend`. Cancelled fetches via `cancelled` flag prevent stale updates.
+- **SVG rendering**: `renderNode()` supports pill, roundedRect, chamferedRect, diamond, triangle, rectangle. Pill shape: `rx = Math.min(w, h) / 2` (not `h/2` — prevents ellipse when height > width). Rotation encoded as swapped dimensions in editor — no SVG `rotate()` transform applied. Text wraps via `wrapWords()` (approximate char width = `fontSize × 0.58`), rendered as `<tspan>` lines. Per-node `<clipPath>` clips overflow.
+- **Fixed viewBox**: `fullViewBox` field embedded in every slice by the generation script — computed from full 120-pond extent so the view doesn't zoom as pond count changes.
+- **Generation script** (`scripts/generate-facility-diagrams.mjs`): reads `open-raceway-pond-facility.json`, partitions pond nodes (`equipmentTypeId === "raceway-pond"`, sorted by label integer) vs context nodes, generates 56 files (N = 10, 12, …, 120). Run with `npm run generate-facility` after editing the master diagram. Must have ≥120 pond nodes in master.
+- **Diagram naming**: master = `open-raceway-pond-facility` (saved from admin editor), slices = `facility/open-raceway-pond-facility-{N}.json`.
 
 ## TEA Slide-in Panel Pattern
 - Panels use `fixed` positioning with `translate-x` transitions for open/close
 - Tab attached to panel edge (overlaps border by 1px to hide seam), `writing-mode: vertical-rl`
 - Right panel (Economic Details): max `min(50vw, 640px)`, **two-level hierarchy**: Level 1 = section view (tables by category), Level 2 = equipment detail (slides in from right with back arrow to parent section). Equipment detail shows: identity + capacity/rating, CAPEX (purchase + prorated installation), OPEX with full energy calculation chain (power kW → hrs/day × days = hrs/yr → consumption/unit/day × units × days = total → unit price → cost), maintenance, unit economics ($/ton, % of MBSP). Material source rows in Materials table are also clickable. Sections separated by `divide-y-2 divide-dashed divide-gray-500`.
-- Left panel (System Inputs): max `min(30vw, 420px)`, shows TEA config parameters organized by category (growth inputs removed — now controlled by top-level sliders)
+- Left panel (System Inputs): max `min(30vw, 420px)`, shows TEA config parameters organized by category (growth inputs removed — controlled by top-level sliders; labor removed from display)
 - Backdrop (`bg-black/30`) closes panel on click; Escape key also closes
 - When right panel is open, both Process Flow diagram and Sections Overview table get `z-index: 45` and `paddingRight: min(50vw, 640px)` with transition, keeping them visible and interactive. Sections Overview hides Total CAPEX and Total OPEX columns in compact mode.
 
@@ -139,10 +153,19 @@ Main orchestrator with collapsible sections, state for all sliders, weather data
 - **Section-level interaction**: hover/click section in diagram → grey dim overlay on section contents, section label re-rendered above dim for visibility. Sections Overview table rows highlight in sync (grey `bg-gray-100/80`). Column headers in table also highlight their entire column on hover/click.
 - **Equipment-level interaction**: hover → grey dim on parent section + white-backed equipment "reveals" through dim with dark grey border; click → opens equipment detail (L2) in Economic Details panel. Equipment and material rows in all panel tables are clickable with blue hover highlight. Highlight also activates the parent section row in Sections Overview.
 - **Admin inspector panel** (`InspectorPanel.tsx`): right-side panel in diagram editor for assigning equipment types to nodes, stream types to edges, section management (rename, create new), and filter water content parameters
+- **Pill shape in SVG renderers** (`DiagramView.tsx`, `FacilityView.tsx`): use `rx = Math.min(w, h) / 2` — using `h/2` causes an ellipse when height > width
 
-## Admin Diagram Editor TEA Features
-- **Inspector panel** (256px right side): shows context-aware UI based on selection — section label (name editor), section container (matched section), equipment node (type dropdown, params, connections), edge (stream type, split fraction)
-- **Equipment type dropdown**: grouped by category (Sources, Tanks, Pumps, Filters, etc.) from `EQUIPMENT_REGISTRY`
+## Admin Diagram Editor
+- **Node types**: rectangle, roundedRect, pill, chamferedRect, diamond, triangle. Defaults defined in `nodes/index.ts`.
+- **Rotation**: 90° increment buttons (↺ / ↻) in Toolbar. Rotation is encoded by swapping `width`/`height` in React Flow state (`data.rotation` stored for reference). CSS `transform: rotate()` is NOT used — it misaligns the React Flow bounding box. For multi-select rotation, all selected nodes rotate around the group center using sin/cos.
+- **Node IDs**: `crypto.randomUUID()` — prevents ID collisions on Next.js HMR (module-level counters reset to 0 while React state persists existing nodes).
+- **Resize sync**: `handleResizeDelta` syncs both `node.width/height` and `node.style.width/height` — React Flow renders using `style` preferentially; NodeResizer updates `node` dimensions internally. Min size: 20×20 on all NodeResizers.
+- **Selection**: `selectionOnDrag`, `SelectionMode.Full`, `panOnDrag={[1, 2]}` — drag to select with left button, pan with middle/right.
+- **Toolbar**: combined "Dash" button toggles both edge dash and border dash; color pickers (Text/Fill/Border) in dropdown (one panel visible at a time); Delete removed from toolbar (keyboard Delete/Backspace still works).
+- **Pond Grid button**: generates 120 pill nodes in a 2-column grid, labeled 1–120, emerald fill/border, `equipmentTypeId: "raceway-pond"`. Used to build the facility master diagram.
+- **Node text**: `overflowWrap: break-word`, `overflow: hidden`, small padding (`px-1.5 py-1`) — text wraps within the box, no ellipsis truncation.
+- **TEA inspector panel** (256px right side): context-aware — section label (name editor), section container (matched section), equipment node (type dropdown, params, connections), edge (stream type, split fraction)
+- **Equipment type dropdown**: grouped by category from `EQUIPMENT_REGISTRY`
 - **Connections section**: inputs shown read-only (derived from upstream); outputs restricted to equipment's defined output streams; auto-assignment on equipment type change
 - **Filter water content**: for filter nodes with multiple outputs, user enters output slurry water content %; system auto-computes volume split fractions via mass balance
 - **Section management**: "New Section" button creates container rectangle + label node; section labels editable to rename sections
