@@ -126,7 +126,7 @@ function renderNode(node: DiagramNode) {
   const { x, y } = node.position;
   const w = node.width;
   const h = node.height;
-  const { fillColor, borderColor, borderDashed, label, textAlign, textColor, fontBold, fontItalic } = node.data;
+  const { fillColor, borderColor, borderDashed, label, textAlign, textColor, fontBold, fontItalic, rotation } = node.data as typeof node.data & { rotation?: number };
 
   const fill = fillColor || "#ffffff";
   const stroke = borderColor === "none" || !borderColor ? "none" : borderColor;
@@ -144,12 +144,24 @@ function renderNode(node: DiagramNode) {
     case "roundedRect":
       shape = <rect x={x} y={y} width={w} height={h} rx={8} ry={8} fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={dashArray} />;
       break;
-    case "pill":
-      shape = <rect x={x} y={y} width={w} height={h} rx={h / 2} ry={h / 2} fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={dashArray} />;
+    case "pill": {
+      const r = Math.min(w, h) / 2;
+      shape = <rect x={x} y={y} width={w} height={h} rx={r} ry={r} fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={dashArray} />;
       break;
+    }
     case "chamferedRect": {
       const c = Math.min(10, w / 4, h / 4);
       const pts = `${x+c},${y} ${x+w-c},${y} ${x+w},${y+c} ${x+w},${y+h-c} ${x+w-c},${y+h} ${x+c},${y+h} ${x},${y+h-c} ${x},${y+c}`;
+      shape = <polygon points={pts} fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={dashArray} />;
+      break;
+    }
+    case "diamond": {
+      const pts = `${x+w/2},${y} ${x+w},${y+h/2} ${x+w/2},${y+h} ${x},${y+h/2}`;
+      shape = <polygon points={pts} fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={dashArray} />;
+      break;
+    }
+    case "triangle": {
+      const pts = `${x+w/2},${y} ${x+w},${y+h} ${x},${y+h}`;
       shape = <polygon points={pts} fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={dashArray} />;
       break;
     }
@@ -157,8 +169,9 @@ function renderNode(node: DiagramNode) {
       shape = <rect x={x} y={y} width={w} height={h} fill={fill} stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={dashArray} />;
   }
 
+  const cx = x + w / 2, cy = y + h / 2;
   return (
-    <g key={node.id}>
+    <g key={node.id} transform={rotation ? `rotate(${rotation} ${cx} ${cy})` : undefined}>
       {shape}
       {label && (
         <text

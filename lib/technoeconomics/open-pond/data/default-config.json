@@ -11,7 +11,7 @@
     "desired_output_tons_yr": { "value": 800, "min": 10, "max": 5000, "units": "tons BM/yr", "notes": "Controls overall system size" },
     "active_days_yr": { "value": 330, "min": 200, "max": 365, "units": "days/yr", "notes": "Operating days per year" },
     "pond_size_acres": { "value": 1.0, "min": 0.5, "max": 10, "units": "acres", "notes": "Individual pond area" },
-    "pond_depth_m": { "value": 0.12, "min": 0.10, "max": 0.35, "units": "m", "notes": "Culture depth" },
+    "pond_depth_m": { "value": 0.20, "min": 0.10, "max": 0.35, "units": "m", "notes": "Culture depth" },
     "pond_lw_ratio": { "value": 10, "min": 5, "max": 20, "units": "-", "notes": "Length-to-width ratio" },
     "pond_spacing_col_m": { "value": 2.6, "min": 1.5, "max": 5.0, "units": "m", "notes": "Between pond columns" },
     "pond_spacing_row_m": { "value": 1.85, "min": 1.5, "max": 5.0, "units": "m", "notes": "Between pond rows" },
@@ -24,8 +24,8 @@
   },
 
   "unit_costs": {
-    "electricity_per_kWh": { "value": 0.4024, "units": "$/kWh", "notes": "Hawaii 2022 commercial rate" },
-    "natural_gas_per_cuft": { "value": 0.03367, "units": "$/cuft", "notes": "Hawaii 2022/2023 industrial" },
+    "electricity_per_kWh": { "value": 0.4024, "units": "$/kWh", "notes": "Commercial rate estimate" },
+    "natural_gas_per_cuft": { "value": 0.03367, "units": "$/cuft", "notes": "Industrial rate estimate" },
     "diesel_per_L": { "value": 1.60, "units": "$/L", "notes": "May 2022" },
     "co2_per_ton": { "value": 375, "units": "$/ton", "notes": "DAC-sourced estimate" },
     "kno3_per_ton": { "value": 600, "units": "$/ton", "notes": "Volatile commodity, rough estimate" },
@@ -44,9 +44,9 @@
 
   "financial_inputs": {
     "federal_tax_rate": { "value": 0.25, "notes": "US 2023" },
-    "state_tax_rate": { "value": 0.064, "notes": "Hawaii 2023" },
+    "state_tax_rate": { "value": 0.064, "notes": "State income tax rate" },
     "discount_rate": { "value": 0.10, "min": 0.05, "max": 0.20, "notes": "For NPV/DCF" },
-    "depreciation_method": { "value": "MACRS-7", "options": ["MACRS-7", "straight-line"], "notes": "7-year MACRS default" },
+    "depreciation_method": { "value": "MACRS-15", "options": ["MACRS-7", "MACRS-15", "straight-line"], "notes": "15-year MACRS for pond infrastructure" },
     "working_capital_fraction": { "value": 0.05, "min": 0.03, "max": 0.10, "notes": "Fraction of CAPEX" },
     "salvage_value_fraction": { "value": 0.0, "min": 0.0, "max": 0.10, "notes": "End-of-life value as fraction of CAPEX" }
   },

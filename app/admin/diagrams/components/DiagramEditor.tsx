@@ -7,6 +7,7 @@ import {
   MiniMap,
   ConnectionMode,
   MarkerType,
+  SelectionMode,
   useNodesState,
   useEdgesState,
   useReactFlow,
@@ -25,13 +26,8 @@ const SNAP = 10;
 const MAX_HISTORY = 10;
 const snapTo = (v: number) => Math.round(v / SNAP) * SNAP;
 
-let idCounter = 0;
-function nextId() {
-  return `node-${++idCounter}`;
-}
-function nextEdgeId() {
-  return `edge-${++idCounter}`;
-}
+const nextId = () => crypto.randomUUID();
+const nextEdgeId = () => crypto.randomUUID();
 
 const EDGE_STROKE = "#374151";
 const EDGE_MARKER_BASE = { type: MarkerType.ArrowClosed, width: 18, height: 10, color: EDGE_STROKE };
@@ -131,14 +127,19 @@ function DiagramEditorInner() {
     resizeStartRef.current = map;
   }, [snapshot]);
 
-  const handleResizeDelta = useCallback((nodeId: string, dw: number, dh: number) => {
+  const handleResizeDelta = useCallback((nodeId: string, dw: number, dh: number, primaryW: number, primaryH: number) => {
     setNodes((nds) =>
       nds.map((n) => {
-        if (n.id === nodeId || !n.selected) return n;
+        if (n.id === nodeId) {
+          // Sync style.width/height for the primary node — React Flow updates node.width/height
+          // internally via onNodesChange but style.width/height takes rendering precedence.
+          return { ...n, style: { ...n.style, width: primaryW, height: primaryH }, width: primaryW, height: primaryH };
+        }
+        if (!n.selected) return n;
         const initial = resizeStartRef.current.get(n.id);
         if (!initial) return n;
-        const newW = Math.max(80, snapTo(initial.w + dw));
-        const newH = Math.max(40, snapTo(initial.h + dh));
+        const newW = Math.max(20, snapTo(initial.w + dw));
+        const newH = Math.max(20, snapTo(initial.h + dh));
         return { ...n, style: { ...n.style, width: newW, height: newH }, width: newW, height: newH };
       })
     );
@@ -286,6 +287,97 @@ function DiagramEditorInner() {
     },
     [snapshot, fillColor, borderColor, textAlign, textColor, screenToFlowPosition, setNodes]
   );
+
+  const handleGeneratePondGrid = useCallback(() => {
+    snapshot();
+    const PILL_W = 200, PILL_H = 40;
+    const COL_GAP = 20, ROW_GAP = 15;
+    const COLS = 2;
+    const newNodes: Node<ShapeNodeData>[] = [];
+    for (let i = 0; i < 100; i++) {
+      const col = i % COLS;
+      const row = Math.floor(i / COLS);
+      const x = col * (PILL_W + COL_GAP);
+      const y = row * (PILL_H + ROW_GAP);
+      newNodes.push({
+        id: nextId(),
+        type: "pill",
+        position: { x, y },
+        data: {
+          label: String(i + 1),
+          fillColor: "#d1fae5",
+          borderColor: "#059669",
+          textAlign: "center",
+          textColor: "#111827",
+          equipmentTypeId: "raceway-pond",
+        },
+        style: { width: PILL_W, height: PILL_H },
+        width: PILL_W,
+        height: PILL_H,
+      });
+    }
+    setNodes((nds) => [...nds, ...newNodes]);
+  }, [snapshot, setNodes]);
+
+  const handleRotate = useCallback((delta: 90 | -90) => {
+    snapshot();
+    setNodes((nds) => {
+      const selected = nds.filter((n) => n.selected);
+      if (selected.length === 0) return nds;
+
+      // Compute group bounding box center for multi-select group rotation
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (const n of selected) {
+        const w = n.width ?? (typeof n.style?.width === "number" ? n.style.width : 180);
+        const h = n.height ?? (typeof n.style?.height === "number" ? n.style.height : 60);
+        minX = Math.min(minX, n.position.x);
+        minY = Math.min(minY, n.position.y);
+        maxX = Math.max(maxX, n.position.x + w);
+        maxY = Math.max(maxY, n.position.y + h);
+      }
+      const groupCx = (minX + maxX) / 2;
+      const groupCy = (minY + maxY) / 2;
+
+      return nds.map((n) => {
+        if (!n.selected) return n;
+
+        const w = n.width ?? (typeof n.style?.width === "number" ? n.style.width : 180);
+        const h = n.height ?? (typeof n.style?.height === "number" ? n.style.height : 60);
+
+        // Swap width/height when crossing between horizontal (0°/180°) and vertical (90°/270°)
+        const current = (n.data.rotation as number) || 0;
+        const next = ((current + delta) % 360 + 360) % 360;
+        const wasVertical = current === 90 || current === 270;
+        const willBeVertical = next === 90 || next === 270;
+        const shouldSwap = wasVertical !== willBeVertical;
+        const newW = shouldSwap ? h : w;
+        const newH = shouldSwap ? w : h;
+
+        // Rotate this node's center around the group center
+        const nodeCx = n.position.x + w / 2;
+        const nodeCy = n.position.y + h / 2;
+        const dx = nodeCx - groupCx;
+        const dy = nodeCy - groupCy;
+        const rad = (delta * Math.PI) / 180;
+        const cos = Math.round(Math.cos(rad)); // ±1 or 0 for 90° increments
+        const sin = Math.round(Math.sin(rad));
+        const rotatedCx = groupCx + dx * cos - dy * sin;
+        const rotatedCy = groupCy + dx * sin + dy * cos;
+
+        const newX = snapTo(rotatedCx - newW / 2);
+        const newY = snapTo(rotatedCy - newH / 2);
+
+        return {
+          ...n,
+          position: { x: newX, y: newY },
+          data: { ...n.data, rotation: next },
+          width: newW,
+          height: newH,
+          style: { ...n.style, width: newW, height: newH },
+        };
+      });
+    });
+  }, [snapshot, setNodes]);
 
   const handleAddSection = useCallback(() => {
     snapshot();
@@ -445,7 +537,6 @@ function DiagramEditorInner() {
       setDiagramName(name);
       setNodes([]);
       setEdges([]);
-      idCounter = 0;
     }
   }, [setNodes, setEdges]);
 
@@ -518,14 +609,6 @@ function DiagramEditorInner() {
               data: e.data,
             }))
           );
-          // Reset counter past any loaded IDs
-          const maxNum = [...(parsed.nodes || []), ...(parsed.edges || [])]
-            .map((item: { id: string }) => {
-              const m = item.id.match(/\d+/);
-              return m ? parseInt(m[0], 10) : 0;
-            })
-            .reduce((a: number, b: number) => Math.max(a, b), 0);
-          idCounter = maxNum;
           historyRef.current = [];
           futureRef.current = [];
           setCanUndo(false);
@@ -595,6 +678,8 @@ function DiagramEditorInner() {
         onBorderDashedChange={handleBorderDashedChange}
         onMoveToBack={handleMoveToBack}
         onMoveToFront={handleMoveToFront}
+        onRotate={handleRotate}
+        onGeneratePondGrid={handleGeneratePondGrid}
       />
       <div style={{ display: "flex", width: "100%", height: "calc(100vh - 49px)" }}>
         <div style={{ flex: 1 }}>
@@ -616,6 +701,9 @@ function DiagramEditorInner() {
             snapGrid={[SNAP, SNAP]}
             fitView
             deleteKeyCode={null}
+            selectionOnDrag
+            selectionMode={SelectionMode.Full}
+            panOnDrag={[1, 2]}
           >
             <Background gap={SNAP} />
             <MiniMap

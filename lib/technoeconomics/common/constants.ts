@@ -27,6 +27,15 @@ export const MACRS_7 = [
   0.1429, 0.2449, 0.1749, 0.1249, 0.0893, 0.0892, 0.0893, 0.0446,
 ];
 
+// ── MACRS 15-Year Depreciation Schedule ────────────────────────
+// 150% declining balance with half-year convention (IRS Rev. Proc. 87-57)
+// 16 values (years 1–16) due to half-year convention
+
+export const MACRS_15 = [
+  0.0500, 0.0950, 0.0855, 0.0770, 0.0693, 0.0623, 0.0590, 0.0590,
+  0.0591, 0.0590, 0.0591, 0.0590, 0.0591, 0.0590, 0.0591, 0.0295,
+];
+
 // ── Spray Dryer Constants ──────────────────────────────────────
 
 export const HEAT_REQUIRED_MJ_PER_TON_WATER = 2260;

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import DiagramEditor from "./components/DiagramEditor";
+import dynamic from "next/dynamic";
+
+const DiagramEditor = dynamic(() => import("./components/DiagramEditor"), { ssr: false });
 
 const MAX_ATTEMPTS = 5;
 const COOLDOWN_SECONDS = 30;

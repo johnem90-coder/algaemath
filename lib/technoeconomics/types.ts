@@ -40,7 +40,7 @@ export interface TEAConfig {
   federal_tax_rate: number;
   state_tax_rate: number;
   discount_rate: number;
-  depreciation_method: "MACRS-7" | "straight-line";
+  depreciation_method: "MACRS-7" | "MACRS-15" | "straight-line";
   working_capital_fraction: number;
   salvage_value_fraction: number;
 
@@ -287,6 +287,14 @@ export interface SensitivityRow {
   net_income: number;
   net_profit_margin: number;
   npv: number;
+  irr: number;
+  payback_simple_years: number;
+  ebitda: number;
+  ebitda_margin: number;
+  gross_margin: number;
+  roi: number;
+  breakeven_utilization: number;
+  dol: number;
 }
 
 export interface MBSPBreakdown {
@@ -312,6 +320,7 @@ export interface FinancialAnalysis {
   irr: number; // fraction (rate where NPV=0)
   payback_simple_years: number;
   payback_discounted_years: number;
+  capital_intensity: number; // $/[ton/yr] — total CAPEX per unit of annual production capacity
 
   // Configuration used
   discount_rate: number;

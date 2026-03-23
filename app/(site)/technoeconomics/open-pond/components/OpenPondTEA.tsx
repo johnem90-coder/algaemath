@@ -14,7 +14,8 @@ import { SectionDetailPanel, type PanelSelection } from "./SectionDetailPanel";
 import { InputCostsPanel } from "./InputCostsPanel";
 import { DiagramView } from "./DiagramView";
 // EquipmentDetailPopup removed — equipment detail now shown in SectionDetailPanel
-import diagramData from "../../../../../public/diagrams/open-raceway-pond_simple.json";
+import diagramData from "../../../../../public/diagrams/open-raceway-pond-process-flow.json";
+import FacilityView from "./FacilityView";
 
 // ── Back-calculate desired_output_tons_yr from a target n_ponds ────
 // Inverts geometry.ts: n_ponds = ceil(V_required / V_pond), grid = n_rows × 2
@@ -73,6 +74,10 @@ export default function OpenPondTEA() {
     return hasOverrides ? runTEA(overrides) : runTEA();
   }, [nPonds, density, growthRate]);
 
+  // Max productivity possible at the top of both biological sliders (density=1.0, growthRate=0.30)
+  // Productivity ∝ density × growthRate, so scale from current result
+  const maxProductivity = result.system_productivity_g_m2_day * (1.0 / density) * (0.30 / growthRate);
+
   // Initialize sale price to MBSP/1000 on first result
   const initialMbspPerKg = useMemo(() => Math.round(result.financials.mbsp / 1000), []);
 
@@ -95,7 +100,7 @@ export default function OpenPondTEA() {
   // Clamp slider value to valid range and ensure step of 2
   const handlePondChange = useCallback((value: number[]) => {
     const v = Math.round(value[0] / 2) * 2;
-    setNPonds(Math.max(10, Math.min(100, v)));
+    setNPonds(Math.max(10, Math.min(120, v)));
   }, []);
 
   const handleHoverSection = useCallback((sectionId: string | null) => {
@@ -166,6 +171,21 @@ export default function OpenPondTEA() {
                 className="[&_[role=slider]]:bg-emerald-600 [&_[data-orientation=horizontal]>span:first-child>span]:bg-emerald-500"
               />
             </div>
+            {/* Productivity output (read-only) */}
+            <div className="mt-1 -mx-3 -mb-3 px-3 py-2 rounded-b-lg bg-emerald-200/40 opacity-70 pointer-events-none">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-emerald-800">Productivity <span className="text-emerald-600 font-normal">(output)</span></span>
+                <span className="text-xs font-mono font-semibold text-emerald-900">{result.system_productivity_g_m2_day.toFixed(1)} g/m²/day</span>
+              </div>
+              <Slider
+                value={[Math.min(maxProductivity, Math.max(0, result.system_productivity_g_m2_day))]}
+                min={0}
+                max={maxProductivity}
+                step={0.1}
+                disabled
+                className="[&_[role=slider]]:bg-emerald-600 [&_[data-orientation=horizontal]>span:first-child>span]:bg-emerald-500"
+              />
+            </div>
           </div>
           {/* System sliders */}
           <div>
@@ -177,7 +197,7 @@ export default function OpenPondTEA() {
               value={[nPonds]}
               onValueChange={handlePondChange}
               min={10}
-              max={100}
+              max={120}
               step={2}
             />
           </div>
@@ -202,23 +222,6 @@ export default function OpenPondTEA() {
           <div className="flex gap-6 shrink-0">
             {/* ── Biological sliders (green) ── */}
             <div className="flex gap-4 rounded-lg border border-emerald-200 bg-emerald-50/40 px-3 pt-1 pb-2">
-              {/* Density at harvest */}
-              <div className="flex flex-col items-center gap-2">
-                <span className="text-[11px] font-medium text-emerald-800 whitespace-nowrap">
-                  Density
-                </span>
-                <Slider
-                  orientation="vertical"
-                  value={[density]}
-                  onValueChange={(v) => setDensity(Math.round(v[0] * 20) / 20)}
-                  min={0.2}
-                  max={1.0}
-                  step={0.05}
-                  className="h-48 [&_[role=slider]]:bg-emerald-600 [&_[data-orientation=vertical]>span:first-child>span]:bg-emerald-500"
-                />
-                <span className="text-[10px] font-mono font-semibold text-emerald-900">{density.toFixed(2)} g/L</span>
-              </div>
-
               {/* Growth rate at harvest */}
               <div className="flex flex-col items-center gap-2">
                 <span className="text-[11px] font-medium text-emerald-800 whitespace-nowrap">
@@ -236,17 +239,56 @@ export default function OpenPondTEA() {
                 <span className="text-[10px] font-mono font-semibold text-emerald-900">{growthRate.toFixed(2)} /day</span>
               </div>
 
+              {/* Density at harvest */}
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-[11px] font-medium text-emerald-800 whitespace-nowrap">
+                  Density
+                </span>
+                <Slider
+                  orientation="vertical"
+                  value={[density]}
+                  onValueChange={(v) => setDensity(Math.round(v[0] * 20) / 20)}
+                  min={0.2}
+                  max={1.0}
+                  step={0.05}
+                  className="h-48 [&_[role=slider]]:bg-emerald-600 [&_[data-orientation=vertical]>span:first-child>span]:bg-emerald-500"
+                />
+                <span className="text-[10px] font-mono font-semibold text-emerald-900">{density.toFixed(2)} g/L</span>
+              </div>
+
               {/* "at harvest" label */}
               <div className="flex items-end pb-1">
                 <span className="text-[9px] text-emerald-600 font-medium" style={{ writingMode: "vertical-rl" }}>
                   at harvest
                 </span>
               </div>
+
+              {/* Divider */}
+              <div className="w-px self-stretch -mt-1 -mb-2 bg-emerald-200" />
+
+              {/* Productivity output (read-only) */}
+              <div className="flex flex-col items-center gap-2 opacity-70 pointer-events-none bg-emerald-200/40 self-stretch -ml-4 -mr-3 -mt-1 -mb-2 pl-3 pr-3 pt-1 pb-2 rounded-r-lg w-[100px] shrink-0">
+                <span className="text-[11px] font-medium text-emerald-800 whitespace-nowrap">
+                  Productivity
+                </span>
+                <Slider
+                  orientation="vertical"
+                  value={[Math.min(maxProductivity, Math.max(0, result.system_productivity_g_m2_day))]}
+                  min={0}
+                  max={maxProductivity}
+                  step={0.1}
+                  disabled
+                  className="h-48 [&_[role=slider]]:bg-emerald-600 [&_[data-orientation=vertical]>span:first-child>span]:bg-emerald-500"
+                />
+                <span className="text-[10px] font-mono font-semibold text-emerald-900 whitespace-nowrap">
+                  {result.system_productivity_g_m2_day.toFixed(1)} g/m²/day
+                </span>
+              </div>
             </div>
 
             {/* ── System sliders ── */}
             {/* Facility size slider */}
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-2 w-[72px] shrink-0">
               <span className="text-[11px] font-medium text-muted-foreground whitespace-nowrap">
                 Facility Size
               </span>
@@ -255,15 +297,15 @@ export default function OpenPondTEA() {
                 value={[nPonds]}
                 onValueChange={handlePondChange}
                 min={10}
-                max={100}
+                max={120}
                 step={2}
                 className="h-52"
               />
-              <span className="text-xs font-mono font-semibold">{nPonds} ponds</span>
+              <span className="text-xs font-mono font-semibold w-full text-center">{nPonds} ponds</span>
             </div>
 
             {/* Sale price slider */}
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-2 w-[72px] shrink-0">
               <span className="text-[11px] font-medium text-muted-foreground whitespace-nowrap">
                 Sale Price
               </span>
@@ -276,25 +318,19 @@ export default function OpenPondTEA() {
                 step={1}
                 className="h-52"
               />
-              <span className="text-xs font-mono font-semibold">${effectiveSalePrice}/kg</span>
+              <span className="text-xs font-mono font-semibold w-full text-center">${effectiveSalePrice}/kg</span>
             </div>
           </div>
 
-          {/* Facility animation placeholder */}
-          <div className="flex-1 rounded-xl border border-dashed flex items-center justify-center text-muted-foreground">
-            <div className="text-center">
-              <p className="text-sm font-medium">Facility Animation</p>
-              <p className="text-xs mt-1">Coming Soon</p>
-            </div>
+          {/* Facility bird's-eye diagram */}
+          <div className="flex-1 rounded-xl overflow-hidden">
+            <FacilityView nPonds={result.n_ponds} />
           </div>
         </div>
 
-        {/* Mobile animation placeholder */}
-        <div className="md:hidden rounded-xl border border-dashed flex items-center justify-center text-muted-foreground" style={{ height: 200 }}>
-          <div className="text-center">
-            <p className="text-sm font-medium">Facility Animation</p>
-            <p className="text-xs mt-1">Coming Soon</p>
-          </div>
+        {/* Mobile facility bird's-eye diagram */}
+        <div className="md:hidden rounded-xl overflow-hidden" style={{ height: 220 }}>
+          <FacilityView nPonds={result.n_ponds} />
         </div>
       </section>
 
@@ -305,7 +341,7 @@ export default function OpenPondTEA() {
         </h2>
         <div className="flex flex-col lg:flex-row gap-4 items-stretch">
           <div className="lg:w-[20%] shrink-0">
-            <FinancialOverviewTable result={result} />
+            <FinancialOverviewTable result={result} salePricePerKg={effectiveSalePrice} />
           </div>
           <div className="lg:w-[30%] shrink-0">
             <CostContributionTable result={result} />

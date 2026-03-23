@@ -30,10 +30,10 @@ function RoundedRectNode({ id, data, selected }: NodeProps<Node<ShapeNodeData>>)
     <>
       <NodeResizer
         isVisible={!!selected}
-        minWidth={80}
-        minHeight={40}
+        minWidth={20}
+        minHeight={20}
         onResizeStart={(_, p) => { rsW.current = p.width; rsH.current = p.height; onResizeStart(id, p.width, p.height); }}
-        onResize={(_, p) => onResizeDelta(id, p.width - rsW.current, p.height - rsH.current)}
+        onResize={(_, p) => onResizeDelta(id, p.width - rsW.current, p.height - rsH.current, p.width, p.height)}
       />
       <Handle type="source" position={Position.Top} id="top" />
       <Handle type="source" position={Position.Right} id="right" />
@@ -41,7 +41,7 @@ function RoundedRectNode({ id, data, selected }: NodeProps<Node<ShapeNodeData>>)
       <Handle type="source" position={Position.Left} id="left" />
       <div
         onDoubleClick={() => setEditing(true)}
-        className="flex h-full w-full items-center rounded-lg px-3 py-2 text-sm shadow-sm"
+        className="flex h-full w-full items-center rounded-lg text-sm shadow-sm overflow-hidden px-1.5 py-1"
         style={{
           backgroundColor: data.fillColor || "#ffffff",
           borderColor: data.borderColor === "none" ? "transparent" : (data.borderColor || "#6b7280"),
@@ -61,7 +61,7 @@ function RoundedRectNode({ id, data, selected }: NodeProps<Node<ShapeNodeData>>)
             style={{ textAlign: data.textAlign || "center", color: data.textColor, fontWeight: data.fontBold ? "bold" : undefined, fontStyle: data.fontItalic ? "italic" : undefined }}
           />
         ) : (
-          <span className="select-none" style={{ textAlign: data.textAlign || "center", width: "100%", color: data.textColor, fontWeight: data.fontBold ? "bold" : undefined, fontStyle: data.fontItalic ? "italic" : undefined }}>{label}</span>
+          <span className="select-none" style={{ textAlign: data.textAlign || "center", width: "100%", color: data.textColor, fontWeight: data.fontBold ? "bold" : undefined, fontStyle: data.fontItalic ? "italic" : undefined, overflowWrap: "break-word", minWidth: 0 }}>{label}</span>
         )}
       </div>
     </>

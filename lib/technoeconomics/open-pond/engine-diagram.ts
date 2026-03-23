@@ -323,6 +323,7 @@ export function runTEAFromDiagram(
     salvage_value_fraction: config.salvage_value_fraction,
     construction,
     n_ponds: geometry.n_ponds,
+    overhead_per_ton: config.overhead_per_ton,
   };
 
   const mbsp = computeMBSP(financialParams);
@@ -340,7 +341,9 @@ export function runTEAFromDiagram(
   const payback_simple = computePaybackSimple(tci, avg_annual_fcf);
   const payback_discounted = computePaybackDiscounted(cash_flows);
 
-  const sensitivity = computeSensitivityTable(financialParams);
+  const capital_intensity = total_capex_with_land / geometry.Q_actual_tons_yr;
+
+  const sensitivity = computeSensitivityTable(financialParams, undefined, mbsp);
   const mbsp_by_section = computeMBSPBreakdown(sections, geometry.Q_actual_tons_yr, config.unit_lifetime_yrs, mbsp);
   const mbsp_by_category = computeMBSPCategoryBreakdown(
     total_capex_with_land, aoc, config.overhead_per_ton,
@@ -373,6 +376,7 @@ export function runTEAFromDiagram(
       mbsp, npv, irr,
       payback_simple_years: payback_simple,
       payback_discounted_years: payback_discounted,
+      capital_intensity,
       discount_rate: config.discount_rate,
       tax_rate,
       depreciation_method: config.depreciation_method,
